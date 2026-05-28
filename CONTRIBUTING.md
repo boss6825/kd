@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping improve Mike. Please keep contributions small, focused, and easy to review.
+Thanks for helping improve KD. Please keep contributions small, focused, and easy to review.
 
 ## Guidelines
 
@@ -22,7 +22,7 @@ Thanks for helping improve Mike. Please keep contributions small, focused, and e
 
 ## Security
 
-Do not open a public issue for security vulnerabilities. Use [GitHub's private vulnerability reporting](https://github.com/willchen96/mike/security/advisories/new) instead.
+Do not open a public issue for security vulnerabilities. Use [GitHub's private vulnerability reporting](https://github.com/willchen96/KD/security/advisories/new) instead.
 
 We will aim to respond promptly and coordinate a disclosure timeline with you.
 

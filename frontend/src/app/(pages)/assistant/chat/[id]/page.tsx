@@ -19,6 +19,11 @@ export default function AssistantChatPage() {
     const { messages, isResponseLoading, handleChat, setMessages, cancel } =
         useAssistantChat({ initialMessages, chatId: id });
 
+    const pendingInitialMessage = useRef(
+        initialMessages.length === 1 && initialMessages[0].role === "user"
+            ? initialMessages[0]
+            : null,
+    );
     const hasAutoSent = useRef(false);
     const hasLoaded = useRef(false);
 
@@ -27,10 +32,7 @@ export default function AssistantChatPage() {
     }, [id, setCurrentChatId]);
 
     useEffect(() => {
-        if (initialMessages.length > 0) {
-            if (newChatMessages) setNewChatMessages(null);
-            return;
-        }
+        if (pendingInitialMessage.current || initialMessages.length > 0) return;
         if (hasLoaded.current || messages.length > 0) return;
         hasLoaded.current = true;
 
@@ -46,18 +48,19 @@ export default function AssistantChatPage() {
     }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
+        const pending = pendingInitialMessage.current;
         if (
-            newChatMessages &&
-            newChatMessages.length === 1 &&
-            newChatMessages[0].role === "user" &&
+            pending &&
             !hasAutoSent.current &&
             !isResponseLoading &&
             messages.length === 1
         ) {
             hasAutoSent.current = true;
-            void handleChat(newChatMessages[0]);
+            pendingInitialMessage.current = null;
+            if (newChatMessages) setNewChatMessages(null);
+            void handleChat(pending);
         }
-    }, [newChatMessages, messages.length, isResponseLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [messages.length, isResponseLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <ChatView

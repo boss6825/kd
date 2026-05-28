@@ -24,6 +24,15 @@ import {
     type LlmMessage,
     type OpenAIToolSchema,
 } from "./llm";
+import {
+    ikSearch,
+    ikGetDoc,
+    ikGetDocMeta,
+    resolveIndianKanoonToken,
+    stripHtml,
+    IndianKanoonError,
+} from "./indianKanoon";
+import { getUserIndianKanoonToken } from "./userApiKeys";
 
 const STANDARD_FONT_DATA_URL = (() => {
     try {
@@ -132,6 +141,13 @@ When a user message begins with a [Workflow: <title> (id: <id>)] marker, the use
 
 DOCUMENT NAMING IN PROSE:
 The chat-local labels ("doc-0", "doc-1", "doc-N", …) are internal handles for tool calls and citation JSON ONLY. NEVER write them in your prose response or in any text the user reads — not in body text, not in headings, not in lists, not in tool-activity descriptions. The user does not know what "doc-0" means and seeing it is jarring. When referring to a document in prose, always use its filename (e.g. "the NDA draft" or "nda_v1.docx"). This rule applies to every word streamed back to the user; the only places "doc-N" identifiers are allowed are inside tool-call arguments and inside the <CITATIONS> JSON block's "doc_id" field.
+
+CASE LAW RESEARCH (Indian Kanoon):
+When the user asks about Indian precedents, similar past cases, or how courts have decided issues like theirs, use the case-law tools:
+1. First identify the legal issues and case type from any attached documents (read_document) or the user's description — the matter type (contract dispute, criminal, family, IP, tax, etc.), the statute(s) at play, and the key legal questions.
+2. Call search_case_law with a focused query built from those issues. Prefer the precise legal phrase or statute section (e.g. "Section 138 Negotiable Instruments Act", "specific performance immovable property") over broad terms. Use the doctypes filter (e.g. 'supremecourt' or 'highcourts') when the user wants binding precedent. Use fromdate/todate when recency matters.
+3. From the results, pick the most on-point judgments and call read_judgment to get the full text. Extract the holding/ratio and the court's reasoning. If a judgment is very long, focus on the issues, findings, and operative paragraphs.
+4. In your answer, summarise what previous courts decided on similar facts and explain how it applies (or distinguishes) to the user's case. Cite each judgment by case name with the Indian Kanoon source_url returned by the tool. Do not invent judgments or citations — only cite cases returned by the tools.
 
 GENERAL GUIDANCE:
 - Be precise and professional
@@ -445,6 +461,91 @@ export const TOOLS = [
                     },
                 },
                 required: ["doc_id", "edits"],
+            },
+        },
+    },
+    {
+        type: "function",
+        function: {
+            name: "search_case_law",
+            description:
+                "Search Indian case law and statutes via the Indian Kanoon API for precedents relevant to the current matter. Use this AFTER you have identified the legal issues / case type from the attached documents (e.g. via read_document). Returns a list of matching judgments — each with a judgment_id, title, court (docsource), publish date, and a short headline snippet. Use the judgment_id with read_judgment to fetch the full text of a specific judgment. Prefer narrow, well-formed queries (legal phrases, statute sections, or case names) over generic terms.",
+            parameters: {
+                type: "object",
+                properties: {
+                    query: {
+                        type: "string",
+                        description:
+                            "The search query. Supports phrases in quotes (e.g. '\"specific performance\"'), and the operators ANDD, ORR, NOTT between terms. You can also embed filters: 'doctypes: supremecourt', 'title: kesavananda', 'cite: 1993 AIR', 'author: arijit pasayat', 'bench: arijit pasayat'.",
+                    },
+                    doctypes: {
+                        type: "string",
+                        description:
+                            "Optional comma-separated court/tribunal filter. Examples: 'supremecourt', 'delhi', 'bombay', 'highcourts', 'tribunals', 'judgments', 'laws'. Omit to search everything.",
+                    },
+                    fromdate: {
+                        type: "string",
+                        description:
+                            "Earliest publish date in DD-MM-YYYY format. Use when the user asks for recent precedents or a specific period.",
+                    },
+                    todate: {
+                        type: "string",
+                        description: "Latest publish date in DD-MM-YYYY format.",
+                    },
+                    pagenum: {
+                        type: "integer",
+                        description:
+                            "Zero-based result page (default 0). Increment for more results.",
+                    },
+                },
+                required: ["query"],
+            },
+        },
+    },
+    {
+        type: "function",
+        function: {
+            name: "read_judgment",
+            description:
+                "Fetch the full text and key metadata of a single judgment from Indian Kanoon by its judgment_id (returned as `tid` by search_case_law). Use this to extract the court's reasoning, holding, and ratio decidendi when you need to cite or compare a precedent to the user's case. The response also includes lists of citations the judgment makes and cases that cite it.",
+            parameters: {
+                type: "object",
+                properties: {
+                    judgment_id: {
+                        type: "integer",
+                        description:
+                            "The Indian Kanoon document ID (the `tid` from a search result).",
+                    },
+                    max_cites: {
+                        type: "integer",
+                        description:
+                            "Maximum number of cited cases to return (default 10, max 50).",
+                    },
+                    max_citedby: {
+                        type: "integer",
+                        description:
+                            "Maximum number of citing cases to return (default 10, max 50).",
+                    },
+                },
+                required: ["judgment_id"],
+            },
+        },
+    },
+    {
+        type: "function",
+        function: {
+            name: "get_judgment_meta",
+            description:
+                "Fetch metadata only (title, court, publish date, citation counts) for an Indian Kanoon judgment by id. Cheaper than read_judgment when you just need to verify a citation or display a reference without the full text.",
+            parameters: {
+                type: "object",
+                properties: {
+                    judgment_id: {
+                        type: "integer",
+                        description: "The Indian Kanoon document ID.",
+                    },
+                },
+                required: ["judgment_id"],
             },
         },
     },
@@ -2612,6 +2713,174 @@ export async function runToolCalls(
                 tool_call_id: tc.id,
                 content: JSON.stringify(toolResultPayload),
             });
+        } else if (
+            tc.function.name === "search_case_law" ||
+            tc.function.name === "read_judgment" ||
+            tc.function.name === "get_judgment_meta"
+        ) {
+            // Resolve the IK token lazily — only when the model actually
+            // calls one of the case-law tools, so chats that don't use
+            // them don't pay the DB round-trip.
+            const userToken = await getUserIndianKanoonToken(userId, db).catch(
+                () => null,
+            );
+            const token = resolveIndianKanoonToken(userToken);
+            if (!token) {
+                toolResults.push({
+                    role: "tool",
+                    tool_call_id: tc.id,
+                    content: JSON.stringify({
+                        error:
+                            "Indian Kanoon API is not configured. Set INDIAN_KANOON_API_TOKEN on the backend or add a token under Account > Models & API Keys.",
+                    }),
+                });
+            } else {
+                try {
+                    if (tc.function.name === "search_case_law") {
+                        const query = String(args.query ?? "").trim();
+                        if (!query) throw new Error("query is required");
+                        write(
+                            `data: ${JSON.stringify({
+                                type: "case_law_search_start",
+                                query,
+                            })}\n\n`,
+                        );
+                        const result = await ikSearch({
+                            token,
+                            query,
+                            doctypes:
+                                typeof args.doctypes === "string"
+                                    ? args.doctypes
+                                    : undefined,
+                            fromdate:
+                                typeof args.fromdate === "string"
+                                    ? args.fromdate
+                                    : undefined,
+                            todate:
+                                typeof args.todate === "string"
+                                    ? args.todate
+                                    : undefined,
+                            pagenum:
+                                typeof args.pagenum === "number"
+                                    ? args.pagenum
+                                    : undefined,
+                        });
+                        const slim = (result.docs ?? []).slice(0, 25).map((d) => ({
+                            judgment_id: d.tid,
+                            title: d.title,
+                            court: d.docsource,
+                            publishdate: d.publishdate,
+                            headline: d.headline ? stripHtml(d.headline) : undefined,
+                        }));
+                        write(
+                            `data: ${JSON.stringify({
+                                type: "case_law_search",
+                                query,
+                                count: slim.length,
+                            })}\n\n`,
+                        );
+                        toolResults.push({
+                            role: "tool",
+                            tool_call_id: tc.id,
+                            content: JSON.stringify({
+                                ok: true,
+                                query,
+                                found: result.found,
+                                results: slim,
+                            }),
+                        });
+                    } else if (tc.function.name === "read_judgment") {
+                        const judgmentId = Number(args.judgment_id);
+                        if (!Number.isFinite(judgmentId)) {
+                            throw new Error(
+                                "judgment_id must be a number (the `tid` from search_case_law).",
+                            );
+                        }
+                        const maxCites =
+                            typeof args.max_cites === "number"
+                                ? Math.min(50, Math.max(0, args.max_cites))
+                                : 10;
+                        const maxCitedby =
+                            typeof args.max_citedby === "number"
+                                ? Math.min(50, Math.max(0, args.max_citedby))
+                                : 10;
+                        write(
+                            `data: ${JSON.stringify({
+                                type: "judgment_read_start",
+                                judgment_id: judgmentId,
+                            })}\n\n`,
+                        );
+                        const doc = await ikGetDoc({
+                            token,
+                            docId: judgmentId,
+                            maxcites: maxCites,
+                            maxcitedby: maxCitedby,
+                        });
+                        const text = stripHtml(doc.doc ?? "");
+                        // Cap the body to keep tool results within sane
+                        // limits — full SC judgments can be hundreds of KB.
+                        const MAX_CHARS = 60000;
+                        const truncated = text.length > MAX_CHARS;
+                        const body = truncated ? text.slice(0, MAX_CHARS) : text;
+                        write(
+                            `data: ${JSON.stringify({
+                                type: "judgment_read",
+                                judgment_id: judgmentId,
+                                title: doc.title,
+                            })}\n\n`,
+                        );
+                        toolResults.push({
+                            role: "tool",
+                            tool_call_id: tc.id,
+                            content: JSON.stringify({
+                                ok: true,
+                                judgment_id: doc.tid,
+                                title: doc.title,
+                                court: doc.docsource,
+                                publishdate: doc.publishdate,
+                                text: body,
+                                truncated,
+                                cites: doc.citeList ?? [],
+                                citedby: doc.citedbyList ?? [],
+                                source_url: `https://indiankanoon.org/doc/${judgmentId}/`,
+                            }),
+                        });
+                    } else {
+                        // get_judgment_meta
+                        const judgmentId = Number(args.judgment_id);
+                        if (!Number.isFinite(judgmentId)) {
+                            throw new Error("judgment_id must be a number");
+                        }
+                        const meta = await ikGetDocMeta(token, judgmentId);
+                        toolResults.push({
+                            role: "tool",
+                            tool_call_id: tc.id,
+                            content: JSON.stringify({
+                                ok: true,
+                                judgment_id: meta.tid,
+                                title: meta.title,
+                                court: meta.docsource,
+                                publishdate: meta.publishdate,
+                                numcites: meta.numcites,
+                                numcitedby: meta.numcitedby,
+                                source_url: `https://indiankanoon.org/doc/${judgmentId}/`,
+                            }),
+                        });
+                    }
+                } catch (err) {
+                    const msg =
+                        err instanceof IndianKanoonError
+                            ? err.message
+                            : err instanceof Error
+                              ? err.message
+                              : String(err);
+                    toolResults.push({
+                        role: "tool",
+                        tool_call_id: tc.id,
+                        content: JSON.stringify({ ok: false, error: msg }),
+                    });
+                }
+            }
         }
     }
 

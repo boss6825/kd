@@ -62,6 +62,15 @@ create table if not exists public.user_api_keys (
 create index if not exists idx_user_api_keys_user
   on public.user_api_keys(user_id);
 
+create table if not exists public.user_indiankanoon_tokens (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  encrypted_token text not null,
+  iv text not null,
+  auth_tag text not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 -- ---------------------------------------------------------------------------
 -- Projects and documents
 -- ---------------------------------------------------------------------------
@@ -366,3 +375,4 @@ revoke all on public.tabular_cells from anon, authenticated;
 revoke all on public.tabular_review_chats from anon, authenticated;
 revoke all on public.tabular_review_chat_messages from anon, authenticated;
 revoke all on public.user_api_keys from anon, authenticated;
+revoke all on public.user_indiankanoon_tokens from anon, authenticated;

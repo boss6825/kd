@@ -236,7 +236,10 @@ function ApiKeyField({
 
     const dirty = value.trim().length > 0;
 
+    const [error, setError] = useState<string | null>(null);
+
     const handleSave = async () => {
+        setError(null);
         setIsSaving(true);
         const ok = await onSave(value);
         setIsSaving(false);
@@ -245,34 +248,30 @@ function ApiKeyField({
             setSaved(true);
             setTimeout(() => setSaved(false), 2000);
         } else {
-            alert(`Failed to save ${label}.`);
+            setError(`Failed to save ${label}. Check browser console for details.`);
         }
     };
 
     const handleRemove = async () => {
+        setError(null);
         setIsSaving(true);
         const ok = await onRemove();
         setIsSaving(false);
-        if (!ok) alert(`Failed to remove ${label}.`);
+        if (!ok) setError(`Failed to remove ${label}. Check browser console for details.`);
     };
 
     return (
         <div>
             <label className="text-sm text-gray-600 block mb-2">{label}</label>
-            {isServerConfigured && (
+            {isServerConfigured && !hasSavedKey && (
                 <div className="mb-2 rounded-md border border-blue-100 bg-blue-50 px-3 py-2">
                     <p className="text-xs text-blue-800">
                         A server .env key is configured for this provider.
-                        Browser API-key edits are disabled.
+                        You can save your own key to override it.
                     </p>
-                    {hasSavedKey && (
-                        <p className="mt-1 text-xs text-blue-800">
-                            The server key will be used for this provider.
-                        </p>
-                    )}
                 </div>
             )}
-            {hasSavedKey && !isServerConfigured && (
+            {hasSavedKey && (
                 <p className="text-xs text-gray-500 mb-2">
                     A key is saved. Paste a new key to replace it.
                 </p>
@@ -284,22 +283,18 @@ function ApiKeyField({
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
                         placeholder={
-                            isServerConfigured
-                                ? "Server .env key configured"
-                                : hasSavedKey
-                                  ? "Saved key hidden"
-                                  : placeholder
+                            hasSavedKey
+                                ? "Saved key hidden"
+                                : placeholder
                         }
                         className="pr-10"
                         autoComplete="off"
                         spellCheck={false}
-                        disabled={isServerConfigured}
                     />
                     <button
                         type="button"
                         onClick={() => setReveal((r) => !r)}
-                        disabled={isServerConfigured}
-                        className="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-40"
+                        className="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-600"
                         aria-label={reveal ? "Hide key" : "Show key"}
                     >
                         {reveal ? (
@@ -311,7 +306,7 @@ function ApiKeyField({
                 </div>
                 <Button
                     onClick={handleSave}
-                    disabled={isServerConfigured || isSaving || !dirty || saved}
+                    disabled={isSaving || !dirty || saved}
                     className="min-w-[80px] transition-all bg-black hover:bg-gray-900 text-white"
                 >
                     {isSaving ? (
@@ -325,7 +320,7 @@ function ApiKeyField({
                         "Save"
                     )}
                 </Button>
-                {hasSavedKey && !isServerConfigured && (
+                {hasSavedKey && (
                     <Button
                         type="button"
                         variant="outline"
@@ -336,6 +331,11 @@ function ApiKeyField({
                     </Button>
                 )}
             </div>
+            {error && (
+                <div className="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2">
+                    <p className="text-xs text-red-700">{error}</p>
+                </div>
+            )}
         </div>
     );
 }

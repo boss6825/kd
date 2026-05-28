@@ -4,6 +4,7 @@ import React, {
     createContext,
     useContext,
     useEffect,
+    useRef,
     useState,
     ReactNode,
     useCallback,
@@ -60,8 +61,7 @@ function emptyApiKeys(): ApiKeyState {
     };
 }
 
-function toProfile(data: ApiUserProfile): UserProfile {
-    const { apiKeyStatus, ...profile } = data;
+function apiKeyStatusToState(apiKeyStatus: ApiUserProfile["apiKeyStatus"]) {
     const apiKeys = emptyApiKeys();
     for (const provider of API_KEY_PROVIDERS) {
         apiKeys[provider] = {
@@ -71,10 +71,14 @@ function toProfile(data: ApiUserProfile): UserProfile {
                 (apiKeyStatus[provider] ? "user" : null),
         };
     }
+    return apiKeys;
+}
 
+function toProfile(data: ApiUserProfile): UserProfile {
+    const { apiKeyStatus, ...profile } = data;
     return {
         ...profile,
-        apiKeys,
+        apiKeys: apiKeyStatusToState(apiKeyStatus),
     };
 }
 
@@ -82,12 +86,20 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
     const { user, isAuthenticated } = useAuth();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
+    const apiKeyMutationSeq = useRef(0);
 
     const loadProfile = useCallback(async () => {
+        const startedAfterApiKeyMutation = apiKeyMutationSeq.current;
         try {
             const profileData = await getUserProfile();
+            if (startedAfterApiKeyMutation !== apiKeyMutationSeq.current) {
+                return;
+            }
             setProfile(toProfile(profileData));
         } catch {
+            if (startedAfterApiKeyMutation !== apiKeyMutationSeq.current) {
+                return;
+            }
             // Calculate a default future reset date for fallback
             const futureResetDate = new Date();
             futureResetDate.setDate(futureResetDate.getDate() + 30);
@@ -177,26 +189,25 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
             provider: ApiKeyProvider,
             value: string | null,
         ): Promise<boolean> => {
-            if (!user) return false;
+            if (!user) {
+                console.error("[updateApiKey] no user");
+                return false;
+            }
             const normalized = value?.trim() ? value.trim() : null;
             try {
-                await saveApiKey(provider, normalized);
+                apiKeyMutationSeq.current += 1;
+                const status = await saveApiKey(provider, normalized);
                 setProfile((prev) =>
                     prev
                         ? {
                               ...prev,
-                              apiKeys: {
-                                  ...prev.apiKeys,
-                                  [provider]: {
-                                      configured: !!normalized,
-                                      source: normalized ? "user" : null,
-                                  },
-                              },
+                              apiKeys: apiKeyStatusToState(status),
                           }
                         : null,
                 );
                 return true;
-            } catch {
+            } catch (err) {
+                console.error(`[updateApiKey] failed for ${provider}:`, err);
                 return false;
             }
         },

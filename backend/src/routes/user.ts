@@ -5,10 +5,12 @@ import { DEFAULT_TABULAR_MODEL, resolveModel } from "../lib/llm";
 import {
   type ApiKeyStatus,
   getUserApiKeyStatus,
-  hasEnvApiKey,
   normalizeApiKeyProvider,
   saveUserApiKey,
+  getUserIndianKanoonToken,
+  saveUserIndianKanoonToken,
 } from "../lib/userApiKeys";
+import { hasEnvIndianKanoonToken } from "../lib/indianKanoon";
 
 export const userRouter = Router();
 
@@ -228,28 +230,59 @@ userRouter.get("/api-keys", requireAuth, async (_req, res) => {
 userRouter.put("/api-keys/:provider", requireAuth, async (req, res) => {
   const userId = res.locals.userId as string;
   const provider = normalizeApiKeyProvider(req.params.provider);
+  console.log(`[user/api-keys] PUT /${provider ?? req.params.provider} — userId=${userId}, hasBody=${!!req.body}, bodyKeys=${Object.keys(req.body ?? {}).join(",")}`);
+
   if (!provider)
     return void res.status(400).json({ detail: "Unsupported provider" });
 
   const apiKey =
     typeof req.body?.api_key === "string" ? req.body.api_key : null;
+  console.log(`[user/api-keys] saving key for ${provider}, hasKey=${!!apiKey}, keyLength=${apiKey?.length ?? 0}`);
+
   const db = createServerSupabase();
   try {
-    if (hasEnvApiKey(provider)) {
-      return void res.status(409).json({
-        detail:
-          "This provider is configured by the server environment and cannot be changed from the browser.",
-      });
-    }
     await saveUserApiKey(userId, provider, apiKey, db);
+    console.log(`[user/api-keys] saved successfully for ${provider}`);
     const status = await getUserApiKeyStatus(userId, db);
     res.json(status);
   } catch (err) {
-    console.error("[user/api-keys] save failed", {
-      provider,
+    const message = err instanceof Error ? err.message : String(err);
+    const detail = err && typeof err === "object" && "details" in err ? (err as Record<string, unknown>).details : undefined;
+    const code = err && typeof err === "object" && "code" in err ? (err as Record<string, unknown>).code : undefined;
+    console.error(`[user/api-keys] save FAILED for ${provider}:`, message, { detail, code, fullError: err });
+    res.status(500).json({ detail: `Failed to save API key: ${message}` });
+  }
+});
+
+// GET /user/indiankanoon-token
+userRouter.get("/indiankanoon-token", requireAuth, async (_req, res) => {
+  const userId = res.locals.userId as string;
+  const db = createServerSupabase();
+  const userToken = await getUserIndianKanoonToken(userId, db);
+  res.json({
+    configured: !!userToken || hasEnvIndianKanoonToken(),
+    source: userToken ? "user" : hasEnvIndianKanoonToken() ? "env" : null,
+  });
+});
+
+// PUT /user/indiankanoon-token  body: { api_key: string | null }
+userRouter.put("/indiankanoon-token", requireAuth, async (req, res) => {
+  const userId = res.locals.userId as string;
+  const apiKey =
+    typeof req.body?.api_key === "string" ? req.body.api_key : null;
+  const db = createServerSupabase();
+  try {
+    await saveUserIndianKanoonToken(userId, apiKey, db);
+    const userToken = await getUserIndianKanoonToken(userId, db);
+    res.json({
+      configured: !!userToken || hasEnvIndianKanoonToken(),
+      source: userToken ? "user" : hasEnvIndianKanoonToken() ? "env" : null,
+    });
+  } catch (err) {
+    console.error("[user/indiankanoon-token] save failed", {
       error: err instanceof Error ? err.message : String(err),
     });
-    res.status(500).json({ detail: "Failed to save API key" });
+    res.status(500).json({ detail: "Failed to save Indian Kanoon token" });
   }
 });
 

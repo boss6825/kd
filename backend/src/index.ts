@@ -80,9 +80,9 @@ app.use(
     crossOriginEmbedderPolicy: false,
     hsts: isProduction
       ? {
-          maxAge: 15552000,
-          includeSubDomains: true,
-        }
+        maxAge: 15552000,
+        includeSubDomains: true,
+      }
       : false,
     referrerPolicy: { policy: "no-referrer" },
   }),
@@ -98,6 +98,12 @@ app.use(
 app.use(generalLimiter);
 
 app.use(express.json({ limit: "50mb" }));
+
+// Request logging
+app.use((req, _res, next) => {
+  console.log(`[req] ${req.method} ${req.path}`);
+  next();
+});
 
 app.post("/chat", chatLimiter);
 app.post("/projects/:projectId/chat", chatLimiter);
@@ -122,5 +128,5 @@ app.use("/download", downloadsRouter);
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
 app.listen(PORT, () => {
-  console.log(`Mike backend running on port ${PORT}`);
+  console.log(`KD backend running on port ${PORT}`);
 });

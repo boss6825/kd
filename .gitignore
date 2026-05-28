@@ -17,3 +17,4 @@ next-env.d.ts
 .vercel
 coverage
 node_modules/
+claude-code/

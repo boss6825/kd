@@ -1,8 +1,8 @@
-# Mike
+# KD
 
-Mike is a legal document assistant with a Next.js frontend, an Express backend, Supabase Auth/Postgres, and Cloudflare R2-compatible object storage.
+KD is a legal document assistant with a Next.js frontend, an Express backend, Supabase Auth/Postgres, and Cloudflare R2-compatible object storage.
 
-Website: [mikeoss.com](https://mikeoss.com)
+Website: [KDoss.com](https://KDoss.com)
 
 ## Contents
 
@@ -55,14 +55,21 @@ SUPABASE_SECRET_KEY=your-supabase-service-role-key
 R2_ENDPOINT_URL=https://your-account-id.r2.cloudflarestorage.com
 R2_ACCESS_KEY_ID=your-r2-access-key
 R2_SECRET_ACCESS_KEY=your-r2-secret-key
-R2_BUCKET_NAME=mike
+R2_BUCKET_NAME=KD
 
 GEMINI_API_KEY=your-gemini-key
 ANTHROPIC_API_KEY=your-anthropic-key
 OPENAI_API_KEY=your-openai-key
 RESEND_API_KEY=your-resend-key
 USER_API_KEYS_ENCRYPTION_SECRET=your-long-random-secret
+
+# Optional: enables case-law lookup tools (search_case_law, read_judgment).
+# If unset, users can still provide their own token via Account > Models & API Keys.
+INDIAN_KANOON_API_TOKEN=your-indiankanoon-token
 ```
+
+The Indian Kanoon integration adds a new table; on an existing database
+apply `backend/migrations/0001_indiankanoon_tokens.sql`.
 
 Create `frontend/.env.local`:
 
@@ -109,7 +116,7 @@ Open `http://localhost:3000`.
 
 ## Troubleshooting
 
-**Sign-up confirmation email never arrives.** Confirmation emails are sent by Supabase Auth, not by Mike. For local development, the simplest fix is to disable email confirmation in **Supabase > Authentication > Providers > Email**. For production, configure custom SMTP in Supabase; the built-in mailer is heavily rate-limited and may be restricted on newer projects.
+**Sign-up confirmation email never arrives.** Confirmation emails are sent by Supabase Auth, not by KD. For local development, the simplest fix is to disable email confirmation in **Supabase > Authentication > Providers > Email**. For production, configure custom SMTP in Supabase; the built-in mailer is heavily rate-limited and may be restricted on newer projects.
 
 **The model picker shows a missing-key warning.** Add a key for that provider in **Account > Models & API Keys**, or configure the provider key in `backend/.env` and restart the backend.
 

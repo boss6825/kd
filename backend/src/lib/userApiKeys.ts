@@ -118,7 +118,7 @@ export async function getUserApiKeyStatus(
 
     for (const row of data ?? []) {
         const provider = normalizeApiKeyProvider(String(row.provider));
-        if (provider && !status[provider]) {
+        if (provider) {
             status[provider] = true;
             status.sources[provider] = "user";
         }
@@ -146,11 +146,84 @@ export async function getUserApiKeys(
     for (const row of (data ?? []) as EncryptedKeyRow[]) {
         const provider = normalizeApiKeyProvider(row.provider);
         if (!provider) continue;
-        if (apiKeys[provider]?.trim()) continue;
-        apiKeys[provider] = decrypt(row);
+        const decrypted = decrypt(row);
+        if (decrypted?.trim()) {
+            apiKeys[provider] = decrypted;
+        }
     }
 
     return apiKeys;
+}
+
+// ---------------------------------------------------------------------------
+// Indian Kanoon token (stored in its own table to avoid extending the
+// user_api_keys.provider check constraint, which is reserved for LLM
+// model providers).
+// ---------------------------------------------------------------------------
+
+type IkTokenRow = {
+    encrypted_token: string;
+    iv: string;
+    auth_tag: string;
+};
+
+export async function getUserIndianKanoonToken(
+    userId: string,
+    db: Db = createServerSupabase(),
+): Promise<string | null> {
+    const { data, error } = await db
+        .from("user_indiankanoon_tokens")
+        .select("encrypted_token, iv, auth_tag")
+        .eq("user_id", userId)
+        .maybeSingle();
+    if (error || !data) return null;
+    const row = data as IkTokenRow;
+    try {
+        const decipher = crypto.createDecipheriv(
+            "aes-256-gcm",
+            encryptionKey(),
+            Buffer.from(row.iv, "base64"),
+        );
+        decipher.setAuthTag(Buffer.from(row.auth_tag, "base64"));
+        const decrypted = Buffer.concat([
+            decipher.update(Buffer.from(row.encrypted_token, "base64")),
+            decipher.final(),
+        ]);
+        return decrypted.toString("utf8");
+    } catch (err) {
+        console.error("[user-api-keys] failed to decrypt IK token", {
+            error: err instanceof Error ? err.message : String(err),
+        });
+        return null;
+    }
+}
+
+export async function saveUserIndianKanoonToken(
+    userId: string,
+    value: string | null,
+    db: Db = createServerSupabase(),
+): Promise<void> {
+    const normalized = value?.trim() || null;
+    if (!normalized) {
+        const { error } = await db
+            .from("user_indiankanoon_tokens")
+            .delete()
+            .eq("user_id", userId);
+        if (error) throw error;
+        return;
+    }
+    const enc = encrypt(normalized);
+    const { error } = await db.from("user_indiankanoon_tokens").upsert(
+        {
+            user_id: userId,
+            encrypted_token: enc.encrypted_key,
+            iv: enc.iv,
+            auth_tag: enc.auth_tag,
+            updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" },
+    );
+    if (error) throw error;
 }
 
 export async function saveUserApiKey(

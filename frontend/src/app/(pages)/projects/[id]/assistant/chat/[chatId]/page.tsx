@@ -258,6 +258,11 @@ export default function ProjectAssistantChatPage({ params }: Props) {
     const { messages, isResponseLoading, handleChat, setMessages, cancel } =
         useAssistantChat({ initialMessages, chatId, projectId });
 
+    const pendingInitialMessage = useRef(
+        initialMessages.length === 1 && initialMessages[0].role === "user"
+            ? initialMessages[0]
+            : null,
+    );
     const hasLoaded = useRef(false);
     const hasAutoSent = useRef(false);
     const hasInitialScrolled = useRef(false);
@@ -347,18 +352,18 @@ export default function ProjectAssistantChatPage({ params }: Props) {
 
     useEffect(() => {
         if (
-            newChatMessages &&
-            newChatMessages.length === 1 &&
-            newChatMessages[0].role === "user" &&
+            pendingInitialMessage.current &&
             !hasAutoSent.current &&
             !isResponseLoading &&
             messages.length === 1
         ) {
+            const pending = pendingInitialMessage.current;
             hasAutoSent.current = true;
+            pendingInitialMessage.current = null;
             setNewChatMessages(null);
-            void handleChat(newChatMessages[0]);
+            void handleChat(pending);
         }
-    }, [newChatMessages, messages.length, isResponseLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [messages.length, isResponseLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const scrollLatestUserToTop = useCallback(() => {
         requestAnimationFrame(() => {

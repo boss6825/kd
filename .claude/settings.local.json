@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/arpit/OneDrive/Desktop/projects/2026/mike/frontend/**)",
+      "Bash(rm -rf node_modules package-lock.json)",
+      "Bash(npm i *)",
+      "Bash(rm -rf \"C:\\\\Users\\\\arpit\\\\AppData\\\\Local\\\\Temp\\\\KD-next-runtime\")",
+      "Bash(rm -rf \"C:\\\\Users\\\\arpit\\\\OneDrive\\\\Desktop\\\\projects\\\\2026\\\\KD\\\\frontend\\\\.next-runtime\")",
+      "Bash(npx tsc *)"
+    ]
+  }
+}
