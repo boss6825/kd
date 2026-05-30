@@ -33,6 +33,18 @@ import {
     IndianKanoonError,
 } from "./indianKanoon";
 import { getUserIndianKanoonToken } from "./userApiKeys";
+import {
+    getCaseDetail,
+    searchCases,
+    getOrderAi,
+    extractOrderMarkdown,
+    buildCaseTitle,
+    isValidCnr,
+    isEcourtsConfigured,
+    EcourtsError,
+    type CaseDetail,
+    type SearchResultItem,
+} from "./ecourts";
 
 const STANDARD_FONT_DATA_URL = (() => {
     try {
@@ -148,6 +160,13 @@ When the user asks about Indian precedents, similar past cases, or how courts ha
 2. Call search_case_law with a focused query built from those issues. Prefer the precise legal phrase or statute section (e.g. "Section 138 Negotiable Instruments Act", "specific performance immovable property") over broad terms. Use the doctypes filter (e.g. 'supremecourt' or 'highcourts') when the user wants binding precedent. Use fromdate/todate when recency matters.
 3. From the results, pick the most on-point judgments and call read_judgment to get the full text. Extract the holding/ratio and the court's reasoning. If a judgment is very long, focus on the issues, findings, and operative paragraphs.
 4. In your answer, summarise what previous courts decided on similar facts and explain how it applies (or distinguishes) to the user's case. Cite each judgment by case name with the Indian Kanoon source_url returned by the tool. Do not invent judgments or citations — only cite cases returned by the tools.
+
+LIVE CASE RECORDS (eCourts India):
+When the user asks about the status, history, hearings, parties, or orders of a SPECIFIC real case (as opposed to precedent research), use the eCourts tools:
+1. Use find_indian_case. If the user gives a CNR (16 chars: 4 letters + 12 digits), pass it as \`cnr\` to get the full record. Otherwise pass \`query\` and/or filters (petitioner, respondent, advocate, judge, court_code, dates) to search; then call find_indian_case again with the chosen \`cnr\` to drill in.
+2. Search returns no title field — refer to a case as "<petitioner> vs <respondent>" using the party arrays. Wrong court/case-type codes silently return 0 results, so prefer the free-text \`query\` over guessing codes; remember High Court codes need the bench suffix (DLHC01).
+3. The full order text is already included free in the case detail (under files). Only call get_indian_case_order_analysis when you specifically need the AI analysis (summary, ratio decidendi, statutes, reasoning) of an order — pass the CNR and the order's bare filename from judgmentOrders[]/interimOrders[].
+4. Distinguish the two systems: eCourts = live docket/status of a particular case; Indian Kanoon (search_case_law) = published judgments for precedent. Report only what the tools return; do not invent case numbers, dates, or outcomes.
 
 GENERAL GUIDANCE:
 - Be precise and professional
@@ -549,7 +568,164 @@ export const TOOLS = [
             },
         },
     },
+    {
+        type: "function",
+        function: {
+            name: "find_indian_case",
+            description:
+                "Look up live case records from the Indian eCourts system (district courts, High Courts, Supreme Court, tribunals) — pending and disposed cases, parties, advocates, judges, hearing history, and orders. This is a UNIFIED entry point: pass `cnr` when the user gives a 16-character Case Number Record (4 letters + 12 digits, e.g. DLND020047882015) to fetch the full case detail; otherwise pass `query` and/or the named filters to search across 24Cr+ records and get back a list of matching cases (each with its CNR). After a search, call this tool again with a chosen `cnr` to drill into the full record. Use this for the status/history/orders of a SPECIFIC real case — not for finding precedents (use search_case_law for that).",
+            parameters: {
+                type: "object",
+                properties: {
+                    cnr: {
+                        type: "string",
+                        description:
+                            "16-character CNR (4 letters + 12 digits). When provided, returns the full case detail and ignores the search filters.",
+                    },
+                    query: {
+                        type: "string",
+                        description:
+                            "Free-text search across all fields (party names, case numbers, etc.). Used only when `cnr` is not provided.",
+                    },
+                    petitioner: {
+                        type: "string",
+                        description: "Search by petitioner/appellant name.",
+                    },
+                    respondent: {
+                        type: "string",
+                        description: "Search by respondent/defendant name.",
+                    },
+                    advocate: {
+                        type: "string",
+                        description: "Search by advocate name.",
+                    },
+                    judge: { type: "string", description: "Search by judge name." },
+                    court_code: {
+                        type: "string",
+                        description:
+                            "Search-ready court code. High Court codes MUST include the bench suffix (e.g. DLHC01, not DLHC); NCLT codes end in 0 (e.g. NCLTDL0).",
+                    },
+                    case_status: {
+                        type: "string",
+                        description:
+                            "Filter by status code, e.g. PENDING or DISPOSED.",
+                    },
+                    filing_date_from: {
+                        type: "string",
+                        description: "Earliest filing date, YYYY-MM-DD.",
+                    },
+                    filing_date_to: {
+                        type: "string",
+                        description: "Latest filing date, YYYY-MM-DD.",
+                    },
+                    page: {
+                        type: "integer",
+                        description: "1-based result page for search (default 1).",
+                    },
+                },
+                required: [],
+            },
+        },
+    },
+    {
+        type: "function",
+        function: {
+            name: "get_indian_case_order_analysis",
+            description:
+                "Get extracted text and rich AI analysis of a specific court order/judgment from a case found via find_indian_case: executive summary, plain-language outcome, statutes cited, ratio decidendi, the court's reasoning, and directions. First call find_indian_case with the CNR to see the available orders (in judgmentOrders[] / interimOrders[]), then pass the CNR and the order's bare filename (its `orderUrl`, e.g. order-10.pdf). Generation can take 10-60s on first access; set wait_for_analysis=true to poll until ready. The order's full text is also returned for free inside find_indian_case under files — use this tool when you specifically need the AI analysis.",
+            parameters: {
+                type: "object",
+                properties: {
+                    cnr: {
+                        type: "string",
+                        description: "The 16-character CNR of the case.",
+                    },
+                    order_filename: {
+                        type: "string",
+                        description:
+                            "The bare order filename from judgmentOrders[].orderUrl or interimOrders[].orderUrl (e.g. order-10.pdf).",
+                    },
+                    wait_for_analysis: {
+                        type: "boolean",
+                        description:
+                            "If true, poll up to 3 times (~20s apart) until the AI analysis is ready. Default false (returns extracted text immediately even if analysis is still processing).",
+                    },
+                },
+                required: ["cnr", "order_filename"],
+            },
+        },
+    },
 ];
+
+// Cap on combined order text returned inline with case detail — full orders
+// can run to dozens of pages; the model can fetch more via the order tool.
+const MAX_CASE_ORDER_CHARS = 40000;
+
+/** Reduce a full eCourts case-detail payload to the fields the model needs. */
+function slimCaseDetail(detail: CaseDetail) {
+    const cc = detail.courtCaseData ?? {};
+    const orderText = extractOrderMarkdown(detail).join("\n\n---\n\n");
+    const orders = [
+        ...(cc.judgmentOrders ?? []).map((o) => ({ ...o, kind: "judgment" })),
+        ...(cc.interimOrders ?? []).map((o) => ({ ...o, kind: "interim" })),
+    ].map((o) => ({
+        kind: o.kind,
+        orderDate: o.orderDate,
+        description: o.orderType ?? o.description,
+        filename: o.orderUrl,
+    }));
+    return {
+        cnr: cc.cnr,
+        title: buildCaseTitle(cc),
+        caseType: cc.caseType,
+        caseStatus: cc.caseStatus,
+        courtName: cc.courtName,
+        filingDate: cc.filingDate,
+        registrationNumber: cc.registrationNumber,
+        decisionDate: cc.decisionDate,
+        nextHearingDate: cc.nextHearingDate,
+        petitioners: cc.petitioners,
+        respondents: cc.respondents,
+        petitionerAdvocates: cc.petitionerAdvocates,
+        respondentAdvocates: cc.respondentAdvocates,
+        judges: cc.judges,
+        orderCount: cc.orderCount,
+        orders,
+        orderText:
+            orderText.length > MAX_CASE_ORDER_CHARS
+                ? orderText.slice(0, MAX_CASE_ORDER_CHARS)
+                : orderText || undefined,
+        orderTextTruncated: orderText.length > MAX_CASE_ORDER_CHARS,
+    };
+}
+
+/** Pull the headline fields out of the nested order-AI analysis tree. */
+function orderAiHighlights(analysis: Record<string, unknown> | null) {
+    if (!analysis) return null;
+    // The tree is deep and free-form; walk it defensively via `any`.
+    const a = analysis as any;
+    const insights =
+        a?.intelligent_insights_analytics
+            ?.order_significance_and_impact_assessment;
+    const proc = a?.foundational_metadata?.procedural_details_from_order;
+    const content =
+        a?.deep_legal_substance_context?.core_legal_content_analysis;
+    const reasoning =
+        a?.deep_legal_substance_context?.arguments_and_reasoning_analysis;
+    return {
+        executiveSummary: insights?.ai_generated_executive_summary,
+        plainLanguageSummary:
+            insights?.plain_language_summary_for_litigants_outcome_focused,
+        orderNature: proc?.order_nature,
+        outcome: proc?.disposition_outcome_if_disposed,
+        directions: proc?.specific_directions_given_by_court,
+        judges: a?.foundational_metadata?.core_case_identifiers?.judge_names,
+        orderDate: a?.foundational_metadata?.core_case_identifiers?.order_date,
+        statutesCited: content?.statutes_cited_and_applied,
+        courtReasoning: reasoning?.court_reasoning_for_decision,
+        ratioDecidendi: reasoning?.ratio_decidendi_extracted?.statement,
+    };
+}
 
 type ParsedCitation = {
     ref: number;
@@ -2878,6 +3054,196 @@ export async function runToolCalls(
                         role: "tool",
                         tool_call_id: tc.id,
                         content: JSON.stringify({ ok: false, error: msg }),
+                    });
+                }
+            }
+        } else if (
+            tc.function.name === "find_indian_case" ||
+            tc.function.name === "get_indian_case_order_analysis"
+        ) {
+            if (!isEcourtsConfigured()) {
+                toolResults.push({
+                    role: "tool",
+                    tool_call_id: tc.id,
+                    content: JSON.stringify({
+                        ok: false,
+                        error: "eCourts India API is not configured. Set ECOURTS_API_KEY on the backend.",
+                    }),
+                });
+            } else {
+                try {
+                    if (tc.function.name === "find_indian_case") {
+                        // Unified entry: a CNR (explicit arg or a query that
+                        // happens to be a CNR) routes to case detail; anything
+                        // else is a search.
+                        const rawCnr =
+                            typeof args.cnr === "string" ? args.cnr : "";
+                        const rawQuery =
+                            typeof args.query === "string" ? args.query : "";
+                        const cnrCandidate = (rawCnr || rawQuery)
+                            .trim()
+                            .toUpperCase();
+
+                        if (rawCnr.trim() || isValidCnr(cnrCandidate)) {
+                            const cnr = (rawCnr.trim() || cnrCandidate).toUpperCase();
+                            write(
+                                `data: ${JSON.stringify({
+                                    type: "ecourts_case_start",
+                                    cnr,
+                                })}\n\n`,
+                            );
+                            const detail = await getCaseDetail(cnr);
+                            const slim = slimCaseDetail(detail);
+                            write(
+                                `data: ${JSON.stringify({
+                                    type: "ecourts_case",
+                                    cnr,
+                                    title: slim.title,
+                                })}\n\n`,
+                            );
+                            toolResults.push({
+                                role: "tool",
+                                tool_call_id: tc.id,
+                                content: JSON.stringify({ ok: true, ...slim }),
+                            });
+                        } else {
+                            const pageSize = 20;
+                            const page =
+                                typeof args.page === "number" && args.page > 0
+                                    ? args.page
+                                    : 1;
+                            const courtCode =
+                                typeof args.court_code === "string"
+                                    ? args.court_code
+                                    : undefined;
+                            const caseStatus =
+                                typeof args.case_status === "string"
+                                    ? args.case_status
+                                    : undefined;
+                            write(
+                                `data: ${JSON.stringify({
+                                    type: "ecourts_search_start",
+                                    query: rawQuery || undefined,
+                                })}\n\n`,
+                            );
+                            const res = await searchCases({
+                                query: rawQuery || undefined,
+                                petitioners:
+                                    typeof args.petitioner === "string"
+                                        ? args.petitioner
+                                        : undefined,
+                                respondents:
+                                    typeof args.respondent === "string"
+                                        ? args.respondent
+                                        : undefined,
+                                advocates:
+                                    typeof args.advocate === "string"
+                                        ? args.advocate
+                                        : undefined,
+                                judges:
+                                    typeof args.judge === "string"
+                                        ? args.judge
+                                        : undefined,
+                                courtCodes: courtCode ? [courtCode] : undefined,
+                                caseStatuses: caseStatus ? [caseStatus] : undefined,
+                                filingDateFrom:
+                                    typeof args.filing_date_from === "string"
+                                        ? args.filing_date_from
+                                        : undefined,
+                                filingDateTo:
+                                    typeof args.filing_date_to === "string"
+                                        ? args.filing_date_to
+                                        : undefined,
+                                page,
+                                pageSize,
+                            });
+                            const results = (res.results ?? [])
+                                .slice(0, 25)
+                                .map((r: SearchResultItem) => ({
+                                    cnr: r.cnr,
+                                    title: buildCaseTitle(r),
+                                    caseType: r.caseType,
+                                    caseStatus: r.caseStatus,
+                                    filingDate: r.filingDate,
+                                    nextHearingDate: r.nextHearingDate,
+                                    decisionDate: r.decisionDate,
+                                    courtCode: r.courtCode,
+                                    judges: r.judges,
+                                }));
+                            write(
+                                `data: ${JSON.stringify({
+                                    type: "ecourts_search",
+                                    count: results.length,
+                                    totalHits: res.totalHits,
+                                })}\n\n`,
+                            );
+                            toolResults.push({
+                                role: "tool",
+                                tool_call_id: tc.id,
+                                content: JSON.stringify({
+                                    ok: true,
+                                    totalHits: res.totalHits,
+                                    page: res.page,
+                                    totalPages: res.totalPages,
+                                    hasNextPage: res.hasNextPage,
+                                    results,
+                                    hint:
+                                        "Call find_indian_case again with a chosen `cnr` to get the full record.",
+                                }),
+                            });
+                        }
+                    } else {
+                        // get_indian_case_order_analysis
+                        const cnr = String(args.cnr ?? "").trim().toUpperCase();
+                        const filename = String(args.order_filename ?? "").trim();
+                        if (!filename) {
+                            throw new Error("order_filename is required.");
+                        }
+                        write(
+                            `data: ${JSON.stringify({
+                                type: "ecourts_order_ai_start",
+                                cnr,
+                                filename,
+                            })}\n\n`,
+                        );
+                        const ai = await getOrderAi(cnr, filename, {
+                            waitForAi: args.wait_for_analysis === true,
+                        });
+                        const MAX = 40000;
+                        const text = ai.extractedText ?? "";
+                        toolResults.push({
+                            role: "tool",
+                            tool_call_id: tc.id,
+                            content: JSON.stringify({
+                                ok: true,
+                                cnr,
+                                filename,
+                                analysisReady: !!ai.aiAnalysis,
+                                highlights: orderAiHighlights(ai.aiAnalysis),
+                                aiAnalysis: ai.aiAnalysis ?? null,
+                                extractedText:
+                                    text.length > MAX ? text.slice(0, MAX) : text,
+                                extractedTextTruncated: text.length > MAX,
+                            }),
+                        });
+                        write(
+                            `data: ${JSON.stringify({
+                                type: "ecourts_order_ai",
+                                cnr,
+                                filename,
+                                analysisReady: !!ai.aiAnalysis,
+                            })}\n\n`,
+                        );
+                    }
+                } catch (err) {
+                    const code =
+                        err instanceof EcourtsError ? err.code : undefined;
+                    const msg =
+                        err instanceof Error ? err.message : String(err);
+                    toolResults.push({
+                        role: "tool",
+                        tool_call_id: tc.id,
+                        content: JSON.stringify({ ok: false, error: msg, code }),
                     });
                 }
             }
