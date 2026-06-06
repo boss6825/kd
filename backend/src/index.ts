@@ -11,6 +11,8 @@ import { tabularRouter } from "./routes/tabular";
 import { workflowsRouter } from "./routes/workflows";
 import { userRouter } from "./routes/user";
 import { downloadsRouter } from "./routes/downloads";
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "./lib/auth";
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -71,6 +73,14 @@ const uploadLimiter = makeLimiter({
   message: "Too many upload requests. Please try again later.",
 });
 
+// Supabase rate-limited its auth endpoints for us; Better Auth has its own
+// limiter (on in production), and this caps abuse of /api/auth at the edge too.
+const authLimiter = makeLimiter({
+  windowMs: minutes(envInt("RATE_LIMIT_AUTH_WINDOW_MINUTES", 15)),
+  max: envInt("RATE_LIMIT_AUTH_MAX", 100),
+  message: "Too many authentication requests. Please try again later.",
+});
+
 app.disable("x-powered-by");
 app.set("trust proxy", envInt("TRUST_PROXY_HOPS", 1));
 
@@ -92,10 +102,18 @@ app.use(
   cors({
     origin: process.env.FRONTEND_URL ?? "http://localhost:3000",
     credentials: true,
+    // Better Auth's bearer plugin returns the session token in this response
+    // header. The frontend reads it (authClient onSuccess) to persist the
+    // bearer token; cross-origin JS can't read it unless it's exposed here.
+    exposedHeaders: ["set-auth-token"],
   }),
 );
 
 app.use(generalLimiter);
+
+// Better Auth mounts its own routes and parses its own request bodies, so it
+// MUST come before express.json(). (Express v4 wildcard syntax.)
+app.all("/api/auth/*", authLimiter, toNodeHandler(auth));
 
 app.use(express.json({ limit: "50mb" }));
 

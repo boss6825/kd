@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { authClient, signIn } from "@/lib/authClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -15,6 +15,7 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [resetMsg, setResetMsg] = useState<string | null>(null);
 
     useEffect(() => {
         if (!authLoading && isAuthenticated) {
@@ -28,19 +29,58 @@ export default function LoginPage() {
         setError(null);
 
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
-
-            if (error) throw error;
-
+            const { error } = await signIn.email({ email, password });
+            if (error)
+                throw new Error(error.message || "Invalid email or password");
             router.push("/assistant");
-        } catch (error: any) {
-            setError(error.message || "An error occurred during login");
+        } catch (error: unknown) {
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : "An error occurred during login",
+            );
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleGoogle = async () => {
+        setError(null);
+        try {
+            await signIn.social({
+                provider: "google",
+                // Absolute frontend URL — a relative path would resolve against
+                // the backend's baseURL (localhost:3001) and 404.
+                callbackURL: `${window.location.origin}/assistant`,
+            });
+        } catch (error: unknown) {
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : "Google sign-in failed",
+            );
+        }
+    };
+
+    const handleForgot = async () => {
+        setError(null);
+        setResetMsg(null);
+        if (!email.trim()) {
+            setError("Enter your email above, then click 'Forgot password?'.");
+            return;
+        }
+        try {
+            await authClient.requestPasswordReset({
+                email: email.trim(),
+                redirectTo: `${window.location.origin}/reset-password`,
+            });
+        } catch {
+            /* fall through to the same generic message (avoid leaking which
+               emails exist) */
+        }
+        setResetMsg(
+            "If an account exists for that email, a password reset link is on its way.",
+        );
     };
 
     return (
@@ -104,6 +144,22 @@ export default function LoginPage() {
                             />
                         </div>
 
+                        <div className="flex justify-end -mt-1">
+                            <button
+                                type="button"
+                                onClick={handleForgot}
+                                className="text-xs text-gray-500 hover:text-gray-900"
+                            >
+                                Forgot password?
+                            </button>
+                        </div>
+
+                        {resetMsg && (
+                            <div className="text-green-700 text-sm bg-green-50 p-3 rounded">
+                                {resetMsg}
+                            </div>
+                        )}
+
                         {error && (
                             <div className="text-red-600 text-sm bg-red-50 p-3 rounded">
                                 {error}
@@ -118,6 +174,18 @@ export default function LoginPage() {
                             {loading ? "Logging in..." : "Log in"}
                         </Button>
                     </form>
+                    <div className="flex items-center gap-3 my-4">
+                        <div className="h-px flex-1 bg-gray-200" />
+                        <span className="text-xs text-gray-400">or</span>
+                        <div className="h-px flex-1 bg-gray-200" />
+                    </div>
+                    <Button
+                        type="button"
+                        onClick={handleGoogle}
+                        className="w-full bg-white border border-gray-300 text-gray-800 hover:bg-gray-50"
+                    >
+                        Continue with Google
+                    </Button>
                 </div>
                 <p className="text-center text-xs text-gray-500 leading-relaxed px-2">
                     Mike hosted on MikeOSS.com is currently a demo service.

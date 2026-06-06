@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { requireAuth } from "../middleware/auth";
-import { createServerSupabase } from "../lib/supabase";
+import { eq } from "drizzle-orm";
+import { db } from "../db";
+import { documents, documentVersions } from "../db/schema";
 import { buildContentDisposition, downloadFile } from "../lib/storage";
 import { verifyDownload } from "../lib/downloadTokens";
 import { ensureDocAccess } from "../lib/access";
@@ -25,31 +27,27 @@ downloadsRouter.get("/:token", requireAuth, async (req, res) => {
     if (!info)
         return void res.status(404).json({ detail: "Invalid link" });
 
-    const db = createServerSupabase();
-    let version:
-        | {
-              id: string;
-              document_id: string;
-          }
-        | null = null;
-
-    const { data: byStoragePath } = await db
-        .from("document_versions")
-        .select("id, document_id")
-        .eq("storage_path", info.path)
-        .maybeSingle();
-    if (byStoragePath) {
-        version = byStoragePath as { id: string; document_id: string };
-    }
+    const [version] = await db
+        .select({
+            id: documentVersions.id,
+            document_id: documentVersions.document_id,
+        })
+        .from(documentVersions)
+        .where(eq(documentVersions.storage_path, info.path))
+        .limit(1);
 
     if (!version)
         return void res.status(404).json({ detail: "File not found" });
 
-    const { data: doc } = await db
-        .from("documents")
-        .select("id, user_id, project_id")
-        .eq("id", version.document_id)
-        .single();
+    const [doc] = await db
+        .select({
+            id: documents.id,
+            user_id: documents.user_id,
+            project_id: documents.project_id,
+        })
+        .from(documents)
+        .where(eq(documents.id, version.document_id))
+        .limit(1);
     if (!doc)
         return void res.status(404).json({ detail: "File not found" });
 

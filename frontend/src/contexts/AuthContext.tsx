@@ -1,13 +1,7 @@
 "use client";
 
-import React, {
-    createContext,
-    useContext,
-    useEffect,
-    useState,
-    ReactNode,
-} from "react";
-import { supabase } from "@/lib/supabase";
+import React, { createContext, useContext, ReactNode } from "react";
+import { authClient, clearStoredToken } from "@/lib/authClient";
 
 interface User {
     id: string;
@@ -24,48 +18,21 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
-    const [authLoading, setAuthLoading] = useState(true);
+    // Better Auth's reactive session hook. With the bearer token in
+    // localStorage (and credentials:include for the OAuth cookie path), this
+    // resolves the current user on mount and after sign in/out.
+    const { data: session, isPending } = authClient.useSession();
 
-    useEffect(() => {
-        const checkUser = async () => {
-            const {
-                data: { session },
-            } = await supabase.auth.getSession();
-
-            if (session?.user) {
-                setUser({
-                    id: session.user.id,
-                    email: session.user.email || "",
-                });
-            }
-            setAuthLoading(false);
-        };
-
-        checkUser();
-
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (_event, session) => {
-            if (session?.user) {
-                setUser({
-                    id: session.user.id,
-                    email: session.user.email || "",
-                });
-            } else {
-                setUser(null);
-            }
-            setAuthLoading(false);
-        });
-
-        return () => {
-            subscription.unsubscribe();
-        };
-    }, []);
+    const user: User | null = session?.user
+        ? { id: session.user.id, email: session.user.email ?? "" }
+        : null;
 
     const signOut = async () => {
-        await supabase.auth.signOut();
-        setUser(null);
+        try {
+            await authClient.signOut();
+        } finally {
+            clearStoredToken();
+        }
     };
 
     return (
@@ -73,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             value={{
                 user,
                 isAuthenticated: !!user,
-                authLoading,
+                authLoading: isPending,
                 signOut,
             }}
         >

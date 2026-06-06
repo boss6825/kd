@@ -1,4 +1,6 @@
-import { createServerSupabase } from "./supabase";
+import { eq } from "drizzle-orm";
+import { db as sharedDb, type Db } from "../db";
+import { userProfiles } from "../db/schema";
 import {
     resolveModel,
     DEFAULT_TITLE_MODEL,
@@ -27,15 +29,14 @@ function resolveTitleModel(apiKeys: UserApiKeys): string {
 
 export async function getUserModelSettings(
     userId: string,
-    db?: ReturnType<typeof createServerSupabase>,
+    db: Db = sharedDb,
 ): Promise<UserModelSettings> {
-    const client = db ?? createServerSupabase();
-    const { data } = await client
-        .from("user_profiles")
-        .select("tabular_model")
-        .eq("user_id", userId)
-        .single();
-    const api_keys = await getStoredUserApiKeys(userId, client);
+    const [data] = await db
+        .select({ tabular_model: userProfiles.tabular_model })
+        .from(userProfiles)
+        .where(eq(userProfiles.user_id, userId))
+        .limit(1);
+    const api_keys = await getStoredUserApiKeys(userId, db);
 
     return {
         title_model: resolveTitleModel(api_keys),
@@ -46,8 +47,7 @@ export async function getUserModelSettings(
 
 export async function getUserApiKeys(
     userId: string,
-    db?: ReturnType<typeof createServerSupabase>,
+    db: Db = sharedDb,
 ): Promise<UserApiKeys> {
-    const client = db ?? createServerSupabase();
-    return getStoredUserApiKeys(userId, client);
+    return getStoredUserApiKeys(userId, db);
 }

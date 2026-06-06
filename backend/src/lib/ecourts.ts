@@ -25,8 +25,9 @@
  *   - The envelope uses `meta.request_id` (snake_case), not `requestId`.
  */
 
-import { createServerSupabase } from "./supabase";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { eq, like } from "drizzle-orm";
+import { db } from "../db";
+import { ecourtsCache } from "../db/schema";
 
 const ECOURTS_BASE_URL = "https://webapi.ecourtsindia.com";
 
@@ -133,34 +134,21 @@ export type CacheOptions = {
     ttlMs?: number;
 };
 
-let cachedSupabase: SupabaseClient | null | undefined;
-
-/** Lazily resolve a service-role client; null if Supabase isn't configured. */
-function cacheClient(): SupabaseClient | null {
-    if (cachedSupabase === undefined) {
-        try {
-            cachedSupabase = createServerSupabase();
-        } catch {
-            cachedSupabase = null; // degrade to no-cache rather than throwing
-        }
-    }
-    return cachedSupabase;
-}
-
 async function cacheGet<T>(key: string): Promise<T | null> {
-    const db = cacheClient();
-    if (!db) return null;
     try {
-        const { data, error } = await db
-            .from("ecourts_cache")
-            .select("payload, expires_at")
-            .eq("cache_key", key)
-            .maybeSingle();
-        if (error || !data) return null;
-        if (new Date(data.expires_at as string).getTime() <= Date.now()) {
+        const [row] = await db
+            .select({
+                payload: ecourtsCache.payload,
+                expires_at: ecourtsCache.expires_at,
+            })
+            .from(ecourtsCache)
+            .where(eq(ecourtsCache.cache_key, key))
+            .limit(1);
+        if (!row) return null;
+        if (new Date(row.expires_at).getTime() <= Date.now()) {
             return null; // expired; treat as miss (lazy eviction)
         }
-        return data.payload as T;
+        return row.payload as T;
     } catch {
         return null;
     }
@@ -173,20 +161,28 @@ async function cacheSet(
     ttlMs: number,
     requestId?: string,
 ): Promise<void> {
-    const db = cacheClient();
-    if (!db) return;
     try {
-        await db.from("ecourts_cache").upsert(
-            {
+        const expiresAt = new Date(Date.now() + ttlMs);
+        await db
+            .insert(ecourtsCache)
+            .values({
                 cache_key: key,
                 resource,
                 payload,
                 request_id: requestId ?? null,
-                created_at: new Date().toISOString(),
-                expires_at: new Date(Date.now() + ttlMs).toISOString(),
-            },
-            { onConflict: "cache_key" },
-        );
+                created_at: new Date(),
+                expires_at: expiresAt,
+            })
+            .onConflictDoUpdate({
+                target: ecourtsCache.cache_key,
+                set: {
+                    resource,
+                    payload,
+                    request_id: requestId ?? null,
+                    created_at: new Date(),
+                    expires_at: expiresAt,
+                },
+            });
     } catch {
         // A cache write failure must never break the request.
     }
@@ -197,17 +193,16 @@ export async function cacheInvalidate(opts: {
     key?: string;
     prefix?: string;
 }): Promise<void> {
-    const db = cacheClient();
-    if (!db) return;
     try {
         if (opts.key) {
-            await db.from("ecourts_cache").delete().eq("cache_key", opts.key);
+            await db
+                .delete(ecourtsCache)
+                .where(eq(ecourtsCache.cache_key, opts.key));
         }
         if (opts.prefix) {
             await db
-                .from("ecourts_cache")
-                .delete()
-                .like("cache_key", `${opts.prefix}%`);
+                .delete(ecourtsCache)
+                .where(like(ecourtsCache.cache_key, `${opts.prefix}%`));
         }
     } catch {
         /* best effort */
