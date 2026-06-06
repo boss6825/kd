@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { signIn, signUp } from "@/lib/authClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -49,28 +49,29 @@ export default function SignupPage() {
         }
 
         try {
-            const { data, error } = await supabase.auth.signUp({
+            const trimmedName = name.trim();
+            const trimmedOrg = organisation.trim();
+            // Better Auth requires a name; fall back to the email local-part.
+            const { error } = await signUp.email({
                 email,
                 password,
+                name: trimmedName || email,
             });
+            if (error) throw new Error(error.message || "Signup failed");
 
-            if (error) throw error;
-
-            if (data.session) {
-                const trimmedName = name.trim();
-                const trimmedOrg = organisation.trim();
-                if (trimmedName || trimmedOrg) {
-                    try {
-                        await updateUserProfile({
-                            ...(trimmedName && { displayName: trimmedName }),
-                            ...(trimmedOrg && { organisation: trimmedOrg }),
-                        });
-                    } catch (profileError) {
-                        console.error(
-                            "[signup] failed to persist profile fields",
-                            profileError,
-                        );
-                    }
+            // autoSignIn is enabled, so the user is now authenticated and the
+            // bearer token is stored — persist the optional profile fields.
+            if (trimmedName || trimmedOrg) {
+                try {
+                    await updateUserProfile({
+                        ...(trimmedName && { displayName: trimmedName }),
+                        ...(trimmedOrg && { organisation: trimmedOrg }),
+                    });
+                } catch (profileError) {
+                    console.error(
+                        "[signup] failed to persist profile fields",
+                        profileError,
+                    );
                 }
             }
             setSuccess(true);
@@ -85,6 +86,24 @@ export default function SignupPage() {
             );
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleGoogle = async () => {
+        setError(null);
+        try {
+            await signIn.social({
+                provider: "google",
+                // Absolute frontend URL — a relative path would resolve against
+                // the backend's baseURL (localhost:3001) and 404.
+                callbackURL: `${window.location.origin}/assistant`,
+            });
+        } catch (error: unknown) {
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : "Google sign-in failed",
+            );
         }
     };
 
@@ -250,6 +269,18 @@ export default function SignupPage() {
                             {loading ? "Creating account..." : "Sign up"}
                         </Button>
                     </form>
+                    <div className="flex items-center gap-3 my-4">
+                        <div className="h-px flex-1 bg-gray-200" />
+                        <span className="text-xs text-gray-400">or</span>
+                        <div className="h-px flex-1 bg-gray-200" />
+                    </div>
+                    <Button
+                        type="button"
+                        onClick={handleGoogle}
+                        className="w-full bg-white border border-gray-300 text-gray-800 hover:bg-gray-50"
+                    >
+                        Continue with Google
+                    </Button>
 
                     {/* Terms and Privacy */}
                     <div className="mt-4 text-center text-xs text-gray-500">

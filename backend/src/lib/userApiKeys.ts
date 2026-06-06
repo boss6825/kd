@@ -1,8 +1,9 @@
 import crypto from "crypto";
-import { createServerSupabase } from "./supabase";
+import { and, eq } from "drizzle-orm";
+import { db as sharedDb, type Db } from "../db";
+import { userApiKeys, userIndiankanoonTokens } from "../db/schema";
 import type { UserApiKeys } from "./llm";
 
-type Db = ReturnType<typeof createServerSupabase>;
 export type ApiKeyProvider = "claude" | "gemini" | "openai";
 export type ApiKeySource = "user" | "env" | null;
 export type ApiKeyStatus = Record<ApiKeyProvider, boolean> & {
@@ -90,7 +91,7 @@ export function normalizeApiKeyProvider(value: string): ApiKeyProvider | null {
 
 export async function getUserApiKeyStatus(
     userId: string,
-    db: Db = createServerSupabase(),
+    db: Db = sharedDb,
 ): Promise<ApiKeyStatus> {
     const status: ApiKeyStatus = {
         claude: false,
@@ -110,13 +111,12 @@ export async function getUserApiKeyStatus(
         }
     }
 
-    const { data, error } = await db
-        .from("user_api_keys")
-        .select("provider")
-        .eq("user_id", userId);
-    if (error) throw error;
+    const rows = await db
+        .select({ provider: userApiKeys.provider })
+        .from(userApiKeys)
+        .where(eq(userApiKeys.user_id, userId));
 
-    for (const row of data ?? []) {
+    for (const row of rows) {
         const provider = normalizeApiKeyProvider(String(row.provider));
         if (provider) {
             status[provider] = true;
@@ -129,7 +129,7 @@ export async function getUserApiKeyStatus(
 
 export async function getUserApiKeys(
     userId: string,
-    db: Db = createServerSupabase(),
+    db: Db = sharedDb,
 ): Promise<UserApiKeys> {
     const apiKeys: UserApiKeys = {
         claude: envApiKey("claude"),
@@ -137,13 +137,17 @@ export async function getUserApiKeys(
         openai: envApiKey("openai"),
     };
 
-    const { data, error } = await db
-        .from("user_api_keys")
-        .select("provider, encrypted_key, iv, auth_tag")
-        .eq("user_id", userId);
-    if (error) throw error;
+    const rows = (await db
+        .select({
+            provider: userApiKeys.provider,
+            encrypted_key: userApiKeys.encrypted_key,
+            iv: userApiKeys.iv,
+            auth_tag: userApiKeys.auth_tag,
+        })
+        .from(userApiKeys)
+        .where(eq(userApiKeys.user_id, userId))) as EncryptedKeyRow[];
 
-    for (const row of (data ?? []) as EncryptedKeyRow[]) {
+    for (const row of rows) {
         const provider = normalizeApiKeyProvider(row.provider);
         if (!provider) continue;
         const decrypted = decrypt(row);
@@ -169,15 +173,18 @@ type IkTokenRow = {
 
 export async function getUserIndianKanoonToken(
     userId: string,
-    db: Db = createServerSupabase(),
+    db: Db = sharedDb,
 ): Promise<string | null> {
-    const { data, error } = await db
-        .from("user_indiankanoon_tokens")
-        .select("encrypted_token, iv, auth_tag")
-        .eq("user_id", userId)
-        .maybeSingle();
-    if (error || !data) return null;
-    const row = data as IkTokenRow;
+    const [row] = await db
+        .select({
+            encrypted_token: userIndiankanoonTokens.encrypted_token,
+            iv: userIndiankanoonTokens.iv,
+            auth_tag: userIndiankanoonTokens.auth_tag,
+        })
+        .from(userIndiankanoonTokens)
+        .where(eq(userIndiankanoonTokens.user_id, userId))
+        .limit(1);
+    if (!row) return null;
     try {
         const decipher = crypto.createDecipheriv(
             "aes-256-gcm",
@@ -201,56 +208,73 @@ export async function getUserIndianKanoonToken(
 export async function saveUserIndianKanoonToken(
     userId: string,
     value: string | null,
-    db: Db = createServerSupabase(),
+    db: Db = sharedDb,
 ): Promise<void> {
     const normalized = value?.trim() || null;
     if (!normalized) {
-        const { error } = await db
-            .from("user_indiankanoon_tokens")
-            .delete()
-            .eq("user_id", userId);
-        if (error) throw error;
+        await db
+            .delete(userIndiankanoonTokens)
+            .where(eq(userIndiankanoonTokens.user_id, userId));
         return;
     }
     const enc = encrypt(normalized);
-    const { error } = await db.from("user_indiankanoon_tokens").upsert(
-        {
+    await db
+        .insert(userIndiankanoonTokens)
+        .values({
             user_id: userId,
             encrypted_token: enc.encrypted_key,
             iv: enc.iv,
             auth_tag: enc.auth_tag,
-            updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" },
-    );
-    if (error) throw error;
+            updated_at: new Date(),
+        })
+        .onConflictDoUpdate({
+            target: userIndiankanoonTokens.user_id,
+            set: {
+                encrypted_token: enc.encrypted_key,
+                iv: enc.iv,
+                auth_tag: enc.auth_tag,
+                updated_at: new Date(),
+            },
+        });
 }
 
 export async function saveUserApiKey(
     userId: string,
     provider: ApiKeyProvider,
     value: string | null,
-    db: Db = createServerSupabase(),
+    db: Db = sharedDb,
 ): Promise<void> {
     const normalized = value?.trim() || null;
     if (!normalized) {
-        const { error } = await db
-            .from("user_api_keys")
-            .delete()
-            .eq("user_id", userId)
-            .eq("provider", provider);
-        if (error) throw error;
+        await db
+            .delete(userApiKeys)
+            .where(
+                and(
+                    eq(userApiKeys.user_id, userId),
+                    eq(userApiKeys.provider, provider),
+                ),
+            );
         return;
     }
 
-    const { error } = await db.from("user_api_keys").upsert(
-        {
+    const enc = encrypt(normalized);
+    await db
+        .insert(userApiKeys)
+        .values({
             user_id: userId,
             provider,
-            ...encrypt(normalized),
-            updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id,provider" },
-    );
-    if (error) throw error;
+            encrypted_key: enc.encrypted_key,
+            iv: enc.iv,
+            auth_tag: enc.auth_tag,
+            updated_at: new Date(),
+        })
+        .onConflictDoUpdate({
+            target: [userApiKeys.user_id, userApiKeys.provider],
+            set: {
+                encrypted_key: enc.encrypted_key,
+                iv: enc.iv,
+                auth_tag: enc.auth_tag,
+                updated_at: new Date(),
+            },
+        });
 }

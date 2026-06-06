@@ -1,6 +1,14 @@
 import { Router } from "express";
 import { requireAuth } from "../middleware/auth";
-import { createServerSupabase } from "../lib/supabase";
+import { and, asc, desc, eq, inArray, or } from "drizzle-orm";
+import { db, type Db } from "../db";
+import {
+    chatMessages,
+    chats,
+    documentEdits,
+    documentVersions,
+    projects,
+} from "../db/schema";
 import {
     buildDocContext,
     buildMessages,
@@ -16,7 +24,6 @@ import { checkProjectAccess } from "../lib/access";
 
 export const chatRouter = Router();
 
-type Db = ReturnType<typeof createServerSupabase>;
 const isDev = process.env.NODE_ENV !== "production";
 const devLog = (...args: Parameters<typeof console.log>) => {
     if (isDev) console.log(...args);
@@ -109,12 +116,12 @@ async function getAccessibleChat(
     userEmail: string | null | undefined,
     db: Db,
 ): Promise<AccessibleChat | null> {
-    const { data: chat, error } = await db
-        .from("chats")
-        .select("*")
-        .eq("id", chatId)
-        .maybeSingle();
-    if (error || !chat) return null;
+    const [chat] = await db
+        .select()
+        .from(chats)
+        .where(eq(chats.id, chatId))
+        .limit(1);
+    if (!chat) return null;
 
     const row = chat as AccessibleChat;
     if (row.user_id === userId) return row;
@@ -140,37 +147,33 @@ async function getAccessibleChat(
 // listed per-project via GET /projects/:projectId/chats.
 chatRouter.get("/", requireAuth, async (req, res) => {
     const userId = res.locals.userId as string;
-    const db = createServerSupabase();
     const requestedLimit = Number.parseInt(String(req.query.limit ?? ""), 10);
     const limit = Number.isFinite(requestedLimit)
         ? Math.min(Math.max(requestedLimit, 1), 100)
         : null;
 
-    const { data: ownProjects, error: projErr } = await db
-        .from("projects")
-        .select("id")
-        .eq("user_id", userId);
-    if (projErr) return void res.status(500).json({ detail: projErr.message });
-    const ownProjectIds = ((ownProjects ?? []) as { id: string }[]).map(
-        (p) => p.id,
-    );
+    const ownProjects = await db
+        .select({ id: projects.id })
+        .from(projects)
+        .where(eq(projects.user_id, userId));
+    const ownProjectIds = ownProjects.map((p) => p.id);
 
-    const filter =
+    // Own chats OR any chat under a project the user owns.
+    const visibility =
         ownProjectIds.length > 0
-            ? `user_id.eq.${userId},project_id.in.(${ownProjectIds.join(",")})`
-            : `user_id.eq.${userId}`;
+            ? or(
+                  eq(chats.user_id, userId),
+                  inArray(chats.project_id, ownProjectIds),
+              )
+            : eq(chats.user_id, userId);
 
-    let query = db
-        .from("chats")
-        .select("*")
-        .or(filter)
-        .order("created_at", { ascending: false });
-
-    if (limit) query = query.limit(limit);
-
-    const { data, error } = await query;
-    if (error) return void res.status(500).json({ detail: error.message });
-    res.json(data ?? []);
+    const baseQuery = db
+        .select()
+        .from(chats)
+        .where(visibility)
+        .orderBy(desc(chats.created_at));
+    const rows = limit ? await baseQuery.limit(limit) : await baseQuery;
+    res.json(rows);
 });
 
 // POST /chat/create
@@ -182,7 +185,6 @@ chatRouter.post("/create", requireAuth, async (req, res) => {
         return void res.status(400).json({ detail: parsedProjectId.detail });
     }
     const projectId = parsedProjectId.projectId;
-    const db = createServerSupabase();
     const projectAccess = await validateAccessibleProjectId(
         projectId,
         userId,
@@ -194,14 +196,14 @@ chatRouter.post("/create", requireAuth, async (req, res) => {
             .status(projectAccess.status)
             .json({ detail: projectAccess.detail });
 
-    const { data, error } = await db
-        .from("chats")
-        .insert({ user_id: userId, project_id: projectId ?? null })
-        .select("id")
-        .single();
+    const [created] = await db
+        .insert(chats)
+        .values({ user_id: userId, project_id: projectId ?? null })
+        .returning({ id: chats.id });
 
-    if (error) return void res.status(500).json({ detail: error.message });
-    res.json({ id: data.id });
+    if (!created)
+        return void res.status(500).json({ detail: "Failed to create chat" });
+    res.json({ id: created.id });
 });
 
 // GET /chat/:chatId
@@ -209,19 +211,18 @@ chatRouter.get("/:chatId", requireAuth, async (req, res) => {
     const userId = res.locals.userId as string;
     const userEmail = res.locals.userEmail as string | undefined;
     const { chatId } = req.params;
-    const db = createServerSupabase();
 
     const chat = await getAccessibleChat(chatId, userId, userEmail, db);
     if (!chat)
         return void res.status(404).json({ detail: "Chat not found" });
 
-    const { data: messages } = await db
-        .from("chat_messages")
-        .select("*")
-        .eq("chat_id", chatId)
-        .order("created_at", { ascending: true });
+    const messages = await db
+        .select()
+        .from(chatMessages)
+        .where(eq(chatMessages.chat_id, chatId))
+        .orderBy(asc(chatMessages.created_at));
 
-    const hydrated = await hydrateEditStatuses(messages ?? [], db);
+    const hydrated = await hydrateEditStatuses(messages, db);
     res.json({ chat, messages: hydrated });
 });
 
@@ -232,7 +233,7 @@ chatRouter.get("/:chatId", requireAuth, async (req, res) => {
 // EditCards render with the real state.
 async function hydrateEditStatuses(
     messages: Record<string, unknown>[],
-    db: ReturnType<typeof createServerSupabase>,
+    db: Db,
 ): Promise<Record<string, unknown>[]> {
     const editIds = new Set<string>();
     const versionIds = new Set<string>();
@@ -262,11 +263,11 @@ async function hydrateEditStatuses(
     // Edit status patch.
     const statusById = new Map<string, "pending" | "accepted" | "rejected">();
     if (editIds.size > 0) {
-        const { data: rows } = await db
-            .from("document_edits")
-            .select("id, status")
-            .in("id", Array.from(editIds));
-        for (const r of (rows ?? []) as { id: string; status: string }[]) {
+        const rows = await db
+            .select({ id: documentEdits.id, status: documentEdits.status })
+            .from(documentEdits)
+            .where(inArray(documentEdits.id, Array.from(editIds)));
+        for (const r of rows) {
             if (
                 r.status === "pending" ||
                 r.status === "accepted" ||
@@ -282,14 +283,14 @@ async function hydrateEditStatuses(
     // document_versions so the UI can render "V3" chips + download filenames.
     const versionNumberById = new Map<string, number | null>();
     if (versionIds.size > 0) {
-        const { data: vrows } = await db
-            .from("document_versions")
-            .select("id, version_number")
-            .in("id", Array.from(versionIds));
-        for (const r of (vrows ?? []) as {
-            id: string;
-            version_number: number | null;
-        }[]) {
+        const vrows = await db
+            .select({
+                id: documentVersions.id,
+                version_number: documentVersions.version_number,
+            })
+            .from(documentVersions)
+            .where(inArray(documentVersions.id, Array.from(versionIds)));
+        for (const r of vrows) {
             versionNumberById.set(r.id, r.version_number ?? null);
         }
     }
@@ -350,32 +351,24 @@ chatRouter.patch("/:chatId", requireAuth, async (req, res) => {
     if (!title)
         return void res.status(400).json({ detail: "title is required" });
 
-    const db = createServerSupabase();
-    const { data, error } = await db
-        .from("chats")
-        .update({ title })
-        .eq("id", chatId)
-        .eq("user_id", userId)
-        .select("id, title")
-        .single();
+    const [updated] = await db
+        .update(chats)
+        .set({ title })
+        .where(and(eq(chats.id, chatId), eq(chats.user_id, userId)))
+        .returning({ id: chats.id, title: chats.title });
 
-    if (error || !data)
+    if (!updated)
         return void res.status(404).json({ detail: "Chat not found" });
-    res.json(data);
+    res.json(updated);
 });
 
 // DELETE /chat/:chatId
 chatRouter.delete("/:chatId", requireAuth, async (req, res) => {
     const userId = res.locals.userId as string;
     const { chatId } = req.params;
-    const db = createServerSupabase();
-    const { error } = await db
-        .from("chats")
-        .delete()
-        .eq("id", chatId)
-        .eq("user_id", userId);
-
-    if (error) return void res.status(500).json({ detail: error.message });
+    await db
+        .delete(chats)
+        .where(and(eq(chats.id, chatId), eq(chats.user_id, userId)));
     res.status(204).send();
 });
 
@@ -389,7 +382,6 @@ chatRouter.post("/:chatId/generate-title", requireAuth, async (req, res) => {
     if (!message)
         return void res.status(400).json({ detail: "message is required" });
 
-    const db = createServerSupabase();
     const chat = await getAccessibleChat(chatId, userId, userEmail, db);
     if (!chat)
         return void res.status(404).json({ detail: "Chat not found" });
@@ -407,10 +399,7 @@ chatRouter.post("/:chatId/generate-title", requireAuth, async (req, res) => {
         });
         const title = titleText.trim() || message.slice(0, 60);
 
-        await db
-            .from("chats")
-            .update({ title })
-            .eq("id", chatId);
+        await db.update(chats).set({ title }).where(eq(chats.id, chatId));
 
         res.json({ title });
     } catch (err) {
@@ -457,7 +446,6 @@ chatRouter.post("/", requireAuth, async (req, res) => {
     });
 
     const userEmail = res.locals.userEmail as string | undefined;
-    const db = createServerSupabase();
     let chatId = chat_id ?? null;
     let chatTitle: string | null = null;
     let resolvedProjectId: string | null = parsedProjectId.projectId;
@@ -494,18 +482,17 @@ chatRouter.post("/", requireAuth, async (req, res) => {
                 .status(projectAccess.status)
                 .json({ detail: projectAccess.detail });
 
-        const { data: newChat, error } = await db
-            .from("chats")
-            .insert({ user_id: userId, project_id: resolvedProjectId })
-            .select("id, title")
-            .single();
-        if (error || !newChat) {
-            console.error("[chat/stream] failed to create chat", error);
+        const [newChat] = await db
+            .insert(chats)
+            .values({ user_id: userId, project_id: resolvedProjectId })
+            .returning({ id: chats.id, title: chats.title });
+        if (!newChat) {
+            console.error("[chat/stream] failed to create chat");
             return void res
                 .status(500)
                 .json({ detail: "Failed to create chat" });
         }
-        chatId = newChat.id as string;
+        chatId = newChat.id;
         chatTitle = newChat.title;
     }
 
@@ -513,7 +500,7 @@ chatRouter.post("/", requireAuth, async (req, res) => {
 
     const lastUser = [...messages].reverse().find((m) => m.role === "user");
     if (lastUser) {
-        await db.from("chat_messages").insert({
+        await db.insert(chatMessages).values({
             chat_id: chatId,
             role: "user",
             content: lastUser.content,
@@ -580,7 +567,7 @@ chatRouter.post("/", requireAuth, async (req, res) => {
         });
 
         const annotations = extractAnnotations(fullText, docIndex, events);
-        await db.from("chat_messages").insert({
+        await db.insert(chatMessages).values({
             chat_id: chatId,
             role: "assistant",
             content: events.length ? events : null,
@@ -589,9 +576,9 @@ chatRouter.post("/", requireAuth, async (req, res) => {
 
         if (!chatTitle && lastUser?.content) {
             await db
-                .from("chats")
-                .update({ title: lastUser.content.slice(0, 120) })
-                .eq("id", chatId);
+                .update(chats)
+                .set({ title: lastUser.content.slice(0, 120) })
+                .where(eq(chats.id, chatId));
         }
     } catch (err) {
         console.error("[chat/stream] error:", err);

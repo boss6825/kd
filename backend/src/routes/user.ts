@@ -1,6 +1,8 @@
 import { Router } from "express";
+import { eq } from "drizzle-orm";
+import { db, type Db } from "../db";
+import { user, userProfiles } from "../db/schema";
 import { requireAuth } from "../middleware/auth";
-import { createServerSupabase } from "../lib/supabase";
 import { DEFAULT_TABULAR_MODEL, resolveModel } from "../lib/llm";
 import {
   type ApiKeyStatus,
@@ -20,15 +22,22 @@ type UserProfileRow = {
   display_name: string | null;
   organisation: string | null;
   message_credits_used: number;
-  credits_reset_date: string;
+  credits_reset_date: Date;
   tier: string;
   tabular_model: string;
 };
 
-function serializeProfile(
-  row: UserProfileRow,
-  apiKeyStatus?: ApiKeyStatus,
-) {
+// Column set selected/returned for a profile row.
+const profileCols = {
+  display_name: userProfiles.display_name,
+  organisation: userProfiles.organisation,
+  message_credits_used: userProfiles.message_credits_used,
+  credits_reset_date: userProfiles.credits_reset_date,
+  tier: userProfiles.tier,
+  tabular_model: userProfiles.tabular_model,
+};
+
+function serializeProfile(row: UserProfileRow, apiKeyStatus?: ApiKeyStatus) {
   const creditsUsed = row.message_credits_used ?? 0;
   return {
     displayName: row.display_name,
@@ -49,7 +58,7 @@ function validateProfilePayload(body: unknown):
         display_name?: string | null;
         organisation?: string | null;
         tabular_model?: string;
-        updated_at: string;
+        updated_at: Date;
       };
     }
   | { ok: false; detail: string } {
@@ -72,8 +81,8 @@ function validateProfilePayload(body: unknown):
     display_name?: string | null;
     organisation?: string | null;
     tabular_model?: string;
-    updated_at: string;
-  } = { updated_at: new Date().toISOString() };
+    updated_at: Date;
+  } = { updated_at: new Date() };
 
   if ("displayName" in raw) {
     if (raw.displayName !== null && typeof raw.displayName !== "string") {
@@ -104,32 +113,31 @@ function validateProfilePayload(body: unknown):
 }
 
 async function ensureProfileRow(
-  db: ReturnType<typeof createServerSupabase>,
+  db: Db,
   userId: string,
-) {
-  const { error } = await db
-    .from("user_profiles")
-    .upsert(
-      { user_id: userId },
-      { onConflict: "user_id", ignoreDuplicates: true },
-    );
-  return error;
+): Promise<Error | null> {
+  try {
+    await db
+      .insert(userProfiles)
+      .values({ user_id: userId })
+      .onConflictDoNothing({ target: userProfiles.user_id });
+    return null;
+  } catch (err) {
+    return err instanceof Error ? err : new Error(String(err));
+  }
 }
 
 async function loadProfile(
-  db: ReturnType<typeof createServerSupabase>,
+  db: Db,
   userId: string,
   options: { repairMissing?: boolean } = {},
 ) {
-  let { data, error } = await db
-    .from("user_profiles")
-    .select(
-      "display_name, organisation, message_credits_used, credits_reset_date, tier, tabular_model",
-    )
-    .eq("user_id", userId)
-    .maybeSingle();
+  let [data] = await db
+    .select(profileCols)
+    .from(userProfiles)
+    .where(eq(userProfiles.user_id, userId))
+    .limit(1);
 
-  if (error) return { data: null, error };
   if (!data) {
     if (!options.repairMissing) {
       return { data: null, error: new Error("Profile not found") };
@@ -139,35 +147,40 @@ async function loadProfile(
     if (ensureError) return { data: null, error: ensureError };
 
     const created = await db
-      .from("user_profiles")
-      .select(
-        "display_name, organisation, message_credits_used, credits_reset_date, tier, tabular_model",
-      )
-      .eq("user_id", userId)
-      .single();
-    if (created.error) return { data: null, error: created.error };
-    data = created.data;
+      .select(profileCols)
+      .from(userProfiles)
+      .where(eq(userProfiles.user_id, userId))
+      .limit(1);
+    if (!created[0]) {
+      return { data: null, error: new Error("Profile not found") };
+    }
+    data = created[0];
   }
 
   let row = data as UserProfileRow;
   if (row.credits_reset_date && new Date() > new Date(row.credits_reset_date)) {
     const creditsResetDate = new Date();
     creditsResetDate.setDate(creditsResetDate.getDate() + 30);
-    const { data: resetData, error: resetError } = await db
-      .from("user_profiles")
-      .update({
-        message_credits_used: 0,
-        credits_reset_date: creditsResetDate.toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq("user_id", userId)
-      .select(
-        "display_name, organisation, message_credits_used, credits_reset_date, tier, tabular_model",
-      )
-      .single();
-
-    if (resetError) return { data: null, error: resetError };
-    row = resetData as UserProfileRow;
+    try {
+      const [resetData] = await db
+        .update(userProfiles)
+        .set({
+          message_credits_used: 0,
+          credits_reset_date: creditsResetDate,
+          updated_at: new Date(),
+        })
+        .where(eq(userProfiles.user_id, userId))
+        .returning(profileCols);
+      if (!resetData) {
+        return { data: null, error: new Error("Failed to reset credits") };
+      }
+      row = resetData as UserProfileRow;
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err : new Error(String(err)),
+      };
+    }
   }
 
   return { data: serializeProfile(row), error: null };
@@ -176,7 +189,6 @@ async function loadProfile(
 // POST /user/profile
 userRouter.post("/profile", requireAuth, async (_req, res) => {
   const userId = res.locals.userId as string;
-  const db = createServerSupabase();
   const error = await ensureProfileRow(db, userId);
   if (error) return void res.status(500).json({ detail: error.message });
   res.json({ ok: true });
@@ -185,7 +197,6 @@ userRouter.post("/profile", requireAuth, async (_req, res) => {
 // GET /user/profile
 userRouter.get("/profile", requireAuth, async (_req, res) => {
   const userId = res.locals.userId as string;
-  const db = createServerSupabase();
   const { data, error } = await loadProfile(db, userId, {
     repairMissing: true,
   });
@@ -200,17 +211,20 @@ userRouter.patch("/profile", requireAuth, async (req, res) => {
   const parsed = validateProfilePayload(req.body);
   if (!parsed.ok) return void res.status(400).json({ detail: parsed.detail });
 
-  const db = createServerSupabase();
   const ensureError = await ensureProfileRow(db, userId);
   if (ensureError)
     return void res.status(500).json({ detail: ensureError.message });
 
-  const { error: updateError } = await db
-    .from("user_profiles")
-    .update(parsed.update)
-    .eq("user_id", userId);
-  if (updateError)
-    return void res.status(500).json({ detail: updateError.message });
+  try {
+    await db
+      .update(userProfiles)
+      .set(parsed.update)
+      .where(eq(userProfiles.user_id, userId));
+  } catch (err) {
+    return void res.status(500).json({
+      detail: err instanceof Error ? err.message : "Failed to update profile",
+    });
+  }
 
   const { data, error } = await loadProfile(db, userId);
   if (error) return void res.status(500).json({ detail: error.message });
@@ -221,7 +235,6 @@ userRouter.patch("/profile", requireAuth, async (req, res) => {
 // GET /user/api-keys
 userRouter.get("/api-keys", requireAuth, async (_req, res) => {
   const userId = res.locals.userId as string;
-  const db = createServerSupabase();
   const status = await getUserApiKeyStatus(userId, db);
   res.json(status);
 });
@@ -230,16 +243,19 @@ userRouter.get("/api-keys", requireAuth, async (_req, res) => {
 userRouter.put("/api-keys/:provider", requireAuth, async (req, res) => {
   const userId = res.locals.userId as string;
   const provider = normalizeApiKeyProvider(req.params.provider);
-  console.log(`[user/api-keys] PUT /${provider ?? req.params.provider} — userId=${userId}, hasBody=${!!req.body}, bodyKeys=${Object.keys(req.body ?? {}).join(",")}`);
+  console.log(
+    `[user/api-keys] PUT /${provider ?? req.params.provider} — userId=${userId}, hasBody=${!!req.body}, bodyKeys=${Object.keys(req.body ?? {}).join(",")}`,
+  );
 
   if (!provider)
     return void res.status(400).json({ detail: "Unsupported provider" });
 
   const apiKey =
     typeof req.body?.api_key === "string" ? req.body.api_key : null;
-  console.log(`[user/api-keys] saving key for ${provider}, hasKey=${!!apiKey}, keyLength=${apiKey?.length ?? 0}`);
+  console.log(
+    `[user/api-keys] saving key for ${provider}, hasKey=${!!apiKey}, keyLength=${apiKey?.length ?? 0}`,
+  );
 
-  const db = createServerSupabase();
   try {
     await saveUserApiKey(userId, provider, apiKey, db);
     console.log(`[user/api-keys] saved successfully for ${provider}`);
@@ -247,9 +263,7 @@ userRouter.put("/api-keys/:provider", requireAuth, async (req, res) => {
     res.json(status);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    const detail = err && typeof err === "object" && "details" in err ? (err as Record<string, unknown>).details : undefined;
-    const code = err && typeof err === "object" && "code" in err ? (err as Record<string, unknown>).code : undefined;
-    console.error(`[user/api-keys] save FAILED for ${provider}:`, message, { detail, code, fullError: err });
+    console.error(`[user/api-keys] save FAILED for ${provider}:`, message, err);
     res.status(500).json({ detail: `Failed to save API key: ${message}` });
   }
 });
@@ -257,7 +271,6 @@ userRouter.put("/api-keys/:provider", requireAuth, async (req, res) => {
 // GET /user/indiankanoon-token
 userRouter.get("/indiankanoon-token", requireAuth, async (_req, res) => {
   const userId = res.locals.userId as string;
-  const db = createServerSupabase();
   const userToken = await getUserIndianKanoonToken(userId, db);
   res.json({
     configured: !!userToken || hasEnvIndianKanoonToken(),
@@ -270,7 +283,6 @@ userRouter.put("/indiankanoon-token", requireAuth, async (req, res) => {
   const userId = res.locals.userId as string;
   const apiKey =
     typeof req.body?.api_key === "string" ? req.body.api_key : null;
-  const db = createServerSupabase();
   try {
     await saveUserIndianKanoonToken(userId, apiKey, db);
     const userToken = await getUserIndianKanoonToken(userId, db);
@@ -287,10 +299,17 @@ userRouter.put("/indiankanoon-token", requireAuth, async (req, res) => {
 });
 
 // DELETE /user/account
+// Deleting the Better Auth user row cascades to session/account and the
+// user-scoped tables that FK to user(id) (user_profiles, user_api_keys,
+// user_indiankanoon_tokens). Replaces Supabase's auth.admin.deleteUser.
 userRouter.delete("/account", requireAuth, async (_req, res) => {
   const userId = res.locals.userId as string;
-  const db = createServerSupabase();
-  const { error } = await db.auth.admin.deleteUser(userId);
-  if (error) return void res.status(500).json({ detail: error.message });
+  try {
+    await db.delete(user).where(eq(user.id, userId));
+  } catch (err) {
+    return void res.status(500).json({
+      detail: err instanceof Error ? err.message : "Failed to delete account",
+    });
+  }
   res.status(204).send();
 });
