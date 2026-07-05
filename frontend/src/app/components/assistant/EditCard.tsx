@@ -314,7 +314,7 @@ export function EditCard({
                 <button
                     onClick={() => handle("accept")}
                     disabled={inFlight || resolved}
-                    className="px-2 py-1 text-xs rounded border border-gray-900 bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-50"
+                    className="px-2 py-1 text-xs rounded border border-primary bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                 >
                     {status === "accepted" ? "Accepted" : "Accept"}
                 </button>

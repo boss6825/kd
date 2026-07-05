@@ -177,7 +177,7 @@ function BulkEditActions({
             <button
                 onClick={() => handleAll("accept")}
                 disabled={!!busy}
-                className="px-2 py-1 text-xs rounded border border-gray-900 bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-50 inline-flex items-center gap-1"
+                className="px-2 py-1 text-xs rounded border border-primary bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 inline-flex items-center gap-1"
             >
                 {busy === "accept" && (
                     <Loader2 className="h-3 w-3 animate-spin" />
@@ -394,7 +394,7 @@ function ReasoningBlock({
                 className="flex items-center text-sm font-serif text-muted-foreground hover:text-muted-foreground transition-colors"
             >
                 {isStreaming ? (
-                    <div className="w-1.5 h-1.5 rounded-full border border-gray-400 border-t-transparent animate-spin shrink-0" />
+                    <div className="w-1.5 h-1.5 rounded-full border border-muted-foreground/70 border-t-transparent animate-spin shrink-0" />
                 ) : (
                     <div className="w-1.5 h-1.5 rounded-full bg-border shrink-0" />
                 )}
@@ -448,7 +448,7 @@ function DocReadBlock({
                 <div className="absolute bottom-0 w-[1px] bg-border top-[13px] left-[2.5px] h-[calc(100%+11px)]" />
             )}
             {isStreaming ? (
-                <div className="mt-2 w-1.5 h-1.5 rounded-full border border-gray-400 border-t-transparent animate-spin shrink-0" />
+                <div className="mt-2 w-1.5 h-1.5 rounded-full border border-muted-foreground/70 border-t-transparent animate-spin shrink-0" />
             ) : (
                 <div className="mt-2 w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
             )}
@@ -496,7 +496,7 @@ function DocFindBlock({
                 <div className="absolute bottom-0 w-[1px] bg-border top-[13px] left-[2.5px] h-[calc(100%+11px)]" />
             )}
             {isStreaming ? (
-                <div className="mt-2 w-1.5 h-1.5 rounded-full border border-gray-400 border-t-transparent animate-spin shrink-0" />
+                <div className="mt-2 w-1.5 h-1.5 rounded-full border border-muted-foreground/70 border-t-transparent animate-spin shrink-0" />
             ) : (
                 <div
                     className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 ${totalMatches > 0 ? "bg-green-400" : "bg-border"}`}
@@ -529,7 +529,7 @@ function DocCreatedBlock({
                 <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-border top-[13px] left-[2.5px] h-[calc(100%+11px)]" />
             )}
             {isStreaming ? (
-                <div className="mt-2 w-1.5 h-1.5 rounded-full border border-gray-400 border-t-transparent animate-spin shrink-0" />
+                <div className="mt-2 w-1.5 h-1.5 rounded-full border border-muted-foreground/70 border-t-transparent animate-spin shrink-0" />
             ) : (
                 <div className="mt-2 w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
             )}
@@ -569,7 +569,7 @@ function DocReplicatedBlock({
                 <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-border top-[13px] left-[2.5px] h-[calc(100%+11px)]" />
             )}
             {isStreaming ? (
-                <div className="mt-2 w-1.5 h-1.5 rounded-full border border-gray-400 border-t-transparent animate-spin shrink-0" />
+                <div className="mt-2 w-1.5 h-1.5 rounded-full border border-muted-foreground/70 border-t-transparent animate-spin shrink-0" />
             ) : (
                 <div
                     className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 ${hasError ? "bg-red-400" : "bg-green-400"}`}
@@ -773,7 +773,7 @@ function DocEditedBlock({
                 <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-border top-[13px] left-[2.5px] h-[calc(100%+11px)]" />
             )}
             {isStreaming ? (
-                <div className="mt-2 w-1.5 h-1.5 rounded-full border border-gray-400 border-t-transparent animate-spin shrink-0" />
+                <div className="mt-2 w-1.5 h-1.5 rounded-full border border-muted-foreground/70 border-t-transparent animate-spin shrink-0" />
             ) : hasError ? (
                 <div className="mt-2 w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
             ) : (
@@ -848,7 +848,7 @@ function MarkdownContent({
                     table: ({ node, ...props }) => (
                         <div className="overflow-x-auto my-4">
                             <table
-                                className="min-w-full divide-y divide-gray-300 border border-border rounded-lg overflow-hidden"
+                                className="min-w-full divide-y divide-border border border-border rounded-lg overflow-hidden"
                                 {...props}
                             />
                         </div>
@@ -1243,7 +1243,7 @@ export function AssistantMessage({
                     {showConnector && (
                         <div className="absolute bottom-0 w-[1px] bg-border top-[13px] left-[2.5px] h-[calc(100%+11px)]" />
                     )}
-                    <div className="w-1.5 h-1.5 rounded-full border border-gray-400 border-t-transparent animate-spin shrink-0" />
+                    <div className="w-1.5 h-1.5 rounded-full border border-muted-foreground/70 border-t-transparent animate-spin shrink-0" />
                     <span className="font-medium ml-2">
                         {toolCallLabel(event.name)}
                     </span>
@@ -1259,7 +1259,7 @@ export function AssistantMessage({
                     {showConnector && (
                         <div className="absolute bottom-0 w-[1px] bg-border top-[13px] left-[2.5px] h-[calc(100%+11px)]" />
                     )}
-                    <div className="w-1.5 h-1.5 rounded-full border border-gray-400 border-t-transparent animate-spin shrink-0" />
+                    <div className="w-1.5 h-1.5 rounded-full border border-muted-foreground/70 border-t-transparent animate-spin shrink-0" />
                     <span className="ml-2">Thinking...</span>
                 </div>
             );
