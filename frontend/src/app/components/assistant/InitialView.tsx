@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserProfile } from "@/contexts/UserProfileContext";
 import { MikeIcon } from "@/components/chat/mike-icon";
-import { ChatInput } from "./ChatInput";
+import { ChatInput, type ChatInputHandle } from "./ChatInput";
 import { SelectAssistantProjectModal } from "./SelectAssistantProjectModal";
 import type { MikeMessage } from "../shared/types";
 
@@ -15,6 +15,18 @@ interface InitialViewProps {
 const ICON_SIZE = 35;
 const GAP = 16; // gap-4 = 1rem = 16px
 
+/**
+ * Starter prompts for the empty state. Phrased to work cold — none of
+ * them assume a document is already attached; the assistant asks for one
+ * when it needs it.
+ */
+const SUGGESTED_PROMPTS = [
+    "Draft a legal notice under Section 138 of the Negotiable Instruments Act",
+    "Review this contract for indemnity and limitation-of-liability risks",
+    "Summarise the key obligations and termination rights in this agreement",
+    "Explain the stamp duty implications of transferring shares in a private company",
+];
+
 export function InitialView({ onSubmit }: InitialViewProps) {
     const { user } = useAuth();
     const { profile } = useUserProfile();
@@ -23,6 +35,7 @@ export function InitialView({ onSubmit }: InitialViewProps) {
     const [iconOffset, setIconOffset] = useState(0);
     const [textOffset, setTextOffset] = useState(0);
     const textRef = useRef<HTMLHeadingElement>(null);
+    const chatInputRef = useRef<ChatInputHandle>(null);
 
     const username =
         profile?.displayName?.trim() || user?.email?.split("@")[0] || "there";
@@ -76,11 +89,30 @@ export function InitialView({ onSubmit }: InitialViewProps) {
                     </div>
 
                     <ChatInput
+                        ref={chatInputRef}
                         onSubmit={onSubmit}
                         onCancel={() => {}}
                         isLoading={false}
                         onProjectsClick={() => setProjectModalOpen(true)}
                     />
+
+                    <div
+                        className="flex flex-wrap justify-center gap-2 pt-4 transition-opacity duration-700"
+                        style={{ opacity: loaded ? 1 : 0 }}
+                    >
+                        {SUGGESTED_PROMPTS.map((prompt) => (
+                            <button
+                                key={prompt}
+                                type="button"
+                                onClick={() =>
+                                    chatInputRef.current?.setValue(prompt)
+                                }
+                                className="rounded-full border border-border bg-background px-3.5 py-1.5 text-xs font-serif text-muted-foreground transition-colors hover:border-blue-200 hover:text-blue-600 cursor-pointer"
+                            >
+                                {prompt}
+                            </button>
+                        ))}
+                    </div>
 
                     <div className="text-center">
                         <p className="text-xs py-3 mb-3 text-muted-foreground">

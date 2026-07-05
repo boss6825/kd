@@ -33,6 +33,8 @@ import type { MikeDocument, MikeMessage } from "../shared/types";
 
 export interface ChatInputHandle {
     addDoc: (doc: MikeDocument) => void;
+    /** Prefill the textarea (e.g. from a suggested-prompt chip) and focus it. */
+    setValue: (text: string) => void;
 }
 
 interface Props {
@@ -79,6 +81,17 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput(
             setAttachedDocs((prev) => {
                 if (prev.some((d) => d.id === doc.id)) return prev;
                 return [...prev, doc];
+            });
+        },
+        setValue: (text: string) => {
+            setValue(text);
+            requestAnimationFrame(() => {
+                const el = textareaRef.current;
+                if (!el) return;
+                el.style.height = "auto";
+                el.style.height = `${el.scrollHeight}px`;
+                el.focus();
+                el.setSelectionRange(el.value.length, el.value.length);
             });
         },
     }));

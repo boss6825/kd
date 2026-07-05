@@ -1,7 +1,15 @@
 "use client";
 
 import { useCallback, useState, useRef, useEffect } from "react";
-import { ArrowDown } from "lucide-react";
+import {
+    MessageScroller,
+    MessageScrollerButton,
+    MessageScrollerContent,
+    MessageScrollerItem,
+    MessageScrollerProvider,
+    MessageScrollerViewport,
+} from "@/components/ui/message-scroller";
+import { Skeleton } from "@/components/ui/skeleton";
 import { UserMessage } from "./UserMessage";
 import { AssistantMessage } from "./AssistantMessage";
 import { ChatInput } from "./ChatInput";
@@ -324,15 +332,13 @@ export function ChatView({
         [patchTab],
     );
 
-    const messagesContainerRef = useRef<HTMLDivElement>(null);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-    const latestUserMessageRef = useRef<HTMLDivElement>(null);
     const chatInputRef = useRef<HTMLDivElement>(null);
-    const hasScrolledRef = useRef(false);
-    const [messagesVisible, setMessagesVisible] = useState(false);
-    const [showScrollButton, setShowScrollButton] = useState(false);
     const [inputHeight, setInputHeight] = useState(0);
-    const [minHeight, setMinHeight] = useState("0px");
+    // MessageScroller owns scroll behaviour: user messages are scroll
+    // anchors (scrolled to the top of the viewport as new turns start),
+    // saved chats restore at the last anchor, and streamed replies only
+    // follow when the user is already at the bottom.
+    const messagesVisible = messages.length > 0;
 
     useEffect(() => {
         const el = chatInputRef.current;
@@ -344,93 +350,6 @@ export function ChatView({
         setInputHeight(el.offsetHeight);
         return () => observer.disconnect();
     }, []);
-
-    useEffect(() => {
-        if (latestUserMessageRef.current) {
-            const headerHeight = window.innerWidth < 768 ? 56 : 0;
-            const gap = window.innerWidth < 768 ? 16 : 24;
-            const paddingBottom = 128;
-            const marginBottom = 48;
-            const userMessageHeight = latestUserMessageRef.current.offsetHeight;
-            setMinHeight(
-                `calc(100dvh - ${headerHeight + gap + userMessageHeight + paddingBottom + marginBottom}px)`,
-            );
-        }
-    }, [messages.length, latestUserMessageRef.current]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const updateScrollButton = useCallback(() => {
-        const c = messagesContainerRef.current;
-        if (!c) return;
-        const isScrolledUp = c.scrollHeight - c.scrollTop - c.clientHeight > 10;
-        setShowScrollButton(isScrolledUp && c.scrollHeight > c.clientHeight);
-    }, []);
-
-    useEffect(() => {
-        const c = messagesContainerRef.current;
-        if (!c) return;
-        c.addEventListener("scroll", updateScrollButton);
-        updateScrollButton();
-        return () => c.removeEventListener("scroll", updateScrollButton);
-    }, [messages, updateScrollButton]);
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-
-    const scrollLatestUserToTop = useCallback(() => {
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                const container = messagesContainerRef.current;
-                const element = latestUserMessageRef.current;
-                if (!container || !element) return;
-                container.scrollTo({
-                    top: element.offsetTop - 24,
-                    behavior: "smooth",
-                });
-            });
-        });
-    }, []);
-
-    useEffect(() => {
-        const last = messages[messages.length - 1];
-        if (last?.role === "user") scrollLatestUserToTop();
-    }, [messages, scrollLatestUserToTop]);
-
-    useEffect(() => {
-        if (isResponseLoading) scrollLatestUserToTop();
-    }, [isResponseLoading, scrollLatestUserToTop]);
-
-    useEffect(() => {
-        if (messages.length === 0) {
-            hasScrolledRef.current = false;
-            setMessagesVisible(false);
-        } else if (!hasScrolledRef.current) {
-            const userMsgCount = messages.filter(
-                (m) => m.role === "user",
-            ).length;
-            if (
-                userMsgCount >= 2 &&
-                latestUserMessageRef.current &&
-                messagesContainerRef.current
-            ) {
-                setTimeout(() => {
-                    const container = messagesContainerRef.current;
-                    const element = latestUserMessageRef.current;
-                    if (container && element) {
-                        container.scrollTo({
-                            top: element.offsetTop - 24,
-                            behavior: "instant",
-                        });
-                    }
-                    hasScrolledRef.current = true;
-                    setMessagesVisible(true);
-                }, 100);
-            } else {
-                hasScrolledRef.current = true;
-                setMessagesVisible(true);
-            }
-        }
-    }, [messages]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (panelMounted && window.innerWidth < 768) {
@@ -448,124 +367,126 @@ export function ChatView({
             {/* Chat column */}
             <div className="flex flex-col h-full flex-1 relative">
                 {/* Scrollable messages */}
-                <div
-                    ref={messagesContainerRef}
-                    className="flex-1 w-full overflow-y-auto"
-                    style={{ scrollbarGutter: "stable both-edges" }}
-                >
-                    <div className="w-full max-w-4xl mx-auto pb-32 px-6 md:px-8 pt-4 md:pt-6 min-h-full flex flex-col relative">
-                        {!messagesVisible && (
-                            <div className="space-y-6 w-full">
-                                <div className="flex justify-end">
-                                    <div className="bg-muted rounded-2xl p-4 w-2/5">
-                                        <div className="h-4 bg-gradient-to-r from-muted via-border to-muted bg-[length:200%_100%] animate-[shimmer_2s_ease-in-out_infinite] rounded w-full" />
-                                    </div>
-                                </div>
-                                <div className="space-y-3">
-                                    {[1, 2, 3, 4].map((i) => (
-                                        <div
-                                            key={i}
-                                            className={`h-4 bg-gradient-to-r from-muted via-border to-muted bg-[length:200%_100%] animate-[shimmer_2s_ease-in-out_infinite] rounded ${i === 3 ? "w-5/6" : i === 4 ? "w-4/6" : "w-full"}`}
-                                        />
-                                    ))}
-                                </div>
+                {!messagesVisible ? (
+                    <div className="flex-1 w-full overflow-hidden">
+                        <div className="w-full max-w-4xl mx-auto px-6 md:px-8 pt-4 md:pt-6 space-y-6">
+                            <div className="flex justify-end">
+                                <Skeleton className="rounded-2xl h-12 w-2/5" />
                             </div>
-                        )}
-                        <div
-                            className="space-y-6 transition-opacity duration-150"
-                            style={{ opacity: messagesVisible ? 1 : 0 }}
-                        >
-                            {(() => {
-                                const lastUserIndex = messages
-                                    .map((m) => m.role)
-                                    .lastIndexOf("user");
-                                const lastAssistantIndex = messages
-                                    .map((m) => m.role)
-                                    .lastIndexOf("assistant");
-                                return messages.map((msg, i) => (
-                                    <div
+                            <div className="space-y-3">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <Skeleton
                                         key={i}
-                                        ref={
-                                            i === lastUserIndex
-                                                ? latestUserMessageRef
-                                                : null
-                                        }
-                                    >
-                                        {msg.role === "user" ? (
-                                            <UserMessage
-                                                content={msg.content ?? ""}
-                                                files={(msg as any).files}
-                                                workflow={(msg as any).workflow}
-                                            />
-                                        ) : (
-                                            <AssistantMessage
-                                                content={msg.content ?? ""}
-                                                events={msg.events}
-                                                isStreaming={
-                                                    i === messages.length - 1 &&
-                                                    isResponseLoading
-                                                }
-                                                isError={!!(msg as any).error}
-                                                errorMessage={
-                                                    typeof (msg as any).error ===
-                                                    "string"
-                                                        ? (msg as any).error
-                                                        : undefined
-                                                }
-                                                annotations={msg.annotations}
-                                                onCitationClick={openCitation}
-                                                minHeight={
-                                                    i === lastAssistantIndex
-                                                        ? minHeight
-                                                        : "0px"
-                                                }
-                                                onWorkflowClick={(id) => {
-                                                    setWorkflowModalInitialId(
-                                                        id,
-                                                    );
-                                                    setWorkflowModalOpen(true);
-                                                }}
-                                                onEditViewClick={openEditor}
-                                                onOpenDocument={openDocument}
-                                                onEditResolveStart={
-                                                    handleEditResolveStart
-                                                }
-                                                onEditResolved={
-                                                    handleEditResolved
-                                                }
-                                                onEditError={handleEditError}
-                                                isDocReloading={(docId) =>
-                                                    reloadingDocIds.has(docId)
-                                                }
-                                                isEditReloading={(editId) =>
-                                                    reloadingEditIds.has(editId)
-                                                }
-                                                resolvedEditStatuses={
-                                                    resolvedEditStatuses
-                                                }
-                                            />
-                                        )}
-                                    </div>
-                                ));
-                            })()}
-                            <div ref={messagesEndRef} />
+                                        className={`h-4 rounded ${i === 3 ? "w-5/6" : i === 4 ? "w-4/6" : "w-full"}`}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                {/* Scroll to bottom button */}
-                {showScrollButton && (
-                    <div
-                        className="absolute left-1/2 -translate-x-1/2 z-19"
-                        style={{ bottom: inputHeight + 12 }}
+                ) : (
+                    <MessageScrollerProvider
+                        autoScroll
+                        defaultScrollPosition="last-anchor"
+                        scrollMargin={24}
                     >
-                        <button
-                            onClick={scrollToBottom}
-                            className="p-2 rounded-full bg-background/70 backdrop-blur-xs shadow-lg cursor-pointer border border-input"
-                        >
-                            <ArrowDown className="h-6 w-6 text-muted-foreground" />
-                        </button>
-                    </div>
+                        <MessageScroller className="flex-1 min-h-0">
+                            <MessageScrollerViewport
+                                style={{
+                                    scrollbarGutter: "stable both-edges",
+                                }}
+                            >
+                                <MessageScrollerContent className="w-full max-w-4xl mx-auto pb-32 px-6 md:px-8 pt-4 md:pt-6 gap-6">
+                                    {messages.map((msg, i) => (
+                                        <MessageScrollerItem
+                                            key={i}
+                                            messageId={`m-${i}`}
+                                            scrollAnchor={msg.role === "user"}
+                                        >
+                                            {msg.role === "user" ? (
+                                                <UserMessage
+                                                    content={msg.content ?? ""}
+                                                    files={(msg as any).files}
+                                                    workflow={
+                                                        (msg as any).workflow
+                                                    }
+                                                />
+                                            ) : (
+                                                <AssistantMessage
+                                                    content={msg.content ?? ""}
+                                                    events={msg.events}
+                                                    isStreaming={
+                                                        i ===
+                                                            messages.length -
+                                                                1 &&
+                                                        isResponseLoading
+                                                    }
+                                                    isError={
+                                                        !!(msg as any).error
+                                                    }
+                                                    errorMessage={
+                                                        typeof (msg as any)
+                                                            .error === "string"
+                                                            ? (msg as any)
+                                                                  .error
+                                                            : undefined
+                                                    }
+                                                    annotations={
+                                                        msg.annotations
+                                                    }
+                                                    onCitationClick={
+                                                        openCitation
+                                                    }
+                                                    onWorkflowClick={(id) => {
+                                                        setWorkflowModalInitialId(
+                                                            id,
+                                                        );
+                                                        setWorkflowModalOpen(
+                                                            true,
+                                                        );
+                                                    }}
+                                                    onEditViewClick={
+                                                        openEditor
+                                                    }
+                                                    onOpenDocument={
+                                                        openDocument
+                                                    }
+                                                    onEditResolveStart={
+                                                        handleEditResolveStart
+                                                    }
+                                                    onEditResolved={
+                                                        handleEditResolved
+                                                    }
+                                                    onEditError={
+                                                        handleEditError
+                                                    }
+                                                    isDocReloading={(docId) =>
+                                                        reloadingDocIds.has(
+                                                            docId,
+                                                        )
+                                                    }
+                                                    isEditReloading={(
+                                                        editId,
+                                                    ) =>
+                                                        reloadingEditIds.has(
+                                                            editId,
+                                                        )
+                                                    }
+                                                    resolvedEditStatuses={
+                                                        resolvedEditStatuses
+                                                    }
+                                                />
+                                            )}
+                                        </MessageScrollerItem>
+                                    ))}
+                                </MessageScrollerContent>
+                            </MessageScrollerViewport>
+                            <MessageScrollerButton
+                                direction="end"
+                                className="z-19"
+                                style={{ bottom: inputHeight + 12 }}
+                            />
+                        </MessageScroller>
+                    </MessageScrollerProvider>
                 )}
 
                 {/* Chat input */}
