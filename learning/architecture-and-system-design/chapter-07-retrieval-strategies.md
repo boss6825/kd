@@ -1,6 +1,6 @@
-# Chapter 7 — Retrieval: RAG vs Tools vs Long Context
+# Chapter 7: Retrieval: RAG vs Tools vs Long Context
 
-An agent is only as good as the information it can bring to bear. Getting the right facts in front of the model is the *retrieval* problem, and there are three broad strategies: stuff everything into a long context, retrieve relevant chunks (RAG), or let the model fetch what it needs through tools. This chapter compares them and explains when each wins — and why a tool-based approach is often the right default for document agents.
+An agent is only as good as the information it can bring to bear. Getting the right facts in front of the model is the *retrieval* problem, and there are three broad strategies: stuff everything into a long context, retrieve relevant chunks (RAG), or let the model fetch what it needs through tools. This chapter compares them and explains when each wins, and why a tool-based approach is often the right default for document agents.
 
 ## The three strategies
 
@@ -20,7 +20,7 @@ Pre-process documents into chunks, embed them into a vector store, and at query 
 
 ### 3. Tool-based retrieval ("let the model fetch")
 
-Give the model tools to read and search content on demand — "read this document," "find this phrase," "list what's available" — and let *it* decide what to pull, driven by the task.
+Give the model tools to read and search content on demand, "read this document," "find this phrase," "list what's available," and let *it* decide what to pull, driven by the task.
 
 - **Wins when:** the model can reason about *what* it needs (it knows it wants "the termination clause"), exactness matters, you need whole-document or targeted reads, and content changes (tools always fetch the current version).
 - **Loses when:** the corpus is so large the model can't even know what exists without help (then you add a search/list tool, blending toward RAG), or when latency from multiple fetch round-trips is unacceptable.
@@ -42,9 +42,9 @@ The cost is multiple round-trips (the model reads, then acts), which the agent l
 Tool-based retrieval assumes the model knows *what* to fetch. When the corpus is large enough that the model can't enumerate it, give it discovery tools:
 
 - A **list** tool ("what documents are in this project?") so it can see what exists.
-- A **search** tool — which, under the hood, might be keyword search, full-text search, or *vector* search. This is where RAG techniques re-enter: a `search` tool backed by embeddings, exposed to the model as just another tool it can call.
+- A **search** tool, which, under the hood, might be keyword search, full-text search, or *vector* search. This is where RAG techniques re-enter: a `search` tool backed by embeddings, exposed to the model as just another tool it can call.
 
-This hybrid — tools for reading and acting, plus a search tool (possibly RAG-powered) for discovery — scales from a handful of documents to large corpora while keeping the model in control of retrieval. The crucial framing: **RAG becomes a tool the model can choose to call, not the mandatory front door for every query.**
+This hybrid, tools for reading and acting, plus a search tool (possibly RAG-powered) for discovery, scales from a handful of documents to large corpora while keeping the model in control of retrieval. The crucial framing: **RAG becomes a tool the model can choose to call, not the mandatory front door for every query.**
 
 ## A decision guide
 
@@ -67,8 +67,8 @@ For grounded, auditable agents, retrieval and citation are two halves of one des
 
 ## The bottom line
 
-Don't reach for a vector database reflexively because "RAG" is the default story. For many agents — especially those working with a user's own identified documents and needing exact, citable, current answers — giving the model good read/find/list tools is simpler, more accurate, and more maintainable. Add semantic search as a *tool* when, and only when, corpus scale demands it.
+Don't reach for a vector database reflexively because "RAG" is the default story. For many agents, especially those working with a user's own identified documents and needing exact, citable, current answers, giving the model good read/find/list tools is simpler, more accurate, and more maintainable. Add semantic search as a *tool* when, and only when, corpus scale demands it.
 
 ---
 
-Next: [Chapter 8 — Streaming and real-time UX](chapter-08-streaming-ux.md)
+Next: [Chapter 8: Streaming and real-time UX](chapter-08-streaming-ux.md)

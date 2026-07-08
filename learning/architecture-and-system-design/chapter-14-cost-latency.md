@@ -1,10 +1,10 @@
-# Chapter 14 — Cost, Latency, and Model Tiering
+# Chapter 14: Cost, Latency, and Model Tiering
 
-Agents can be expensive and slow if built naively, and both problems compound: an agent loop makes *multiple* model calls per turn, each potentially large. Cost and latency are not afterthoughts to optimize later — they're design constraints that shape your architecture. This chapter covers where the costs and delays come from and the levers that control them.
+Agents can be expensive and slow if built naively, and both problems compound: an agent loop makes *multiple* model calls per turn, each potentially large. Cost and latency are not afterthoughts to optimize later; they're design constraints that shape your architecture. This chapter covers where the costs and delays come from and the levers that control them.
 
 ## Where cost comes from
 
-LLM cost is driven by **tokens** — input (everything you send) and output (everything the model generates), usually priced separately with output more expensive. For an agent, the multipliers are:
+LLM cost is driven by **tokens**: input (everything you send) and output (everything the model generates), usually priced separately with output more expensive. For an agent, the multipliers are:
 
 - **Loop iterations.** Each tool round-trip is another model call that re-sends accumulated context. A 5-iteration turn can cost several times a single call.
 - **Context size.** Every token of context is paid for on every call. Bloated prompts and dumped tool results are paid for repeatedly across the loop.
@@ -15,11 +15,11 @@ LLM cost is driven by **tokens** — input (everything you send) and output (eve
 
 Latency has overlapping sources:
 
-- **Time to first token** — how long before the model starts responding. Streaming hides this, but it still gates perceived responsiveness.
-- **Generation time** — proportional to output length and model speed.
-- **Loop depth** — each iteration is a serial round-trip; a deep loop is slow even if each call is fast.
-- **Tool latency** — slow external APIs (some take tens of seconds) stall the turn.
-- **Context size** — larger inputs take longer to process (prefill).
+- **Time to first token**: how long before the model starts responding. Streaming hides this, but it still gates perceived responsiveness.
+- **Generation time**: proportional to output length and model speed.
+- **Loop depth**: each iteration is a serial round-trip; a deep loop is slow even if each call is fast.
+- **Tool latency**: slow external APIs (some take tens of seconds) stall the turn.
+- **Context size**: larger inputs take longer to process (prefill).
 
 ## The master lever: model tiering
 
@@ -40,7 +40,7 @@ Reasoning is a per-call decision (Chapters 4, 8). On for hard interactive tasks 
 Since context is paid for on every loop iteration, controlling it is controlling cost:
 
 - **Reference, don't embed** (Chapter 5). Don't paste documents into the prompt; let the model fetch via tools, paying for content only when used.
-- **Distill tool results.** Cap long payloads, return decision-relevant fields, offer a "get more" tool. A giant unfiltered tool result is re-sent on every subsequent iteration — paying for it repeatedly.
+- **Distill tool results.** Cap long payloads, return decision-relevant fields, offer a "get more" tool. A giant unfiltered tool result is re-sent on every subsequent iteration, paying for it repeatedly.
 - **Curate history.** Use a recent window or summarization rather than re-sending an ever-growing transcript.
 - **Keep prompts focused.** Load task-specific instructions on demand instead of carrying every possible instruction in the system prompt on every call.
 
@@ -54,7 +54,7 @@ Fewer iterations means fewer calls means less cost and latency:
 
 ## Parallelize independent work
 
-When sub-tasks don't depend on each other, run them concurrently rather than serially. Bulk extraction across documents is embarrassingly parallel — fan out across documents instead of looping one at a time. This doesn't reduce total token cost, but it slashes wall-clock latency, which is often what users feel. (Mind provider rate limits when fanning out; Chapter 13.)
+When sub-tasks don't depend on each other, run them concurrently rather than serially. Bulk extraction across documents is embarrassingly parallel: fan out across documents instead of looping one at a time. This doesn't reduce total token cost, but it slashes wall-clock latency, which is often what users feel. (Mind provider rate limits when fanning out; Chapter 13.)
 
 ## Cache aggressively
 
@@ -71,18 +71,18 @@ Output tokens are expensive and slow. Don't ask for more than needed: cap output
 
 ## Measure before optimizing
 
-Don't guess where the cost goes — instrument it (Chapter 15). Track tokens per turn, per task type, and per model; track loop depth and tool latency. Usually a small number of patterns dominate the bill (a heavy tool result re-sent every iteration; a flagship model used for a background task). Find those and fix them, rather than micro-optimizing prompts that barely move the needle.
+Don't guess where the cost goes; instrument it (Chapter 15). Track tokens per turn, per task type, and per model; track loop depth and tool latency. Usually a small number of patterns dominate the bill (a heavy tool result re-sent every iteration; a flagship model used for a background task). Find those and fix them, rather than micro-optimizing prompts that barely move the needle.
 
 ## Metering and limits
 
-Commercial agents need to *bound* cost per user. Build usage metering into the data model (Chapter 9) — per-user counters, reset windows, plan tiers — so you can enforce limits and attribute spend. BYOK (Chapter 12) shifts model cost to users entirely, which is itself a cost strategy for self-hosted products.
+Commercial agents need to *bound* cost per user. Build usage metering into the data model (Chapter 9): per-user counters, reset windows, plan tiers, so you can enforce limits and attribute spend. BYOK (Chapter 12) shifts model cost to users entirely, which is itself a cost strategy for self-hosted products.
 
 ## The cost/latency playbook
 
-1. **Tier your models** — cheapest capable model per task. (Biggest lever.)
+1. **Tier your models**: cheapest capable model per task. (Biggest lever.)
 2. **Reasoning off** for bulk/one-shot work; on for hard interactive tasks.
-3. **Shrink context** — reference don't embed, distill tool results, curate history.
-4. **Cut iterations** — batch tools, good descriptions, cheap discovery tools.
+3. **Shrink context**: reference don't embed, distill tool results, curate history.
+4. **Cut iterations**: batch tools, good descriptions, cheap discovery tools.
 5. **Parallelize** independent work to cut wall-clock time.
 6. **Cache** external calls and exploit prompt caching with a stable prefix.
 7. **Stream** to mask the latency that remains.
@@ -93,4 +93,4 @@ Cost and latency are won the same way: send fewer tokens to cheaper, faster mode
 
 ---
 
-Next: [Chapter 15 — Observability and evaluation](chapter-15-observability-eval.md)
+Next: [Chapter 15: Observability and evaluation](chapter-15-observability-eval.md)

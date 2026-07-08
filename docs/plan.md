@@ -1,4 +1,4 @@
-# KD — Product & Growth Strategy
+# KD - Product & Growth Strategy
 
 *Written July 2026. Grounded in the current codebase, verified competitor research, and the realities of the Indian litigation market. Target user: High Court / Supreme Court litigators and tech-comfortable chambers, not tier-3 general practice (yet).*
 
@@ -8,17 +8,21 @@
 
 ### What we have (and it's more than it looks)
 
-| Capability | State |
-|---|---|
-| Agentic chat ("Mike") over case files, with citations | Shipped |
-| DOCX drafting with automatic legal clause numbering | Shipped |
-| Tracked-changes editing with per-edit accept/reject | Shipped — genuinely rare, even Harvey-class products struggle here |
-| Tabular review (bulk extraction across documents → Excel) | Shipped |
-| Case-law research via Indian Kanoon API | Shipped (chat tool) |
-| Live case data via eCourts partner API — case status, parties, advocates, **next hearing dates**, full order text, AI order analysis | Shipped (chat tool only) |
-| Multi-provider LLM (Claude / Gemini / GPT) + BYOK | Shipped |
-| Workflows (reusable prompt templates, shareable) | Shipped |
-| Document versioning, R2 storage, project workspaces | Shipped |
+
+| Capability                                                                                                                           | State                                                              |
+| ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| Agentic chat ("Mike") over case files, with citations                                                                                | Shipped                                                            |
+| DOCX drafting with automatic legal clause numbering                                                                                  | Shipped                                                            |
+| Tracked-changes editing with per-edit accept/reject                                                                                  | Shipped — genuinely rare, even Harvey-class products struggle here |
+| Tabular review (bulk extraction across documents → Excel)                                                                            | Shipped                                                            |
+| Case-law research via Indian Kanoon API                                                                                              | Shipped (chat tool)                                                |
+| Live case data via eCourts partner API — case status, parties, advocates, **next hearing dates**, full order text, AI order analysis | Shipped (chat tool only)                                           |
+| Multi-provider LLM (Claude / Gemini / GPT) + BYOK                                                                                    | Shipped                                                            |
+| Workflows (reusable prompt templates, shareable)                                                                                     | Shipped                                                            |
+| Document versioning, R2 storage, project workspaces                                                                                  | Shipped                                                            |
+
+
+
 
 ### What's missing
 
@@ -29,6 +33,8 @@
 - **No notifications** beyond auth emails.
 - **No judgment corpus of our own** — and (see below) we should NOT try to build one.
 
+
+
 ### The positioning claim
 
 > **KD is the daily practice OS for the Indian litigator** — the tool that knows your board, preps you for tomorrow, and drafts what comes next.
@@ -37,16 +43,20 @@ Not "another legal research tool." That fight is lost before it starts (see §2)
 
 ---
 
+
+
 ## 2. Competitor landscape (verified, July 2026)
 
-| Player | What they actually are | Threat to us |
-|---|---|---|
-| **Lucio** (BLR, ~$7.7M raised, $5M led by DeVC) | **India-focused** (correcting our earlier read — not US-first): 200+ orgs, 3,000+ users, 9 jurisdictions. Drafting, research, timelines, OCR, redaction, Indian-language translation. Sells to firms/orgs. | High on drafting/firm side. Weak on the litigator's daily court loop. |
-| **Jhana.ai** | "National Legal Archive": **16M+ judgments** with editorial headnotes and semantic retrieval — this dataset IS a real moat. Steno (Hindi/Tamil/Telugu/Kannada dictation), AI paralegal, free tier, 10k+ users, courtroom APIs built with 150+ judges/registrars. | Highest. But their center of gravity is *research and the archive*, not case tracking / daily practice. |
-| **Manupatra.ai** | 25-year incumbent database, 100k+ subscribers, layering AI research + MyKase practice management. | Medium — distribution monster, slow product. |
-| **SCC Online** | Piloting an Azure OpenAI conversational research assistant. | Signal that incumbents are waking up. Research parity is a treadmill. |
-| **LegitQuest** | Pivoting B2B: litigation due-diligence for banks/fintechs (LIBIL, iDRAF). | Low — different buyer. |
-| Long tail | CaseMine (AMICUS), VIDUR, BharatLaw.AI, free chatbots (KanoonGPT, NyayGuru). ~800 active legaltech startups. | Noise, but crowds the "AI legal research" message. |
+
+| Player                                          | What they actually are                                                                                                                                                                                                                                           | Threat to us                                                                                            |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Lucio** (BLR, ~$7.7M raised, $5M led by DeVC) | **India-focused** (correcting our earlier read — not US-first): 200+ orgs, 3,000+ users, 9 jurisdictions. Drafting, research, timelines, OCR, redaction, Indian-language translation. Sells to firms/orgs.                                                       | High on drafting/firm side. Weak on the litigator's daily court loop.                                   |
+| **Jhana.ai**                                    | "National Legal Archive": **16M+ judgments** with editorial headnotes and semantic retrieval — this dataset IS a real moat. Steno (Hindi/Tamil/Telugu/Kannada dictation), AI paralegal, free tier, 10k+ users, courtroom APIs built with 150+ judges/registrars. | Highest. But their center of gravity is *research and the archive*, not case tracking / daily practice. |
+| **Manupatra.ai**                                | 25-year incumbent database, 100k+ subscribers, layering AI research + MyKase practice management.                                                                                                                                                                | Medium — distribution monster, slow product.                                                            |
+| **SCC Online**                                  | Piloting an Azure OpenAI conversational research assistant.                                                                                                                                                                                                      | Signal that incumbents are waking up. Research parity is a treadmill.                                   |
+| **LegitQuest**                                  | Pivoting B2B: litigation due-diligence for banks/fintechs (LIBIL, iDRAF).                                                                                                                                                                                        | Low — different buyer.                                                                                  |
+| Long tail                                       | CaseMine (AMICUS), VIDUR, BharatLaw.AI, free chatbots (KanoonGPT, NyayGuru). ~800 active legaltech startups.                                                                                                                                                     | Noise, but crowds the "AI legal research" message.                                                      |
+
 
 Analysts expect consolidation to 4–5 winners by 2027–28. The pattern the founder spotted is real: **every Indian player owns one or two niches; nobody owns the whole day of a litigator.** Harvey's insight (Assistant + Vault + Workflows + Knowledge as one surface) hasn't been translated to the *litigation* context in India — everyone translated it to the *research* or *firm drafting* context.
 
@@ -57,6 +67,7 @@ Analysts expect consolidation to 4–5 winners by 2027–28. The pattern the fou
 Research tools are opened at research moments (a few times a week). The daily loop is opened **every evening and every morning**. Own the loop and you own the habit; own the habit and research/drafting revenue follows for free.
 
 **Explicitly de-prioritized (deliberate "no"s):**
+
 - Building our own judgment corpus / vector DB — we cannot out-dataset Jhana's 16M archive or Manupatra's 25 years. Indian Kanoon's API is good enough for the research moments our users have.
 - Steno-style dictation — commodity (Whisper-class models), and Jhana already ships it.
 - Tier-3 market — revisit after PMF with the HC/SC segment.
@@ -64,7 +75,11 @@ Research tools are opened at research moments (a few times a week). The daily lo
 
 ---
 
+
+
 ## 3. Product: the "can't-resist" features, ranked by leverage ÷ effort
+
+
 
 ### 3.1 Hearing alerts on WhatsApp ⭐ *the wedge*
 
@@ -79,10 +94,13 @@ Why this is the wedge: "am I listed tomorrow?" is the daily anxiety of every lit
 ### 3.2 Case-tracking dashboard
 
 A dedicated route (not chat): the lawyer's full board.
+
 - All tracked matters, next dates, court, stage, last order.
 - Timeline view per matter (orders in sequence — eCourts already returns interim + final orders with full text).
 - One-click "summarize the latest order" — the eCourts `getOrderAi` analysis (executive summary, ratio, statutes, directions) already exists in our client; it just has no UI.
 - Deep-link each matter into a project chat with the case file loaded.
+
+
 
 ### 3.3 "Tomorrow's board" evening digest
 
@@ -109,16 +127,21 @@ District-court records are largely Hindi (and regional languages); HC appellate 
 ### 3.7 Billing (Razorpay)
 
 Wire up the dormant credits/tier plumbing:
+
 - **Free**: limited chats/month + 3 tracked cases + alerts. The free tier is the growth engine (see §5), so tracked-case alerts stay free at small scale forever.
 - **Pro (solo)**: ₹1,499–2,499/month — unlimited tracking, digests, cite-check, templates, tabular review.
 - **Chambers**: per-seat with a shared workspace; the senior pays, juniors use.
 - Monthly INR, UPI autopay. No annual-only plans — Indian solo professionals don't prepay strangers.
+
+
 
 ### 3.8 Later (not now)
 
 MS Word add-in (Harvey-style, drafts where lawyers actually live) — high value, high effort; after the loop is owned. Mobile app — the WhatsApp bot *is* the mobile app for v1.
 
 ---
+
+
 
 ## 4. Go-to-market for a tech founder (practical, in order)
 
@@ -135,6 +158,7 @@ The daily user is the junior associate / law clerk — tech-comfortable, does th
 ### 4.3 Pick one beachhead bar
 
 Don't market to "Indian lawyers." Pick one dense, repeat-workflow community and win it completely:
+
 - **Delhi HC commercial/arbitration bar** — document-heavy, deadline-driven, highest tech comfort, highest willingness to pay; or
 - **Section 138 NI practitioners** — massive volume, brutally repetitive drafting (template gallery shines), tracked across many courts (alerts shine).
 
@@ -147,6 +171,8 @@ Being "the tool everyone in *our* bar uses" beats being vaguely known everywhere
 - **NLU campuses** — see §5 (internship kit).
 - **Bar association CLE/demo sessions** — one good live demo to a bar association reaches 200 lawyers with zero ad spend.
 
+
+
 ### 4.5 What NOT to do
 
 - No paid ads (lawyers distrust ads; CAC will be absurd).
@@ -155,6 +181,8 @@ Being "the tool everyone in *our* bar uses" beats being vaguely known everywhere
 - No "AI will replace paralegals" messaging — juniors are our users; frame everything as *the junior who came with superpowers*.
 
 ---
+
+
 
 ## 5. Out-of-the-box growth ideas
 
@@ -194,26 +222,33 @@ Bar Council rules bar *lawyers* from advertising — but not legaltech, and not 
 
 ---
 
+
+
 ## 6. Sequencing — 30 / 60 / 90 days
 
 **Days 0–30 — ship the wedge**
+
 - WhatsApp hearing alerts (nightly eCourts re-check on tracked CNRs + WhatsApp Business API).
 - Case-tracking dashboard v1 (board of matters, next dates, order timeline, order-AI summaries).
 - Razorpay + free/pro tiers wired to the existing credits plumbing.
 - Recruit 10 founding lawyers; onboard them by hand.
 
 **Days 30–60 — deepen the loop, open the funnel**
+
 - "Tomorrow's board" evening digest with AI prep briefs.
 - Cite-check v1 (existence + citation-format check via Indian Kanoon).
 - Template gallery: top 5 filings for the beachhead bar.
 - Public WhatsApp CNR bot (rate-limited).
 
 **Days 60–90 — widen**
+
 - Vernacular translate-on-upload.
 - Same-day judgment notes engine + first "adopt a chamber" pilots.
 - Chamber plans; convert first paying customers; NLU student tier.
 
 ---
+
+
 
 ## 7. Risks & constraints
 
@@ -226,6 +261,9 @@ Bar Council rules bar *lawyers* from advertising — but not legaltech, and not 
 
 ---
 
+
+
 ## The one-line strategy
 
 > Ship WhatsApp hearing alerts on the eCourts data we already fetch, make the evening digest a ritual, let the free CNR bot and the juniors spread it chamber to chamber — and by the time competitors notice, KD is the first thing an Indian litigator checks at night and the last thing they'd give up.
+

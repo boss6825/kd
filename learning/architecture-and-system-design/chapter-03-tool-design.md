@@ -1,16 +1,16 @@
-# Chapter 3 — Tool Design
+# Chapter 3: Tool Design
 
-Tools are how an agent acts. The set of tools defines what an agent *can* do; the *design* of those tools determines whether the model uses them correctly. This chapter is about designing tools and their schemas well — arguably the highest-leverage skill in building agents, because a well-designed tool turns an unreliable model into a reliable system, and a badly-designed one does the opposite.
+Tools are how an agent acts. The set of tools defines what an agent *can* do; the *design* of those tools determines whether the model uses them correctly. This chapter is about designing tools and their schemas well, arguably the highest-leverage skill in building agents, because a well-designed tool turns an unreliable model into a reliable system, and a badly-designed one does the opposite.
 
 ## What a tool is
 
 A tool is a function the model can call, exposed to it as a schema with three parts:
 
-- **A name** — the identifier the model emits to call it.
-- **A description** — natural-language instructions telling the model what the tool does and when/how to use it.
-- **A parameter schema** — typically JSON Schema, defining the arguments and their types.
+- **A name**: the identifier the model emits to call it.
+- **A description**: natural-language instructions telling the model what the tool does and when/how to use it.
+- **A parameter schema**: typically JSON Schema, defining the arguments and their types.
 
-When the model wants to act, it emits a tool call: the name plus arguments matching the schema. Your code runs the corresponding function and returns a result, which the model reads. The description and schema are the *entire interface* the model has to your capability — so they must teach, not just declare.
+When the model wants to act, it emits a tool call: the name plus arguments matching the schema. Your code runs the corresponding function and returns a result, which the model reads. The description and schema are the *entire interface* the model has to your capability, so they must teach, not just declare.
 
 ## The description is a prompt
 
@@ -25,11 +25,11 @@ Time spent sharpening descriptions usually beats time spent tweaking the system 
 
 ## Granularity: how big should a tool be?
 
-A central design question is tool *granularity* — too fine and the model drowns in calls; too coarse and it can't express what it needs.
+A central design question is tool *granularity*: too fine and the model drowns in calls; too coarse and it can't express what it needs.
 
-- **Too granular** — `open_file`, `read_line`, `close_file` forces the model to orchestrate plumbing. Prefer `read_document`.
-- **Too coarse** — a single `do_everything` tool with a giant polymorphic schema confuses the model about what it can actually do.
-- **Right-sized** — each tool maps to one meaningful user-level action. "Read a document," "search case law," "generate a document," "edit a document."
+- **Too granular**: `open_file`, `read_line`, `close_file` forces the model to orchestrate plumbing. Prefer `read_document`.
+- **Too coarse**: a single `do_everything` tool with a giant polymorphic schema confuses the model about what it can actually do.
+- **Right-sized**: each tool maps to one meaningful user-level action. "Read a document," "search case law," "generate a document," "edit a document."
 
 A good test: each tool should correspond to a verb a *user* would recognise. If you can't describe the tool in one clear sentence, it's probably mis-sized.
 
@@ -41,7 +41,7 @@ A recurring, valuable pattern: offer a **cheap, narrow** variant alongside an **
 - "Get just the metadata" (cheap) vs. "fetch the full text" (expensive).
 - "List what's available" (cheap discovery) vs. "fetch these N items" (expensive retrieval).
 
-Without the cheap option, the model pays full price for every lookup — more tokens, more latency, more cost. The cheap variant lets it confirm a fact or locate a needle without ingesting a haystack. Give the model economical options and it will often use them.
+Without the cheap option, the model pays full price for every lookup: more tokens, more latency, more cost. The cheap variant lets it confirm a fact or locate a needle without ingesting a haystack. Give the model economical options and it will often use them.
 
 ## Batching
 
@@ -67,7 +67,7 @@ When a tool produces formatted output (a document, a spreadsheet), prefer **stru
 - lets you enforce house style/numbering/branding,
 - and makes the model responsible only for content.
 
-Tell the model what *not* to do (don't type the numbers, don't repeat the title) because your generator handles those. This division — model decides content, code decides format — is one of the most reliable patterns for producing polished artifacts.
+Tell the model what *not* to do (don't type the numbers, don't repeat the title) because your generator handles those. This division, model decides content, code decides format, is one of the most reliable patterns for producing polished artifacts.
 
 ## Tool results are also an interface
 
@@ -84,7 +84,7 @@ Not every tool belongs in every context. A tool to "list documents in this folde
 
 ## Tools and the provider abstraction
 
-If you support multiple model providers (Chapter 4), define your tools once in a single canonical schema format and convert to each provider's dialect at the boundary. Then adding a tool is purely additive — one schema, one executor branch — and it works across every model. Don't let provider-specific tool formats leak into your tool definitions.
+If you support multiple model providers (Chapter 4), define your tools once in a single canonical schema format and convert to each provider's dialect at the boundary. Then adding a tool is purely additive: one schema, one executor branch, and it works across every model. Don't let provider-specific tool formats leak into your tool definitions.
 
 ## A checklist for a well-designed tool
 
@@ -100,4 +100,4 @@ If you support multiple model providers (Chapter 4), define your tools once in a
 
 ---
 
-Next: [Chapter 4 — Model-provider abstraction and multi-model strategy](chapter-04-provider-abstraction.md)
+Next: [Chapter 4: Model-provider abstraction and multi-model strategy](chapter-04-provider-abstraction.md)

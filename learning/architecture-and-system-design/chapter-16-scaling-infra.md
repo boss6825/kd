@@ -1,6 +1,6 @@
-# Chapter 16 — Scaling and Infrastructure
+# Chapter 16: Scaling and Infrastructure
 
-A demo runs on one process on one laptop. A product serves many users concurrently, holds long-lived streaming connections, processes files, and calls slow external APIs — all without falling over. This chapter covers the infrastructure patterns that take an agent from "works for me" to "works for everyone," and where the bottlenecks actually are.
+A demo runs on one process on one laptop. A product serves many users concurrently, holds long-lived streaming connections, processes files, and calls slow external APIs, all without falling over. This chapter covers the infrastructure patterns that take an agent from "works for me" to "works for everyone," and where the bottlenecks actually are.
 
 ## What's different about scaling an agent
 
@@ -18,7 +18,7 @@ So scaling an agent is less about raw compute and more about concurrency, statel
 The single most important property for horizontal scaling is **stateless application servers**. Each request should be servable by any instance, carrying no in-memory state between requests. Achieve it by:
 
 - Keeping all durable state in shared stores (database, object storage, cache), not in process memory.
-- Making the agent loop a function of its inputs — it loads context from the database at the start and writes results at the end (Chapters 2, 9), holding nothing between turns.
+- Making the agent loop a function of its inputs: it loads context from the database at the start and writes results at the end (Chapters 2, 9), holding nothing between turns.
 - Carrying session/identity in tokens validated per request (Chapter 11), not server-side session memory.
 
 With stateless servers, you scale by adding instances behind a load balancer, and any instance can handle any user.
@@ -34,13 +34,13 @@ Long-lived SSE connections need attention:
 
 ## Move heavy work off the request path
 
-CPU/memory-heavy or slow work — document conversion, OCR, large bulk extraction — shouldn't run inside the request that holds a user's connection. As load grows, move it to **background workers** fed by a **queue**:
+CPU/memory-heavy or slow work (document conversion, OCR, large bulk extraction) shouldn't run inside the request that holds a user's connection. As load grows, move it to **background workers** fed by a **queue**:
 
 - The request enqueues a job and returns quickly (with a `processing` status; Chapter 9).
 - Workers pull jobs, do the heavy work, and update status; the client polls or subscribes for completion.
 - Workers scale independently of the web tier, so a burst of uploads doesn't starve interactive chat.
 
-As emphasized in Chapter 10, *design for this from the start with status fields even if you begin synchronous* — the migration to workers is then localized.
+As emphasized in Chapter 10, *design for this from the start with status fields even if you begin synchronous*; the migration to workers is then localized.
 
 ## Respect and manage upstream rate limits
 
@@ -70,14 +70,14 @@ Introduce caching where it pays:
 - **Hot-data cache** for frequently-read, rarely-changed data.
 - **Provider prompt caching** by keeping a stable context prefix (Chapter 14).
 
-Add these as evidence (from observability, Chapter 15) shows a hotspot — not preemptively.
+Add these as evidence (from observability, Chapter 15) shows a hotspot, not preemptively.
 
 ## Don't over-build early
 
 A caution: it's easy to design a microservice-and-queue cathedral before you have users. The pragmatic path:
 
 - **Start as a single well-structured service** with a relational DB and object storage. This scales remarkably far with stateless instances behind a load balancer.
-- **Keep the seams ready** — status fields for future async, a provider abstraction, stateless servers — so you can extract workers and add caches *when the load justifies it*.
+- **Keep the seams ready**: status fields for future async, a provider abstraction, stateless servers, so you can extract workers and add caches *when the load justifies it*.
 - **Let observability drive infra decisions.** Add the queue when synchronous processing actually hurts; add the cache when a call is actually hot; add replicas when reads actually saturate. Build for the scale you have plus a bit, not the scale you fantasize about.
 
 ## Deployment and operational basics
@@ -90,8 +90,8 @@ A caution: it's easy to design a microservice-and-queue cathedral before you hav
 
 ## The scaling mindset
 
-Scaling an agent is mostly about **statelessness, concurrency, and respecting the slow external bottleneck**. Keep servers stateless so you can add them freely; use async I/O so idle streaming connections are cheap; push heavy work to workers behind a queue; keep blobs in object storage and metadata in a well-indexed database; cache and rate-limit toward upstreams; and let real measurements — not speculation — tell you when to add the next piece of infrastructure.
+Scaling an agent is mostly about **statelessness, concurrency, and respecting the slow external bottleneck**. Keep servers stateless so you can add them freely; use async I/O so idle streaming connections are cheap; push heavy work to workers behind a queue; keep blobs in object storage and metadata in a well-indexed database; cache and rate-limit toward upstreams; and let real measurements, not speculation, tell you when to add the next piece of infrastructure.
 
 ---
 
-Next: [Chapter 17 — Domain-specific and regulated-industry agents](chapter-17-domain-and-compliance.md)
+Next: [Chapter 17: Domain-specific and regulated-industry agents](chapter-17-domain-and-compliance.md)

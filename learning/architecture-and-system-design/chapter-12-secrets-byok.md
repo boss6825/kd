@@ -1,4 +1,4 @@
-# Chapter 12 — Secrets and Bring-Your-Own-Key
+# Chapter 12: Secrets and Bring-Your-Own-Key
 
 Agents depend on credentials: model-provider API keys, integration tokens, signing secrets. Some belong to the operator; some belong to individual users who "bring their own key" (BYOK). Mishandling any of them is a serious breach. This chapter covers how to store secrets safely, how to resolve which one to use, and the BYOK pattern.
 
@@ -6,8 +6,8 @@ Agents depend on credentials: model-provider API keys, integration tokens, signi
 
 Distinguish:
 
-- **Operator secrets** — credentials the operator configures for the whole deployment, held in environment variables / a secrets manager: the system's provider keys, database credentials, signing secrets. These never touch the database and never reach the client.
-- **User secrets** — credentials individual users supply: their own provider API key, their own integration token. These must be *stored* (so they persist) but stored such that even someone with database access can't read them.
+- **Operator secrets**: credentials the operator configures for the whole deployment, held in environment variables / a secrets manager: the system's provider keys, database credentials, signing secrets. These never touch the database and never reach the client.
+- **User secrets**: credentials individual users supply: their own provider API key, their own integration token. These must be *stored* (so they persist) but stored such that even someone with database access can't read them.
 
 The architecture must handle both, and must define a clear precedence when both exist.
 
@@ -24,10 +24,10 @@ So a mature agent supports both an operator-wide key (everyone uses it) *and* pe
 
 Never store a user secret in plaintext. Use **authenticated symmetric encryption** (AES-256-GCM is the standard choice):
 
-- **Derive the encryption key from an operator secret** held in the environment (e.g. hash a long random `ENCRYPTION_SECRET` into a 32-byte key). The encryption key lives in the environment, *not* in the database — so a database dump alone is useless to an attacker.
-- **Encrypt with a fresh random IV per record.** Store the ciphertext, the IV, and the authentication tag — the three outputs of GCM. Reusing an IV with GCM is catastrophic, so generate a new one every time you encrypt.
+- **Derive the encryption key from an operator secret** held in the environment (e.g. hash a long random `ENCRYPTION_SECRET` into a 32-byte key). The encryption key lives in the environment, *not* in the database, so a database dump alone is useless to an attacker.
+- **Encrypt with a fresh random IV per record.** Store the ciphertext, the IV, and the authentication tag: the three outputs of GCM. Reusing an IV with GCM is catastrophic, so generate a new one every time you encrypt.
 - **Authenticated encryption gives integrity, not just secrecy.** A tampered ciphertext fails the auth-tag check on decryption rather than silently producing attacker-influenced plaintext.
-- **Fail closed on decryption.** If the auth tag doesn't verify (corruption, wrong key, tampering), return nothing and log — never return garbage that might be used as a credential.
+- **Fail closed on decryption.** If the auth tag doesn't verify (corruption, wrong key, tampering), return nothing and log; never return garbage that might be used as a credential.
 
 Store each secret type in an appropriately-constrained table (e.g. a provider key per `(user, provider)`; a separate table for a different token type so a check constraint reserved for providers isn't stretched).
 
@@ -49,7 +49,7 @@ The same precedence applies to integration tokens (e.g. a third-party research A
 
 ## Expose status, never secrets
 
-The UI needs to show users whether a credential is configured and where it came from — but must never receive the secret itself. Provide a **status** endpoint that returns, per credential, *whether* it exists and its *source* (`user`, `operator/env`, or none) — and nothing more. This lets the settings UI display "configured (from environment, read-only)" or "configured (your key, editable)" without ever transmitting a key to the browser. The client learns *that* and *from where*, never *what*.
+The UI needs to show users whether a credential is configured and where it came from, but must never receive the secret itself. Provide a **status** endpoint that returns, per credential, *whether* it exists and its *source* (`user`, `operator/env`, or none), and nothing more. This lets the settings UI display "configured (from environment, read-only)" or "configured (your key, editable)" without ever transmitting a key to the browser. The client learns *that* and *from where*, never *what*.
 
 ## Tie model routing to available credentials
 
@@ -75,7 +75,7 @@ Not all secrets are user-supplied. Operator secrets like a **download-signing se
 
 - Operator secrets live in the environment; user secrets live encrypted in the database.
 - Encrypt user secrets with AES-256-GCM: per-record IV, auth tag, key derived from an environment secret, fail closed on decryption.
-- Resolve credentials as **user-beats-operator, with operator as fallback** — one rule that serves both shared-key and BYOK deployments.
+- Resolve credentials as **user-beats-operator, with operator as fallback**: one rule that serves both shared-key and BYOK deployments.
 - Expose *status and source*, never the secret.
 - Never log secrets; decrypt only at point of use.
 
@@ -83,4 +83,4 @@ Get this right and you can offer BYOK confidently, attribute costs correctly, an
 
 ---
 
-Next: [Chapter 13 — Reliability: retries, idempotency, and failure handling](chapter-13-reliability.md)
+Next: [Chapter 13: Reliability: retries, idempotency, and failure handling](chapter-13-reliability.md)

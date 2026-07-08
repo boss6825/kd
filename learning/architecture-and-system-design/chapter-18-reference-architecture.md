@@ -1,10 +1,10 @@
-# Chapter 18 — Reference Architecture and a Design Checklist
+# Chapter 18: Reference Architecture and a Design Checklist
 
 This final chapter assembles everything into a single reference architecture and a checklist you can carry into your own design review. Treat it as the one-page (well, several-page) summary of the whole folder.
 
 ## The reference architecture
 
-A complete, production-grade agent — the kind the earlier chapters describe — has this shape:
+A complete, production-grade agent, the kind the earlier chapters describe, has this shape:
 
 ```
                           ┌─────────────────────────────────────────┐
@@ -56,13 +56,13 @@ The data flows: a request is authenticated, authorized, and validated at the API
 
 ## How the chapters map onto it
 
-- **API tier** — security & multi-tenancy (Ch 11), reliability at the edges (Ch 13), scaling/statelessness (Ch 16).
-- **Agent core** — the loop (Ch 2), context engineering (Ch 5), prompt architecture (Ch 6), streaming/events (Ch 8).
-- **Provider layer** — abstraction & tiering (Ch 4), cost/latency (Ch 14).
-- **Tools** — tool design (Ch 3), retrieval strategy (Ch 7), integrations (Ch 7, 17).
-- **Document pipeline** — file processing (Ch 10).
-- **Data tier** — data modeling (Ch 9), storage & downloads.
-- **Cross-cutting** — secrets/BYOK (Ch 12), observability/eval (Ch 15), domain/compliance (Ch 17), anatomy & vocabulary (Ch 1).
+- **API tier**: security & multi-tenancy (Ch 11), reliability at the edges (Ch 13), scaling/statelessness (Ch 16).
+- **Agent core**: the loop (Ch 2), context engineering (Ch 5), prompt architecture (Ch 6), streaming/events (Ch 8).
+- **Provider layer**: abstraction & tiering (Ch 4), cost/latency (Ch 14).
+- **Tools**: tool design (Ch 3), retrieval strategy (Ch 7), integrations (Ch 7, 17).
+- **Document pipeline**: file processing (Ch 10).
+- **Data tier**: data modeling (Ch 9), storage & downloads.
+- **Cross-cutting**: secrets/BYOK (Ch 12), observability/eval (Ch 15), domain/compliance (Ch 17), anatomy & vocabulary (Ch 1).
 
 ## The design checklist
 
@@ -142,6 +142,6 @@ If you're starting fresh: skeleton & schema → provider layer → ingestion →
 
 ## Closing thought
 
-Across every chapter, one belief recurs: **the model is the easy part.** The provider makes it smart; you make it useful, safe, grounded, reliable, observable, and affordable. A great agent is great *systems engineering* with a capable model at the center — the right context in front of it, well-designed tools around it, faithful records behind it, and disciplined operations beneath it. Build those, and the model will shine. Skip them, and no model can save you.
+Across every chapter, one belief recurs: **the model is the easy part.** The provider makes it smart; you make it useful, safe, grounded, reliable, observable, and affordable. A great agent is great *systems engineering* with a capable model at the center: the right context in front of it, well-designed tools around it, faithful records behind it, and disciplined operations beneath it. Build those, and the model will shine. Skip them, and no model can save you.
 
 That's the whole craft. Go build something people can trust.
