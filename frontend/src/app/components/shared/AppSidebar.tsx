@@ -10,7 +10,10 @@ import {
     User,
     ChevronsUpDown,
     ChevronDown,
+    Moon,
+    Sun,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserProfile } from "@/contexts/UserProfileContext";
 import { useChatHistoryContext } from "@/app/contexts/ChatHistoryContext";
@@ -35,6 +38,7 @@ interface AppSidebarProps {
 
 export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
     const { user } = useAuth();
+    const { resolvedTheme, setTheme } = useTheme();
     const { profile } = useUserProfile();
     const {
         chats,
@@ -134,9 +138,9 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
         <div
             className={`${
                 isOpen
-                    ? "w-64 h-dvh bg-gray-50 border-r"
-                    : "w-14 md:h-dvh md:bg-gray-50 md:border-r h-auto bg-transparent pointer-events-none md:pointer-events-auto"
-            } border-gray-200 flex flex-col transition-all duration-300 absolute md:relative z-[99] overflow-visible`}
+                    ? "w-64 h-dvh bg-muted/50 border-r"
+                    : "w-14 md:h-dvh md:bg-muted/50 md:border-r h-auto bg-transparent pointer-events-none md:pointer-events-auto"
+            } border-border flex flex-col transition-all duration-300 absolute md:relative z-[99] overflow-visible`}
         >
             {/* Toggle + Logo */}
             <div
@@ -163,7 +167,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                 )}
                 <button
                     onClick={onToggle}
-                    className="h-9 w-9 p-2.5 items-center flex hover:bg-gray-100 rounded-md transition-colors"
+                    className="h-9 w-9 p-2.5 items-center flex hover:bg-muted rounded-md transition-colors"
                     title={isOpen ? "Close sidebar" : "Open sidebar"}
                 >
                     <PanelLeft className="h-4 w-4" />
@@ -181,13 +185,13 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                             title={!isOpen ? label : ""}
                             className={`w-full h-9 flex items-center gap-3 px-2.5 py-2 rounded-md transition-colors text-left ${
                                 isActive
-                                    ? "bg-gray-100 text-gray-900"
-                                    : "hover:bg-gray-100 text-gray-700"
+                                    ? "bg-muted text-foreground"
+                                    : "hover:bg-muted text-foreground/80"
                             } ${!isOpen ? "hidden md:flex" : "flex"}`}
                         >
                             <Icon
                                 className={`h-4 w-4 flex-shrink-0 ${
-                                    isActive ? "text-gray-900" : "text-black"
+                                    isActive ? "text-foreground" : "text-black"
                                 }`}
                             />
                             {isOpen && (
@@ -210,7 +214,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                     <div>
                         <button
                             onClick={() => setProjectsCollapsed((v) => !v)}
-                            className={`mb-2 flex w-full items-center justify-between px-5 text-xs font-semibold text-gray-500 transition-colors hover:text-gray-700 ${
+                            className={`mb-2 flex w-full items-center justify-between px-5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground/80 ${
                                 shouldAnimate ? "sidebar-fade-in" : ""
                             }`}
                         >
@@ -231,7 +235,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                                                 className="h-9 flex items-center px-3 rounded-md"
                                             >
                                                 <div
-                                                    className="h-3 bg-gray-200 rounded animate-pulse"
+                                                    className="h-3 bg-muted rounded animate-pulse"
                                                     style={{ width: `${w}%` }}
                                                 />
                                             </div>
@@ -239,7 +243,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                                     </div>
                                 ) : recentProjects.length === 0 ? (
                                     <div
-                                        className={`px-5 py-2 text-xs text-gray-500 ${
+                                        className={`px-5 py-2 text-xs text-muted-foreground ${
                                             shouldAnimate
                                                 ? "sidebar-fade-in-2"
                                                 : ""
@@ -273,11 +277,11 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                                                     title={project.name}
                                                     className={`flex h-9 w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-xs transition-colors ${
                                                         isActive
-                                                            ? "bg-gray-100 text-gray-900"
-                                                            : "text-gray-700 hover:bg-gray-100"
+                                                            ? "bg-muted text-foreground"
+                                                            : "text-foreground/80 hover:bg-muted"
                                                     }`}
                                                 >
-                                                    <FolderOpen className="h-3.5 w-3.5 shrink-0 text-gray-500" />
+                                                    <FolderOpen className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                                                     <span className="min-w-0 flex-1 truncate">
                                                         {project.name}
                                                     </span>
@@ -294,7 +298,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                     <div className="flex min-h-0 flex-1 flex-col">
                         <button
                             onClick={() => setHistoryCollapsed((v) => !v)}
-                            className={`mb-2 flex w-full items-center justify-between px-5 text-xs font-semibold text-gray-500 transition-colors hover:text-gray-700 ${
+                            className={`mb-2 flex w-full items-center justify-between px-5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground/80 ${
                                 shouldAnimate ? "sidebar-fade-in" : ""
                             }`}
                         >
@@ -318,7 +322,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                                             className="h-9 flex items-center px-3 rounded-md"
                                         >
                                             <div
-                                                className="h-3 bg-gray-200 rounded animate-pulse"
+                                                className="h-3 bg-muted rounded animate-pulse"
                                                 style={{ width: `${w}%` }}
                                             />
                                         </div>
@@ -326,7 +330,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                                 </div>
                             ) : chats.length === 0 ? (
                                 <div
-                                    className={`text-xs text-gray-500 py-2 px-5 ${
+                                    className={`text-xs text-muted-foreground py-2 px-5 ${
                                         shouldAnimate ? "sidebar-fade-in-2" : ""
                                     }`}
                                 >
@@ -370,7 +374,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                                         <div className="px-2.5 pt-1">
                                             <button
                                                 onClick={loadMoreChats}
-                                                className="flex h-8 w-full items-center justify-start rounded-md px-3 text-left text-xs font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                                                className="flex h-8 w-full items-center justify-start rounded-md px-3 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground/80"
                                             >
                                                 Load more
                                             </button>
@@ -389,16 +393,16 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                     <div className="relative">
                         <button
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                            className={`flex items-center transition-colors w-full px-3.5 py-4 border-t border-gray-200 ${
+                            className={`flex items-center transition-colors w-full px-3.5 py-4 border-t border-border ${
                                 !isOpen ? "hidden md:flex" : ""
                             } ${
                                 pathname === "/account" || isDropdownOpen
-                                    ? "bg-gray-100"
-                                    : "hover:bg-gray-100"
+                                    ? "bg-muted"
+                                    : "hover:bg-muted"
                             }`}
                             title={!isOpen ? user.email : undefined}
                         >
-                            <div className="h-7 w-7 flex-shrink-0 rounded-full bg-gray-700 flex items-center justify-center text-white text-sm font-medium font-serif">
+                            <div className="h-7 w-7 flex-shrink-0 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium font-serif">
                                 {getUserInitials(user.email)}
                             </div>
                             {isOpen && (
@@ -408,29 +412,48 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                                     }`}
                                 >
                                     <div className="flex flex-col gap-0.5 min-w-0">
-                                        <div className="text-sm font-medium text-gray-900 leading-none">
+                                        <div className="text-sm font-medium text-foreground leading-none">
                                             {getDisplayName()}
                                         </div>
-                                        <div className="text-[12px] text-gray-500 leading-none">
+                                        <div className="text-[12px] text-muted-foreground leading-none">
                                             {getUserTier()}
                                         </div>
                                     </div>
-                                    <ChevronsUpDown className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                                    <ChevronsUpDown className="h-4 w-4 flex-shrink-0 text-muted-foreground/70" />
                                 </div>
                             )}
                         </button>
 
                         {isDropdownOpen && (
-                            <div className="absolute bottom-full left-0 m-1 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-50 w-62 whitespace-nowrap">
+                            <div className="absolute bottom-full left-0 m-1 bg-background rounded-lg shadow-lg border border-border p-1 z-50 w-62 whitespace-nowrap">
                                 <button
                                     onClick={() => {
                                         router.push("/account");
                                         setIsDropdownOpen(false);
                                     }}
-                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 rounded-md"
+                                    className="w-full px-4 py-2 text-left text-sm text-foreground/80 hover:bg-muted flex items-center gap-2 rounded-md"
                                 >
                                     <User className="h-4 w-4" />
                                     Account Settings
+                                </button>
+                                <button
+                                    onClick={() =>
+                                        setTheme(
+                                            resolvedTheme === "dark"
+                                                ? "light"
+                                                : "dark",
+                                        )
+                                    }
+                                    className="w-full px-4 py-2 text-left text-sm text-foreground/80 hover:bg-muted flex items-center gap-2 rounded-md"
+                                >
+                                    {resolvedTheme === "dark" ? (
+                                        <Sun className="h-4 w-4" />
+                                    ) : (
+                                        <Moon className="h-4 w-4" />
+                                    )}
+                                    {resolvedTheme === "dark"
+                                        ? "Light mode"
+                                        : "Dark mode"}
                                 </button>
                             </div>
                         )}

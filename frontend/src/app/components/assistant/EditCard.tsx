@@ -19,13 +19,6 @@ function findMatch(
         const byId = container.querySelector(
             `${tag}[data-w-id="${opts.w_id}"]`,
         ) as HTMLElement | null;
-        console.log("[EditCard] findMatch by w_id", {
-            tag,
-            w_id: opts.w_id,
-            found: !!byId,
-            totalTagged: container.querySelectorAll(`${tag}[data-w-id]`).length,
-            totalAny: container.querySelectorAll(tag).length,
-        });
         if (byId) return byId;
     }
     const text = opts.text ?? "";
@@ -42,12 +35,6 @@ function findMatch(
             normalizeText(el.textContent ?? "").includes(target),
         ) ??
         null;
-    console.log("[EditCard] findMatch by text", {
-        tag,
-        target,
-        found: !!byText,
-        candidateCount: candidates.length,
-    });
     return byText;
 }
 
@@ -117,13 +104,6 @@ export function applyOptimisticResolution(
     const scrolls = document.querySelectorAll(
         `[data-document-id="${CSS.escape(annotation.document_id)}"]`,
     );
-    console.log("[EditCard] optimistic scrolls found:", scrolls.length, {
-        document_id: annotation.document_id,
-        ins_w_id: annotation.ins_w_id,
-        del_w_id: annotation.del_w_id,
-        inserted_text: annotation.inserted_text?.slice(0, 40),
-        deleted_text: annotation.deleted_text?.slice(0, 40),
-    });
     scrolls.forEach((scroll) => {
         const container = scroll.querySelector(".docx-view-container");
         if (!container) return;
@@ -292,13 +272,13 @@ export function EditCard({
     };
 
     return (
-        <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+        <div className="border border-border rounded-lg p-3 bg-muted/50">
             {annotation.reason && (
-                <p className="text-xs text-gray-500 mb-2">
+                <p className="text-xs text-muted-foreground mb-2">
                     {annotation.reason}
                 </p>
             )}
-            <div className="text-sm leading-relaxed font-serif bg-white border border-gray-200 rounded-md px-2 py-2">
+            <div className="text-sm leading-relaxed font-serif bg-background border border-border rounded-md px-2 py-2">
                 {annotation.inserted_text && (
                     <span className="text-green-700">
                         {annotation.inserted_text}
@@ -314,14 +294,14 @@ export function EditCard({
                 <button
                     onClick={() => handle("accept")}
                     disabled={inFlight || resolved}
-                    className="px-2 py-1 text-xs rounded border border-gray-900 bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-50"
+                    className="px-2 py-1 text-xs rounded border border-primary bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                 >
                     {status === "accepted" ? "Accepted" : "Accept"}
                 </button>
                 <button
                     onClick={() => handle("reject")}
                     disabled={inFlight || resolved}
-                    className="px-2 py-1 text-xs rounded border border-gray-200 bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                    className="px-2 py-1 text-xs rounded border border-border bg-background text-foreground/80 hover:bg-muted disabled:opacity-50"
                 >
                     {status === "rejected" ? "Rejected" : "Reject"}
                 </button>
@@ -334,7 +314,7 @@ export function EditCard({
                                 ? "This change has been resolved and is no longer in the document."
                                 : undefined
                         }
-                        className="ml-auto px-2 py-1 text-xs rounded border border-gray-200 bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+                        className="ml-auto px-2 py-1 text-xs rounded border border-border bg-background text-foreground/80 hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-background"
                     >
                         View
                     </button>
