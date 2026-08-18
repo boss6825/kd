@@ -7,15 +7,42 @@
 @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
-    --font-sans: var(--font-inter);
-    --font-serif: var(--font-eb-garamond);
-    --color-blue: rgb(0, 136, 255);
-    --color-blue-50: rgba(0, 136, 255, 0.05);
-    --color-blue-100: rgba(0, 136, 255, 0.1);
-    --color-blue-200: rgba(0, 136, 255, 0.3);
-    --color-blue-600: rgb(0, 136, 255);
-    --color-blue-700: rgb(0, 120, 230);
-    --color-azure-accent: rgb(0, 136, 255);
+    --font-sans: var(--font-instrument-sans);
+    --font-serif: var(--font-instrument-serif);
+    --font-mono: var(--font-spline-mono);
+    --ease-counsel: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* Legacy blue aliases — remapped to the KD accent so untouched call
+       sites pick up brass instead of azure. New code should use kd-accent. */
+    --color-blue: var(--kd-accent);
+    --color-blue-50: color-mix(in srgb, var(--kd-accent) 6%, transparent);
+    --color-blue-100: color-mix(in srgb, var(--kd-accent) 10%, transparent);
+    --color-blue-200: color-mix(in srgb, var(--kd-accent) 30%, transparent);
+    --color-blue-600: var(--kd-accent);
+    --color-blue-700: var(--kd-accent-strong);
+    --color-azure-accent: var(--kd-accent);
+
+    /* KD design-system colors (design.md §3) */
+    --color-kd-accent: var(--kd-accent);
+    --color-kd-accent-strong: var(--kd-accent-strong);
+    --color-kd-brass: var(--kd-brass);
+    --color-kd-ok: var(--kd-ok);
+    --color-kd-danger: var(--kd-danger);
+    --color-kd-text-3: var(--kd-text-3);
+
+    /* Warm gray ramp — Tailwind gray-* re-tuned to ink/paper so legacy
+       hardcoded grays harmonize with the KD palette. */
+    --color-gray-50: #faf9f5;
+    --color-gray-100: #f1eee7;
+    --color-gray-200: #e4e0d5;
+    --color-gray-300: #d2ccbe;
+    --color-gray-400: #a29c8e;
+    --color-gray-500: #6f6a5e;
+    --color-gray-600: #57534a;
+    --color-gray-700: #403d35;
+    --color-gray-800: #2a2822;
+    --color-gray-900: #1c1b17;
+    --color-gray-950: #14120c;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -51,74 +78,102 @@
     --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ─── KD design system (design.md) — ink, paper & brass ──────────────
+   Light is the product default; dark is a first-class theme via
+   next-themes (.dark on <html>). The marketing landing at / stays
+   permanently dark through the scoped .kd-landing block below. */
 :root {
     --radius: 0.625rem;
-    --color-azure: 0, 136, 255;
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+
+    /* KD raw palette */
+    --kd-accent: #8a6420;
+    --kd-accent-strong: #6e4f18;
+    --kd-brass: #b08d4a;
+    --kd-ok: #3e6b4f;
+    --kd-danger: #9a3b2e;
+    --kd-text-3: #a29c8e;
+    --kd-glass-bg: rgba(255, 255, 255, 0.62);
+    --kd-glass-border: rgba(255, 255, 255, 0.65);
+    --kd-shadow-1: 0 1px 2px rgba(20, 18, 12, 0.06);
+    --kd-shadow-2: 0 8px 32px rgba(20, 18, 12, 0.1);
+
+    /* shadcn semantic tokens mapped onto the KD palette */
+    --background: #f6f4ef;
+    --foreground: #1c1b17;
+    --card: #ffffff;
+    --card-foreground: #1c1b17;
+    --popover: #ffffff;
+    --popover-foreground: #1c1b17;
+    --primary: #1c1b17;
+    --primary-foreground: #f6f4ef;
+    --secondary: #efece4;
+    --secondary-foreground: #1c1b17;
+    --muted: #efece4;
+    --muted-foreground: #6f6a5e;
+    --accent: #efece4;
+    --accent-foreground: #1c1b17;
+    --destructive: #9a3b2e;
+    --border: #e4e0d5;
+    --input: #e4e0d5;
+    --ring: #8a6420;
+    --chart-1: #8a6420;
+    --chart-2: #3e6b4f;
+    --chart-3: #b08d4a;
+    --chart-4: #6f6a5e;
+    --chart-5: #9a3b2e;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #1c1b17;
+    --sidebar-primary: #1c1b17;
+    --sidebar-primary-foreground: #f6f4ef;
+    --sidebar-accent: #efece4;
+    --sidebar-accent-foreground: #1c1b17;
+    --sidebar-border: #e4e0d5;
+    --sidebar-ring: #8a6420;
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --kd-accent: #d2ac66;
+    --kd-accent-strong: #e3c68a;
+    --kd-brass: #b08d4a;
+    --kd-ok: #8bb89d;
+    --kd-danger: #d07a6b;
+    --kd-text-3: #5d5a52;
+    --kd-glass-bg: rgba(16, 18, 24, 0.55);
+    --kd-glass-border: rgba(255, 255, 255, 0.08);
+    --kd-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.25);
+    --kd-shadow-2: 0 8px 32px rgba(0, 0, 0, 0.35);
+
+    --background: #0b0d11;
+    --foreground: #eae7df;
+    --card: #13161c;
+    --card-foreground: #eae7df;
+    --popover: #13161c;
+    --popover-foreground: #eae7df;
+    --primary: #eae7df;
+    --primary-foreground: #0b0d11;
+    --secondary: #1a1e26;
+    --secondary-foreground: #eae7df;
+    --muted: #1a1e26;
+    --muted-foreground: #98948a;
+    --accent: #1a1e26;
+    --accent-foreground: #eae7df;
+    --destructive: #d07a6b;
+    --border: #262b35;
+    --input: #262b35;
+    --ring: #d2ac66;
+    --chart-1: #d2ac66;
+    --chart-2: #8bb89d;
+    --chart-3: #b08d4a;
+    --chart-4: #98948a;
+    --chart-5: #d07a6b;
+    --sidebar: #13161c;
+    --sidebar-foreground: #eae7df;
+    --sidebar-primary: #eae7df;
+    --sidebar-primary-foreground: #0b0d11;
+    --sidebar-accent: #1a1e26;
+    --sidebar-accent-foreground: #eae7df;
+    --sidebar-border: #262b35;
+    --sidebar-ring: #d2ac66;
 }
 
 @layer base {
@@ -133,11 +188,26 @@
     button {
         cursor: pointer;
     }
+
+    ::selection {
+        background: rgba(176, 141, 74, 0.3);
+    }
 }
 
 @layer utilities {
+    /* Legacy alias — EB Garamond was replaced by Instrument Serif. */
     .font-eb-garamond {
-        font-family: var(--font-eb-garamond);
+        font-family: var(--font-instrument-serif), Georgia, serif;
+    }
+
+    /* Product mono label (eyebrows, table headers, breadcrumbs).
+       The landing has its own accent-colored .kd-eyebrow. */
+    .kd-label {
+        font-family: var(--font-spline-mono), monospace;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
     }
 
     .sidebar-fade-in {
@@ -187,7 +257,7 @@
     padding: 1rem 1.25rem;
     outline: none;
     font-size: 0.875rem;
-    color: #374151;
+    color: var(--foreground);
     line-height: 1.65;
     font-family: var(--font-serif);
 }
@@ -195,7 +265,7 @@
 .workflow-editor-content h1 {
     font-size: 1rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--foreground);
     margin-top: 1.25rem;
     margin-bottom: 0.375rem;
 }
@@ -203,7 +273,7 @@
 .workflow-editor-content h2 {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--foreground);
     margin-top: 0.875rem;
     margin-bottom: 0.25rem;
 }
@@ -211,7 +281,7 @@
 .workflow-editor-content h3 {
     font-size: 0.8125rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--foreground);
     margin-top: 0.625rem;
     margin-bottom: 0.125rem;
 }
@@ -252,7 +322,7 @@
 
 .workflow-editor-content strong {
     font-weight: 600;
-    color: #1f2937;
+    color: var(--foreground);
 }
 
 .workflow-editor-content em {
@@ -279,14 +349,14 @@
 }
 
 .pdf-text-layer .pdf-text-highlight {
-    background-color: rgba(37, 99, 235, 0.2);
+    background-color: rgba(176, 141, 74, 0.28);
     border-radius: 2px;
     position: static;
 }
 
 .docx-view-container span.docx-text-highlight,
 .docx-view-container .docx-text-highlight {
-    background-color: rgba(37, 99, 235, 0.35) !important;
+    background-color: rgba(176, 141, 74, 0.4) !important;
     border-radius: 2px;
     padding: 0 1px;
     color: inherit !important;
@@ -337,11 +407,118 @@
 
 @keyframes docxEditFlash {
     0%, 20% {
-        background-color: rgba(59, 130, 246, 0.45);
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.45);
+        background-color: rgba(176, 141, 74, 0.45);
+        box-shadow: 0 0 0 2px rgba(176, 141, 74, 0.45);
     }
     100% {
-        background-color: rgba(59, 130, 246, 0);
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0);
+        background-color: rgba(176, 141, 74, 0);
+        box-shadow: 0 0 0 2px rgba(176, 141, 74, 0);
+    }
+}
+
+/* ─── KD marketing landing (permanently dark — does not follow app theme) ── */
+.kd-landing {
+    --kd-bg: #0b0d11;
+    --kd-surface: #13161c;
+    --kd-surface-2: #1a1e26;
+    --kd-border: #262b35;
+    --kd-text: #eae7df;
+    --kd-text-2: #98948a;
+    --kd-text-3: #5d5a52;
+    --kd-accent: #d2ac66;
+    --kd-accent-strong: #e3c68a;
+    --kd-brass: #b08d4a;
+    --kd-glass-bg: rgba(16, 18, 24, 0.55);
+    --kd-glass-border: rgba(255, 255, 255, 0.08);
+
+    background: var(--kd-bg);
+    color: var(--kd-text);
+    font-family: var(--font-instrument-sans), -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+.kd-landing ::selection {
+    background: rgba(176, 141, 74, 0.35);
+}
+
+.kd-landing a {
+    text-decoration: none;
+}
+
+.kd-serif {
+    font-family: var(--font-instrument-serif), Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+.kd-mono {
+    font-family: var(--font-spline-mono), monospace;
+}
+
+.kd-eyebrow {
+    font-family: var(--font-spline-mono), monospace;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--kd-accent);
+}
+
+.kd-glass {
+    background: var(--kd-glass-bg);
+    backdrop-filter: blur(16px) saturate(1.2);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    border: 1px solid var(--kd-glass-border);
+    box-shadow: var(--kd-shadow-2);
+}
+
+/* Dark surfaces (app dark theme + permanently-dark landing) saturate more */
+.dark .kd-glass,
+.kd-landing .kd-glass {
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+    .kd-glass {
+        background: rgba(255, 255, 255, 0.92);
+    }
+    .dark .kd-glass,
+    .kd-landing .kd-glass {
+        background: rgba(16, 18, 24, 0.92);
+    }
+}
+
+/* Film grain — kills digital sterility without gradients-as-decoration */
+.kd-grain {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 160px 160px;
+}
+
+@keyframes kdTicker {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.kd-ticker-track {
+    animation: kdTicker 48s linear infinite;
+    will-change: transform;
+}
+
+.kd-ticker:hover .kd-ticker-track {
+    animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kd-ticker-track {
+        animation: none;
     }
 }

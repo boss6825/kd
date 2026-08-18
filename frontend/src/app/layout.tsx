@@ -1,24 +1,35 @@
 import type { Metadata } from "next";
-import { Inter, EB_Garamond } from "next/font/google";
+import {
+    Instrument_Sans,
+    Instrument_Serif,
+    Spline_Sans_Mono,
+} from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 
-const inter = Inter({
-    variable: "--font-inter",
+const instrumentSans = Instrument_Sans({
+    variable: "--font-instrument-sans",
     subsets: ["latin"],
 });
 
-const ebGaramond = EB_Garamond({
-    variable: "--font-eb-garamond",
+const instrumentSerif = Instrument_Serif({
+    variable: "--font-instrument-serif",
+    weight: "400",
+    style: ["normal", "italic"],
     subsets: ["latin"],
-    weight: ["400", "500", "600", "700"],
+});
+
+const splineSansMono = Spline_Sans_Mono({
+    variable: "--font-spline-mono",
+    weight: ["400", "500"],
+    subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
     metadataBase: new URL("https://app.mikeoss.com"),
-    title: "Mike - AI Legal Platform",
+    title: "KD — The operating system for Indian law",
     description:
-        "AI-powered legal document analysis and contract review platform.",
+        "Research, drafting, review, and workflows — one counsel-grade AI trusted with the whole matter, not just the brief.",
     icons: {
         icon: [
             { url: "/icon.svg", type: "image/svg+xml" },
@@ -29,24 +40,24 @@ export const metadata: Metadata = {
     openGraph: {
         type: "website",
         url: "https://app.mikeoss.com",
-        siteName: "Mike",
-        title: "Mike - AI Legal Platform",
+        siteName: "KD",
+        title: "KD — The operating system for Indian law",
         description:
-            "AI-powered legal document analysis and contract review platform.",
+            "Research, drafting, review, and workflows — one counsel-grade AI trusted with the whole matter, not just the brief.",
         images: [
             {
                 url: "/link-image.jpg",
                 width: 1200,
                 height: 651,
-                alt: "Mike",
+                alt: "KD",
             },
         ],
     },
     twitter: {
         card: "summary_large_image",
-        title: "Mike - AI Legal Platform",
+        title: "KD — The operating system for Indian law",
         description:
-            "AI-powered legal document analysis and contract review platform.",
+            "Research, drafting, review, and workflows — one counsel-grade AI trusted with the whole matter, not just the brief.",
         images: ["/link-image.jpg"],
     },
 };
@@ -59,7 +70,7 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body
-                className={`${inter.variable} ${ebGaramond.variable} font-sans antialiased`}
+                className={`${instrumentSans.variable} ${instrumentSerif.variable} ${splineSansMono.variable} font-sans antialiased`}
             >
                 <Providers>{children}</Providers>
             </body>

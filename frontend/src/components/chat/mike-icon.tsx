@@ -19,14 +19,14 @@ type IconPalette = {
 };
 
 const DEFAULT_PALETTE: IconPalette = {
-    shadowColor: "#000000",
+    shadowColor: "#6E4F18",
     shadowOpacity: 0.3,
-    fillStops: ["#0a0a0a", "#151515", "#080808", "#111111"],
+    fillStops: ["#8A6420", "#B08D4A", "#7A5A1E", "#9C7B3A"],
     fillOpacities: [0.9, 0.8, 0.85, 0.9],
     specularStops: [0.5, 0.2, 0, 0],
-    borderStops: ["#ffffff", "#666666", "#ffffff"],
+    borderStops: ["#FFF7E6", "#B08D4A", "#FFF1D6"],
     borderOpacities: [0.3, 0.1, 0.2],
-    innerStops: ["#ffffff", "#777777", "#222222", "#ffffff"],
+    innerStops: ["#FFF7E6", "#E3C68A", "#8A6420", "#FFF7E6"],
     innerOpacities: [0, 0.08, 0.05, 0],
 };
 
