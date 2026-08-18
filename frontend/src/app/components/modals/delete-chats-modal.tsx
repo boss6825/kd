@@ -34,14 +34,14 @@ export function DeleteChatsModal({
                 if (!open && !isDeleting) onClose();
             }}
         >
-            <DialogContent className="max-w-md rounded-2xl p-8">
+            <DialogContent className="max-w-md rounded-2xl bg-card border-border shadow-[var(--kd-shadow-2)] p-8">
                 {isSuccess ? (
                     <div className="text-center">
-                        <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                            <Check className="h-8 w-8 text-green-600" />
+                        <div className="mx-auto w-16 h-16 bg-kd-ok/10 rounded-full flex items-center justify-center mb-4">
+                            <Check className="h-8 w-8 text-kd-ok" strokeWidth={1.5} />
                         </div>
                         <DialogHeader>
-                            <DialogTitle className="text-3xl font-light font-eb-garamond text-foreground text-center">
+                            <DialogTitle className="text-3xl font-normal font-serif tracking-[-0.01em] text-foreground text-center">
                                 All Chats Deleted
                             </DialogTitle>
                             <DialogDescription className="text-center">
@@ -52,7 +52,7 @@ export function DeleteChatsModal({
                 ) : (
                     <>
                         <DialogHeader>
-                            <DialogTitle className="text-4xl font-light font-eb-garamond text-red-700">
+                            <DialogTitle className="text-4xl font-normal font-serif tracking-[-0.01em] text-destructive">
                                 Delete All Chats
                             </DialogTitle>
                             <DialogDescription className="leading-relaxed pt-2">

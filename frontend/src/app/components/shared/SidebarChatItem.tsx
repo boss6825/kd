@@ -63,17 +63,17 @@ export function SidebarChatItem({ chat, isActive, onSelect, projectName }: Props
                             if (e.key === "Enter") void handleRenameSave();
                             if (e.key === "Escape") handleRenameCancel();
                         }}
-                        className="flex-1 bg-background shadow-inner rounded px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="flex-1 bg-background shadow-inner rounded px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                     />
                     <button
                         onClick={() => void handleRenameSave()}
-                        className="ml-1.5 py-2 hover:bg-muted rounded text-green-600"
+                        className="ml-1.5 py-2 hover:bg-muted rounded text-kd-ok"
                     >
                         <Check className="h-3 w-3" />
                     </button>
                     <button
                         onClick={handleRenameCancel}
-                        className="ml-1 py-2 hover:bg-muted rounded text-red-600"
+                        className="ml-1 py-2 hover:bg-muted rounded text-kd-danger"
                     >
                         <X className="h-3 w-3" />
                     </button>
@@ -135,7 +135,7 @@ export function SidebarChatItem({ chat, isActive, onSelect, projectName }: Props
                                     }
                                     void deleteChat(chat.id);
                                 }}
-                                className="text-red-600 focus:text-red-600"
+                                className="text-kd-danger focus:text-kd-danger"
                             >
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 Delete

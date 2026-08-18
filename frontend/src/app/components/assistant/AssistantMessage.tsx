@@ -322,7 +322,7 @@ export function AssistantMessage({
     return (
         <div style={{ minHeight }}>
             <ResponseStatus status={status} />
-            <div className="w-full font-inter relative mt-2">
+            <div className="w-full relative mt-2">
                 {events && events.length > 0 ? (
                     <div className="flex flex-col gap-4">
                         {groups.map((g, gIdx) => {
@@ -592,7 +592,7 @@ export function AssistantMessage({
                             onClick={handleCopy}
                         >
                             {isCopied ? (
-                                <Check className="h-3.5 w-3.5 text-green-600" />
+                                <Check className="h-3.5 w-3.5 text-kd-ok" />
                             ) : (
                                 <Copy className="h-3.5 w-3.5" />
                             )}

@@ -34,15 +34,15 @@ export function SimpleLinkDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-md rounded-2xl p-6">
+            <DialogContent className="max-w-md rounded-2xl bg-card border-border shadow-[var(--kd-shadow-2)] p-6">
                 <DialogHeader>
-                    <DialogTitle className="text-3xl font-light font-eb-garamond text-foreground">
+                    <DialogTitle className="text-3xl font-normal font-serif tracking-[-0.01em] text-foreground">
                         Share Chat
                     </DialogTitle>
                 </DialogHeader>
 
                 <div className="space-y-4">
-                    <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                    <div className="bg-muted rounded-[10px] p-3 border border-border">
                         <p className="text-sm text-muted-foreground mb-2 font-medium">
                             Share Link
                         </p>
@@ -53,12 +53,12 @@ export function SimpleLinkDialog({
 
                     <Button
                         onClick={handleCopyLink}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        className="w-full rounded-[10px]"
                     >
                         {linkCopied ? (
                             <>
                                 <Check className="h-5 w-5" />
-                                Copied!
+                                Copied
                             </>
                         ) : (
                             <>

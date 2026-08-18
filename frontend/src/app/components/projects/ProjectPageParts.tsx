@@ -6,12 +6,14 @@ import {
     File,
     FileText,
     Loader2,
+    MessageSquare,
     Pencil,
     Plus,
     Users,
 } from "lucide-react";
 import { HeaderSearchBtn } from "@/app/components/shared/HeaderSearchBtn";
 import { RenameableTitle } from "@/app/components/shared/RenameableTitle";
+import { ThemeToggleButton } from "@/app/components/shared/ThemeToggleButton";
 import type { MikeProject } from "@/app/components/shared/types";
 import type { MikeDocumentVersion } from "@/app/lib/mikeApi";
 
@@ -61,7 +63,7 @@ export function formatBytes(bytes: number): string {
 
 export function formatDate(iso: string) {
     return new Date(iso).toLocaleDateString(undefined, {
-        day: "numeric",
+        day: "2-digit",
         month: "short",
         year: "numeric",
     });
@@ -69,10 +71,15 @@ export function formatDate(iso: string) {
 
 export function DocIcon({ fileType }: { fileType: string | null }) {
     if (fileType === "pdf")
-        return <FileText className="h-4 w-4 text-red-600 shrink-0" />;
-    if (fileType === "docx" || fileType === "doc")
-        return <File className="h-4 w-4 text-blue-600 shrink-0" />;
-    return <File className="h-4 w-4 text-gray-500 shrink-0" />;
+        return (
+            <FileText
+                className="h-4 w-4 shrink-0 text-kd-text-3"
+                strokeWidth={1.5}
+            />
+        );
+    return (
+        <File className="h-4 w-4 shrink-0 text-kd-text-3" strokeWidth={1.5} />
+    );
 }
 
 export function DocVersionHistory({
@@ -115,17 +122,17 @@ export function DocVersionHistory({
 
     if (loading && versions.length === 0) {
         return (
-            <div className="flex items-center h-9 border-b border-gray-50 text-xs text-gray-500 bg-gray-50/60">
+            <div className="flex items-center h-9 border-b border-border text-xs text-muted-foreground bg-muted/60">
                 <div
-                    className={`sticky left-0 z-[60] ${CHECK_W} bg-gray-50/60 self-stretch`}
+                    className={`sticky left-0 z-[60] ${CHECK_W} bg-muted/60 self-stretch`}
                     style={treeControlCellStyle(depth)}
                 />
                 <div
-                    className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-gray-50/60 p-2`}
+                    className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-muted/60 p-2`}
                     style={treeNameCellStyle(depth)}
                 >
                     <div className="flex items-center gap-2">
-                        <Loader2 className="h-3 w-3 animate-spin text-gray-400" />
+                        <Loader2 className="h-3 w-3 animate-spin text-kd-text-3" />
                         <span>Loading versions…</span>
                     </div>
                 </div>
@@ -135,13 +142,13 @@ export function DocVersionHistory({
 
     if (versions.length === 0) {
         return (
-            <div className="flex items-center h-9 border-b border-gray-50 text-xs text-gray-400 bg-gray-50/60">
+            <div className="flex items-center h-9 border-b border-border text-xs text-kd-text-3 bg-muted/60">
                 <div
-                    className={`sticky left-0 z-[60] ${CHECK_W} bg-gray-50/60 self-stretch`}
+                    className={`sticky left-0 z-[60] ${CHECK_W} bg-muted/60 self-stretch`}
                     style={treeControlCellStyle(depth)}
                 />
                 <div
-                    className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-gray-50/60 p-2`}
+                    className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-muted/60 p-2`}
                     style={treeNameCellStyle(depth)}
                 >
                     <div>No version history.</div>
@@ -181,18 +188,18 @@ export function DocVersionHistory({
                             if (isEditing) return;
                             onOpenVersion?.(v.id, displayLabel);
                         }}
-                        className="group flex items-center h-9 pr-3 md:pr-10 border-b border-gray-50 bg-gray-50/60 text-xs text-gray-600 cursor-pointer hover:bg-gray-100/80 transition-colors"
+                        className="group flex items-center h-9 pr-3 md:pr-10 border-b border-border bg-muted/60 text-xs text-muted-foreground cursor-pointer hover:bg-muted transition-colors"
                     >
                         <div
-                            className={`sticky left-0 z-[60] ${CHECK_W} bg-gray-50/60 group-hover:bg-gray-100/80 self-stretch`}
+                            className={`sticky left-0 z-[60] ${CHECK_W} bg-muted/60 group-hover:bg-muted self-stretch`}
                             style={treeControlCellStyle(depth)}
                         />
                         <div
-                            className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-gray-50/60 group-hover:bg-gray-100/80 p-2`}
+                            className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-muted/60 group-hover:bg-muted p-2`}
                             style={treeNameCellStyle(depth)}
                         >
                             <div className="flex items-center gap-2">
-                                <span className="shrink-0 text-gray-400">
+                                <span className="shrink-0 text-kd-text-3">
                                     ↳
                                 </span>
                                 {isEditing ? (
@@ -212,10 +219,10 @@ export function DocVersionHistory({
                                             }
                                         }}
                                         onBlur={() => void commit(v.id)}
-                                        className="min-w-0 flex-1 max-w-[240px] border-b border-gray-300 bg-transparent text-xs text-gray-800 outline-none focus:border-gray-500"
+                                        className="min-w-0 flex-1 max-w-[240px] border-b border-border bg-transparent text-xs text-foreground outline-none focus:border-kd-accent"
                                     />
                                 ) : (
-                                    <span className="font-medium text-gray-700 truncate">
+                                    <span className="font-medium text-foreground truncate">
                                         {displayLabel}
                                     </span>
                                 )}
@@ -229,18 +236,18 @@ export function DocVersionHistory({
                                             );
                                         }}
                                         title="Rename version"
-                                        className="shrink-0 rounded p-0.5 text-gray-400 opacity-0 group-hover:opacity-100 hover:text-gray-700 hover:bg-gray-200 transition"
+                                        className="shrink-0 rounded p-0.5 text-kd-text-3 opacity-0 group-hover:opacity-100 hover:text-foreground hover:bg-muted transition"
                                     >
                                         <Pencil className="h-3 w-3" />
                                     </button>
                                 )}
-                                <span className="text-gray-400 truncate">
+                                <span className="text-kd-text-3 truncate">
                                     {dateLabel}
                                 </span>
-                                <span className="text-gray-300 shrink-0">
+                                <span className="text-kd-text-3 shrink-0">
                                     ·
                                 </span>
-                                <span className="text-gray-400 truncate">
+                                <span className="text-kd-text-3 truncate">
                                     {v.source}
                                 </span>
                             </div>
@@ -255,7 +262,7 @@ export function DocVersionHistory({
                                     onDownloadVersion(docId, v.id, filename);
                                 }}
                                 title="Download this version"
-                                className="flex items-center justify-center w-6 h-6 rounded text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors"
+                                className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                             >
                                 <Download className="h-3.5 w-3.5" />
                             </button>
@@ -269,60 +276,44 @@ export function DocVersionHistory({
 
 export function ProjectPageSkeleton() {
     return (
-        <div className="flex-1 overflow-y-auto bg-white">
-            <div className="mb-1 flex items-start justify-between px-4 py-3 md:px-10">
-                <div className="flex items-center gap-1.5 text-2xl font-medium font-serif">
-                    <span className="text-gray-400">Projects</span>
-                    <span className="text-gray-300">›</span>
-                    <div className="h-6 w-40 rounded bg-gray-100 animate-pulse" />
+        <div className="flex-1 overflow-y-auto bg-background">
+            <div className="flex h-[60px] items-center justify-between border-b border-border px-4 md:px-7">
+                <div className="flex items-baseline gap-2">
+                    <span className="kd-label text-kd-text-3">Matters</span>
+                    <span className="text-xs text-kd-text-3">/</span>
+                    <div className="h-3 w-40 rounded bg-muted animate-pulse" />
                 </div>
-                <div className="flex items-center gap-4">
-                    <div className="h-8 w-8 rounded bg-gray-100 animate-pulse" />
-                    <div className="h-8 w-8 rounded bg-gray-100 animate-pulse" />
-                    <div className="h-8 w-11 rounded bg-gray-100 animate-pulse" />
-                    <div className="h-8 w-28 rounded bg-gray-100 animate-pulse" />
-                </div>
-            </div>
-            <div className="flex items-center h-10 px-4 md:px-10 border-b border-gray-200 gap-5">
-                <div className="h-3 w-20 rounded bg-gray-100 animate-pulse" />
-                <div className="h-3 w-10 rounded bg-gray-100 animate-pulse" />
-                <div className="h-3 w-24 rounded bg-gray-100 animate-pulse" />
-                <div className="ml-auto flex items-center gap-5">
-                    <div className="h-3 w-24 rounded bg-gray-100 animate-pulse" />
-                    <div className="h-3 w-24 rounded bg-gray-100 animate-pulse" />
+                <div className="flex items-center gap-2.5">
+                    <div className="h-10 w-10 rounded-[10px] bg-muted animate-pulse" />
+                    <div className="h-10 w-10 rounded-[10px] bg-muted animate-pulse" />
+                    <div className="h-10 w-28 rounded-[10px] bg-muted animate-pulse" />
                 </div>
             </div>
-            <div className="flex items-center h-8 pr-3 md:pr-10 border-b border-gray-200">
-                <div className="w-8 shrink-0" />
-                <div className="flex-1 min-w-0 pl-3 pr-4">
-                    <div className="h-2.5 w-8 rounded bg-gray-100 animate-pulse" />
-                </div>
-                <div className="w-20 shrink-0">
-                    <div className="h-2.5 w-8 rounded bg-gray-100 animate-pulse" />
-                </div>
-                <div className="w-24 shrink-0">
-                    <div className="h-2.5 w-8 rounded bg-gray-100 animate-pulse" />
-                </div>
-                <div className="w-8 shrink-0" />
+            <div className="px-4 pt-8 md:px-10">
+                <div className="h-10 w-72 rounded bg-muted animate-pulse" />
+                <div className="mt-3 h-3.5 w-64 rounded bg-muted animate-pulse" />
             </div>
-            {[1, 2, 3, 4, 5].map((i) => (
-                <div
-                    key={i}
-                    className="flex items-center h-10 pr-3 md:pr-10 border-b border-gray-50"
-                >
-                    <div className="w-8 shrink-0" />
-                    <div className="flex-1 min-w-0 pl-3 pr-4">
-                        <div className="h-3.5 w-56 rounded bg-gray-100 animate-pulse" />
+            <div className="mt-7 flex items-center gap-6 border-b border-border px-4 pb-3 md:px-10">
+                <div className="h-3 w-20 rounded bg-muted animate-pulse" />
+                <div className="h-3 w-16 rounded bg-muted animate-pulse" />
+                <div className="h-3 w-24 rounded bg-muted animate-pulse" />
+            </div>
+            <div className="px-4 pt-6 pb-8 md:px-10">
+                <div className="overflow-hidden rounded-[14px] border border-border bg-card">
+                    <div className="flex h-11 items-center bg-muted px-5">
+                        <div className="h-2.5 w-10 rounded bg-border animate-pulse" />
                     </div>
-                    <div className="w-20 shrink-0">
-                        <div className="h-3 w-8 rounded bg-gray-100 animate-pulse" />
-                    </div>
-                    <div className="w-24 shrink-0">
-                        <div className="h-3 w-12 rounded bg-gray-100 animate-pulse" />
-                    </div>
-                    <div className="w-8 shrink-0" />
+                    {[1, 2, 3, 4, 5].map((i) => (
+                        <div
+                            key={i}
+                            className="flex h-[52px] items-center border-t border-border px-5"
+                        >
+                            <div className="h-3.5 w-56 rounded bg-muted animate-pulse" />
+                            <div className="ml-auto h-3 w-16 rounded bg-muted animate-pulse" />
+                        </div>
+                    ))}
                 </div>
-            ))}
+            </div>
         </div>
     );
 }
@@ -356,46 +347,37 @@ export function ProjectPageHeader({
     onNewChat: () => void;
     onNewReview: () => void;
 }) {
+    const cmSuffix = project.cm_number ? ` (${project.cm_number})` : "";
     return (
-        <div className="mb-1 flex items-start justify-between px-4 py-3 md:px-10">
-            <div>
-                <div className="flex items-center gap-1.5 text-2xl font-medium font-serif">
+        <>
+            {/* Top bar */}
+            <div className="flex h-[60px] shrink-0 items-center justify-between border-b border-border px-4 md:px-7">
+                <div className="flex min-w-0 items-baseline gap-2">
                     <button
                         onClick={onBackToProjects}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        className="kd-label text-kd-text-3 transition-colors hover:text-muted-foreground"
                     >
-                        Projects
+                        Matters
                     </button>
-                    <span className="text-gray-300">›</span>
+                    <span className="text-xs text-kd-text-3">/</span>
                     {tab !== "documents" ? (
                         <button
                             onClick={onOpenDocuments}
-                            className="text-gray-500 hover:text-gray-700 transition-colors"
+                            className="kd-label min-w-0 truncate text-kd-text-3 transition-colors hover:text-muted-foreground"
                         >
                             {project.name}
-                            {project.cm_number ? (
-                                <span className="ml-1 text-gray-400">
-                                    (#{project.cm_number})
-                                </span>
-                            ) : null}
+                            {cmSuffix}
                         </button>
                     ) : (
-                        <RenameableTitle
-                            value={project.name}
-                            onCommit={onTitleCommit}
-                            suffix={
-                                project.cm_number ? (
-                                    <span className="ml-1 text-gray-400">
-                                        (#{project.cm_number})
-                                    </span>
-                                ) : null
-                            }
-                        />
+                        <span className="kd-label min-w-0 truncate text-muted-foreground">
+                            {project.name}
+                            {cmSuffix}
+                        </span>
                     )}
                     {tab !== "documents" && (
                         <>
-                            <span className="text-gray-300">›</span>
-                            <span className="text-gray-900">
+                            <span className="text-xs text-kd-text-3">/</span>
+                            <span className="kd-label shrink-0 text-muted-foreground">
                                 {tab === "assistant"
                                     ? "Assistant"
                                     : "Tabular Reviews"}
@@ -403,63 +385,104 @@ export function ProjectPageHeader({
                         </>
                     )}
                 </div>
-            </div>
-            <div className="flex items-center gap-4">
-                <HeaderSearchBtn
-                    value={search}
-                    onChange={onSearchChange}
-                    placeholder="Search…"
-                />
-                <button
-                    onClick={onOpenPeople}
-                    className="flex h-8 w-8 items-center justify-center text-sm text-gray-500 transition-colors hover:text-gray-900 cursor-pointer"
-                    title="People with access"
-                    aria-label="People with access"
-                >
-                    <Users className="h-4 w-4" />
-                </button>
-                <div className="relative group">
+                <div className="flex shrink-0 items-center gap-2.5">
+                    <HeaderSearchBtn
+                        value={search}
+                        onChange={onSearchChange}
+                        placeholder="Search…"
+                    />
+                    <button
+                        onClick={onOpenPeople}
+                        className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-border bg-card text-muted-foreground transition-colors hover:border-kd-text-3 hover:text-foreground"
+                        title="People with access"
+                        aria-label="People with access"
+                    >
+                        <Users
+                            className="h-[17px] w-[17px]"
+                            strokeWidth={1.5}
+                        />
+                    </button>
+                    <div className="relative group">
+                        <button
+                            onClick={() =>
+                                docsCount > 0 &&
+                                !creatingReview &&
+                                onNewReview()
+                            }
+                            className={`flex h-10 items-center gap-2 rounded-[10px] border border-border bg-card px-4 text-sm font-medium transition-colors ${
+                                docsCount > 0
+                                    ? "cursor-pointer text-foreground hover:border-kd-text-3"
+                                    : "cursor-default text-kd-text-3"
+                            }`}
+                        >
+                            {creatingReview ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <Plus className="h-4 w-4" strokeWidth={1.5} />
+                            )}
+                            New review
+                        </button>
+                        {docsCount === 0 && (
+                            <div className="pointer-events-none absolute right-0 top-full z-10 mt-1.5 hidden items-center whitespace-nowrap rounded-[10px] border border-border bg-card px-2.5 py-1.5 text-xs text-muted-foreground shadow-[var(--kd-shadow-2)] group-hover:flex">
+                                Upload a document first
+                            </div>
+                        )}
+                    </div>
+                    <ThemeToggleButton />
                     <button
                         onClick={() => !creatingChat && onNewChat()}
-                        className={`flex h-8 items-center justify-center gap-1.5 text-sm transition-colors ${
-                            !creatingChat
-                                ? "text-gray-500 hover:text-gray-900 cursor-pointer"
-                                : "text-gray-300 cursor-default"
+                        className={`flex h-10 items-center gap-2 rounded-[10px] bg-kd-brass px-4 text-sm font-semibold text-[#14120C] transition-colors hover:bg-kd-accent-strong ${
+                            creatingChat ? "cursor-default opacity-70" : ""
                         }`}
                     >
                         {creatingChat ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
-                            <Plus className="h-4 w-4" />
+                            <MessageSquare
+                                className="h-[15px] w-[15px]"
+                                strokeWidth={1.8}
+                            />
                         )}
-                        Chat
+                        Ask KD
                     </button>
-                </div>
-                <div className="relative group">
-                    <button
-                        onClick={() =>
-                            docsCount > 0 && !creatingReview && onNewReview()
-                        }
-                        className={`flex h-8 items-center justify-center gap-1.5 text-sm transition-colors ${
-                            docsCount > 0
-                                ? "text-gray-500 hover:text-gray-900 cursor-pointer"
-                                : "text-gray-300 cursor-default"
-                        }`}
-                    >
-                        {creatingReview ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                            <Plus className="h-4 w-4" />
-                        )}
-                        Tabular Review
-                    </button>
-                    {docsCount === 0 && (
-                        <div className="pointer-events-none absolute right-0 top-full mt-1.5 z-10 hidden group-hover:flex items-center whitespace-nowrap rounded-lg bg-gray-900 px-2.5 py-1.5 text-xs text-white shadow-lg">
-                            Upload a document first
-                        </div>
-                    )}
                 </div>
             </div>
-        </div>
+
+            {/* Title + meta */}
+            <div className="px-4 pt-8 md:px-10">
+                <h1 className="font-serif text-[40px] font-normal leading-[1.1] tracking-[-0.01em] text-foreground">
+                    {tab === "documents" ? (
+                        <RenameableTitle
+                            value={project.name}
+                            onCommit={onTitleCommit}
+                            suffix={
+                                project.cm_number ? (
+                                    <span className="ml-2 text-kd-text-3">
+                                        (#{project.cm_number})
+                                    </span>
+                                ) : null
+                            }
+                        />
+                    ) : (
+                        <button
+                            onClick={onOpenDocuments}
+                            className="text-left text-foreground transition-colors hover:text-muted-foreground"
+                        >
+                            {project.name}
+                            {project.cm_number ? (
+                                <span className="ml-2 text-kd-text-3">
+                                    (#{project.cm_number})
+                                </span>
+                            ) : null}
+                        </button>
+                    )}
+                </h1>
+                <div className="mt-1.5 text-sm text-muted-foreground">
+                    {project.cm_number ? `CM ${project.cm_number} · ` : ""}
+                    Opened {formatDate(project.created_at)} · {docsCount}{" "}
+                    {docsCount === 1 ? "document" : "documents"}
+                </div>
+            </div>
+        </>
     );
 }

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, Loader2, Play, ChevronDown, MessageSquare, Download, Users, Upload } from "lucide-react";
 import { HeaderSearchBtn } from "../shared/HeaderSearchBtn";
+import { ThemeToggleButton } from "@/app/components/shared/ThemeToggleButton";
 
 import {
     clearTabularCells,
@@ -46,6 +47,21 @@ import { useSidebar } from "@/app/contexts/SidebarContext";
 interface Props {
     reviewId: string;
     projectId?: string;
+}
+
+/** DD Mon YYYY, HH:mm (per KD design conventions). */
+function formatMetaDate(iso: string) {
+    const d = new Date(iso);
+    const date = d.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+    });
+    const time = d.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+    return `${date}, ${time}`;
 }
 
 export function TRView({ reviewId, projectId }: Props) {
@@ -525,89 +541,93 @@ export function TRView({ reviewId, projectId }: Props) {
         ? documents.filter((d) => d.filename.toLowerCase().includes(q))
         : documents;
 
+    // Presentational run-status derivation for the header chip.
+    const totalCells = documents.length * columns.length;
+    const doneCells = cells.filter(
+        (c) => c.status === "done" && c.content,
+    ).length;
+    const showStatusChip =
+        !loading && totalCells > 0 && (generating || doneCells === totalCells);
+
     return (
-        <div className="flex h-full overflow-hidden bg-white">
+        <div className="flex h-full overflow-hidden bg-background">
             <div className="flex flex-1 flex-col overflow-hidden">
-                {/* Header */}
-                <div className="mb-1 bg-white px-4 py-3 md:px-10 flex items-start justify-between shrink-0 gap-4">
-                    <div className="flex items-center gap-1.5 text-2xl font-medium font-serif">
+                {/* Top bar */}
+                <div className="h-[60px] px-4 md:px-7 flex items-center justify-between gap-4 border-b border-border shrink-0">
+                    <div className="flex items-baseline gap-2 min-w-0">
                         {projectId && (
                             <>
                                 <button
                                     onClick={() => router.push("/projects")}
-                                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                                    className="kd-label text-kd-text-3 hover:text-foreground transition-colors"
                                 >
-                                    Projects
+                                    Matters
                                 </button>
-                                <span className="text-gray-300">›</span>
+                                <span className="text-kd-text-3 text-xs">/</span>
                                 <button
                                     onClick={() =>
                                         router.push(`/projects/${projectId}`)
                                     }
-                                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                                    className="kd-label text-kd-text-3 hover:text-foreground transition-colors truncate max-w-44"
                                 >
                                     {loading ? (
-                                        <div className="h-6 w-32 rounded bg-gray-100 animate-pulse" />
+                                        <span className="inline-block h-3 w-24 rounded bg-muted animate-pulse align-middle" />
                                     ) : (
                                         <>
                                             {project?.name ?? ""}
                                             {project?.cm_number && (
-                                                <span className="ml-1 text-gray-400">
+                                                <span className="ml-1 text-kd-text-3">
                                                     (#{project.cm_number})
                                                 </span>
                                             )}
                                         </>
                                     )}
                                 </button>
-                                <span className="text-gray-300">›</span>
+                                <span className="text-kd-text-3 text-xs">/</span>
                                 <button
                                     onClick={() =>
                                         router.push(
                                             `/projects/${projectId}?tab=reviews`,
                                         )
                                     }
-                                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                                    className="kd-label text-kd-text-3 hover:text-foreground transition-colors"
                                 >
-                                    Tabular Reviews
+                                    Tabular Review
                                 </button>
                             </>
                         )}
                         {!projectId && (
                             <button
                                 onClick={() => router.push("/tabular-reviews")}
-                                className="text-gray-500 hover:text-gray-700 transition-colors"
+                                className="kd-label text-kd-text-3 hover:text-foreground transition-colors"
                             >
-                                Tabular Reviews
+                                Tabular Review
                             </button>
                         )}
-                        <span className="text-gray-300">›</span>
+                        <span className="text-kd-text-3 text-xs">/</span>
                         {loading ? (
-                            <div className="h-6 w-40 rounded bg-gray-100 animate-pulse" />
+                            <span className="inline-block h-3 w-32 rounded bg-muted animate-pulse" />
                         ) : (
-                            <RenameableTitle
-                                value={review?.title || "Untitled Review"}
-                                onCommit={handleTitleCommit}
-                            />
+                            <span className="kd-label text-muted-foreground truncate">
+                                {review?.title || "Untitled review"}
+                            </span>
                         )}
                     </div>
                     {!loading && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2.5 shrink-0">
                             <HeaderSearchBtn value={search} onChange={setSearch} placeholder="Search documents…" />
                             {!projectId && (
                                 <button
                                     onClick={() => setPeopleModalOpen(true)}
                                     disabled={loading}
-                                    className={`flex h-8 w-8 items-center justify-center text-sm transition-colors ${
-                                        loading
-                                            ? "text-gray-300 cursor-default"
-                                            : "text-gray-500 hover:text-gray-900 cursor-pointer"
-                                    }`}
+                                    className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-border bg-card text-muted-foreground transition-colors hover:border-kd-text-3 hover:text-foreground disabled:opacity-40 disabled:cursor-default"
                                     title="People with access"
                                     aria-label="People with access"
                                 >
-                                    <Users className="h-4 w-4" />
+                                    <Users className="h-[17px] w-[17px]" strokeWidth={1.5} />
                                 </button>
                             )}
+                            <ThemeToggleButton />
                             <button
                                 onClick={() =>
                                     exportTabularReviewToExcel({
@@ -619,13 +639,9 @@ export function TRView({ reviewId, projectId }: Props) {
                                 }
                                 disabled={columns.length === 0 || documents.length === 0}
                                 title="Export to Excel"
-                                className={`flex h-8 items-center justify-center gap-1.5 px-3 text-sm transition-colors ${
-                                    columns.length === 0 || documents.length === 0
-                                        ? "text-gray-300 cursor-default"
-                                        : "text-gray-700 hover:text-gray-900 cursor-pointer"
-                                }`}
+                                className="flex h-10 items-center gap-2 rounded-[10px] border border-border bg-card px-4 text-sm font-medium text-foreground transition-colors hover:border-kd-text-3 disabled:opacity-40 disabled:cursor-default"
                             >
-                                <Download className="h-4 w-4" />
+                                <Download className="h-[15px] w-[15px]" strokeWidth={1.5} />
                                 Export
                             </button>
                             <button
@@ -636,28 +652,62 @@ export function TRView({ reviewId, projectId }: Props) {
                                     documents.length === 0 ||
                                     savingColumnsConfig
                                 }
-                                className={`flex h-8 items-center justify-center gap-1.5 px-3 text-sm transition-colors ${
-                                    generating ||
-                                    columns.length === 0 ||
-                                    documents.length === 0 ||
-                                    savingColumnsConfig
-                                        ? "text-gray-300 cursor-default"
-                                        : "text-gray-700 hover:text-gray-900 cursor-pointer"
-                                }`}
+                                className="flex h-10 items-center gap-2 rounded-[10px] bg-kd-brass px-4 text-sm font-semibold text-[#14120C] transition-colors hover:bg-kd-accent-strong disabled:opacity-40 disabled:cursor-default"
                             >
                                 {generating ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
                                 ) : (
-                                    <Play className="h-4 w-4" />
+                                    <Play className="h-3.5 w-3.5" fill="currentColor" strokeWidth={0} />
                                 )}
-                                {generating ? "Running…" : "Run"}
+                                {generating ? "Running…" : "Run review"}
                             </button>
                         </div>
                     )}
                 </div>
 
+                {/* Header block */}
+                <div className="px-4 md:px-7 pt-6 pb-2 flex flex-wrap items-end justify-between gap-4 shrink-0">
+                    <div className="min-w-0">
+                        {loading ? (
+                            <div className="h-10 w-72 rounded bg-muted animate-pulse" />
+                        ) : (
+                            <>
+                                <h1 className="font-serif text-[40px] leading-[1.1] tracking-[-0.01em] font-normal text-foreground truncate">
+                                    <RenameableTitle
+                                        value={review?.title || "Untitled Review"}
+                                        onCommit={handleTitleCommit}
+                                    />
+                                </h1>
+                                <div className="mt-1.5 text-sm text-muted-foreground">
+                                    {documents.length}{" "}
+                                    {documents.length === 1
+                                        ? "document"
+                                        : "documents"}{" "}
+                                    · {columns.length}{" "}
+                                    {columns.length === 1
+                                        ? "column"
+                                        : "columns"}
+                                    {review?.updated_at
+                                        ? ` · Updated ${formatMetaDate(review.updated_at)}`
+                                        : ""}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                    {showStatusChip && (
+                        <div className="flex items-center gap-2 whitespace-nowrap rounded-[8px] border border-border bg-card px-3.5 py-2 text-[13px] text-muted-foreground">
+                            <span
+                                className={`h-2 w-2 rounded-full ${generating ? "bg-kd-accent" : "bg-kd-ok"}`}
+                            />
+                            {generating
+                                ? `Running — ${doneCells} of ${totalCells} cells extracted`
+                                : `Run complete — ${doneCells} of ${totalCells} cells extracted`}
+                        </div>
+                    )}
+                </div>
+
                 {/* Toolbar */}
-                <div className="flex items-center h-10 px-4 md:px-10 border-b border-gray-200 gap-4">
+                <div className="flex items-center h-10 px-4 md:px-7 border-b border-border gap-4">
                     <button
                         onClick={() => {
                             if (!chatOpen) setSidebarOpen(false);
@@ -665,42 +715,42 @@ export function TRView({ reviewId, projectId }: Props) {
                             setChatOpen((v) => !v);
                         }}
                         disabled={loading || columns.length === 0 || documents.length === 0}
-                        className={`flex items-center gap-1 text-xs font-medium transition-colors ${
+                        className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
                             loading || columns.length === 0 || documents.length === 0
-                                ? "text-gray-300 cursor-default"
-                                : "text-gray-700 hover:text-gray-900"
+                                ? "text-kd-text-3 cursor-default"
+                                : "text-muted-foreground hover:text-foreground"
                         }`}
                     >
-                        <MessageSquare className="h-3.5 w-3.5" />
-                        Assistant in Tabular Review
+                        <MessageSquare className="h-3.5 w-3.5" strokeWidth={1.5} />
+                        Ask KD about this review
                     </button>
                     <div className="ml-auto flex items-center gap-5">
                         {loading ? (
                             <>
-                                <div className="h-3 w-24 rounded bg-gray-100 animate-pulse" />
-                                <div className="h-3 w-20 rounded bg-gray-100 animate-pulse" />
+                                <div className="h-3 w-24 rounded bg-muted animate-pulse" />
+                                <div className="h-3 w-20 rounded bg-muted animate-pulse" />
                             </>
                         ) : null}
                         {!loading && selectedDocIds.length > 0 && (
                             <div ref={actionsRef} className="relative">
                                 <button
                                     onClick={() => setActionsOpen((v) => !v)}
-                                    className="flex items-center gap-1 text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                                    className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
                                 >
                                     Actions
-                                    <ChevronDown className="h-3.5 w-3.5" />
+                                    <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.5} />
                                 </button>
                                 {actionsOpen && (
-                                    <div className="absolute top-full right-0 mt-1 w-36 rounded-lg border border-gray-100 bg-white shadow-lg z-50 overflow-hidden">
+                                    <div className="absolute top-full right-0 mt-1 w-36 rounded-[10px] border border-border bg-card shadow-[var(--kd-shadow-2)] z-50 overflow-hidden">
                                         <button
                                             onClick={handleClearResults}
-                                            className="w-full px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+                                            className="w-full px-3 py-1.5 text-left text-xs text-foreground hover:bg-muted transition-colors"
                                         >
                                             Clear results
                                         </button>
                                         <button
                                             onClick={handleDeleteDocuments}
-                                            className="w-full px-3 py-1.5 text-left text-xs text-red-600 hover:bg-red-50 transition-colors"
+                                            className="w-full px-3 py-1.5 text-left text-xs text-kd-danger hover:bg-kd-danger/10 transition-colors"
                                         >
                                             Delete
                                         </button>
@@ -713,26 +763,26 @@ export function TRView({ reviewId, projectId }: Props) {
                                 <button
                                     onClick={() => setAddDocsOpen(true)}
                                     disabled={savingColumnsConfig}
-                                    className={`flex items-center gap-1 text-xs font-medium transition-colors ${
+                                    className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
                                         savingColumnsConfig
-                                            ? "text-gray-300 cursor-default"
-                                            : "text-gray-700 hover:text-gray-900"
+                                            ? "text-kd-text-3 cursor-default"
+                                            : "text-muted-foreground hover:text-foreground"
                                     }`}
                                 >
-                                    <Upload className="h-3.5 w-3.5" />
-                                    Add Documents
+                                    <Upload className="h-3.5 w-3.5" strokeWidth={1.5} />
+                                    Add documents
                                 </button>
                                 <button
                                     onClick={() => setAddColOpen(true)}
                                     disabled={savingColumn || savingColumnsConfig}
-                                    className={`flex items-center gap-1 text-xs font-medium transition-colors ${
+                                    className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
                                         savingColumn || savingColumnsConfig
-                                            ? "text-gray-300 cursor-default"
-                                            : "text-gray-700 hover:text-gray-900"
+                                            ? "text-kd-text-3 cursor-default"
+                                            : "text-muted-foreground hover:text-foreground"
                                     }`}
                                 >
-                                    <Plus className="h-3.5 w-3.5" />
-                                    Add Columns
+                                    <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
+                                    Add columns
                                 </button>
                             </>
                         )}
@@ -811,6 +861,12 @@ export function TRView({ reviewId, projectId }: Props) {
                             onAddDocuments={() => setAddDocsOpen(true)}
                         />
                     </div>
+                </div>
+
+                {/* Footer */}
+                <div className="px-4 md:px-7 pb-3 text-xs text-kd-text-3 shrink-0">
+                    Every cell cites its source clause. KD can make mistakes.
+                    Answers are not legal advice.
                 </div>
             </div>
 

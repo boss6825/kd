@@ -1,7 +1,6 @@
 "use client";
 
 import { type Dispatch, type SetStateAction } from "react";
-import { MessageSquare } from "lucide-react";
 import { RowActions } from "@/app/components/shared/RowActions";
 import type { MikeChat } from "@/app/components/shared/types";
 import { CHECK_W, formatDate, NAME_COL_W } from "./ProjectPageParts";
@@ -43,9 +42,9 @@ export function ProjectAssistantTab({
 }) {
     return (
         <>
-            <div className="flex items-center h-8 pr-8 border-b border-gray-200 text-xs text-gray-500 font-medium select-none">
+            <div className="flex items-center h-11 pr-8 border-b border-border bg-muted kd-label text-muted-foreground select-none">
                 <div
-                    className={`sticky left-0 z-[60] ${CHECK_W} relative bg-white flex items-center justify-center self-stretch before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-white`}
+                    className={`sticky left-0 z-[60] ${CHECK_W} bg-muted flex items-center justify-center self-stretch`}
                 >
                     <input
                         type="checkbox"
@@ -57,32 +56,27 @@ export function ProjectAssistantTab({
                             if (allChatsSelected) setSelectedChatIds([]);
                             else setSelectedChatIds(filteredChats.map((c) => c.id));
                         }}
-                        className="h-2.5 w-2.5 rounded border-gray-200 cursor-pointer accent-black"
+                        className="h-2.5 w-2.5 rounded border-border cursor-pointer accent-kd-brass"
                     />
                 </div>
                 <div
-                    className={`sticky left-8 z-[60] ${NAME_COL_W} bg-white pl-2 text-left`}
+                    className={`sticky left-8 z-[60] ${NAME_COL_W} bg-muted pl-2 text-left`}
                 >
                     Chats
                 </div>
-                <div className="ml-auto w-32 shrink-0 text-left">Created</div>
+                <div className="ml-auto w-32 shrink-0 text-right">Created</div>
                 <div className="w-8 shrink-0" />
             </div>
             {chats.length === 0 ? (
-                <div className="flex flex-col items-start py-24 w-full max-w-xs mx-auto">
-                    <MessageSquare className="h-8 w-8 text-gray-300 mb-4" />
-                    <p className="text-2xl font-medium font-serif text-gray-900">
-                        Assistant
-                    </p>
-                    <p className="mt-1 text-xs text-gray-400 max-w-xs">
-                        Ask questions and get answers grounded in the documents
-                        in this project.
+                <div className="flex w-full flex-col items-center justify-center py-24 text-center">
+                    <p className="font-serif text-xl text-foreground">
+                        Every great matter starts with a question.
                     </p>
                     <button
                         onClick={onCreateChat}
-                        className="mt-4 inline-flex items-center gap-1 rounded-full bg-gray-900 px-3 py-1 text-xs font-medium text-white hover:bg-gray-700 transition-colors shadow-md"
+                        className="mt-5 inline-flex h-10 items-center rounded-[10px] bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
                     >
-                        + Create New
+                        Ask KD
                     </button>
                 </div>
             ) : (
@@ -94,14 +88,14 @@ export function ProjectAssistantTab({
                                 if (renamingChatId === chat.id) return;
                                 onOpenChat(chat.id);
                             }}
-                            className="group flex items-center h-10 pr-8 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors"
+                            className="group flex items-center h-[52px] pr-8 border-b border-border hover:bg-muted cursor-pointer transition-colors"
                         >
                             <div
                                 className={`sticky left-0 z-[60] ${CHECK_W} p-2 flex items-center justify-center ${
                                     selectedChatIds.includes(chat.id)
-                                        ? "bg-gray-50"
-                                        : "bg-white"
-                                } group-hover:bg-gray-50`}
+                                        ? "bg-muted"
+                                        : "bg-card"
+                                } group-hover:bg-muted`}
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 <input
@@ -114,11 +108,11 @@ export function ProjectAssistantTab({
                                                 : [...prev, chat.id],
                                         )
                                     }
-                                    className="h-2.5 w-2.5 rounded border-gray-200 cursor-pointer accent-black"
+                                    className="h-2.5 w-2.5 rounded border-border cursor-pointer accent-kd-brass"
                                 />
                             </div>
                             <div
-                                className={`sticky left-8 z-[60] ${NAME_COL_W} bg-white p-2 group-hover:bg-gray-50`}
+                                className={`sticky left-8 z-[60] ${NAME_COL_W} bg-card p-2 group-hover:bg-muted`}
                             >
                                 {renamingChatId === chat.id ? (
                                     <input
@@ -135,15 +129,15 @@ export function ProjectAssistantTab({
                                         }}
                                         onBlur={() => void submitChatRename(chat.id)}
                                         onClick={(e) => e.stopPropagation()}
-                                        className="w-full text-sm text-gray-800 bg-transparent outline-none"
+                                        className="w-full text-sm text-foreground bg-transparent outline-none"
                                     />
                                 ) : (
-                                    <span className="text-sm text-gray-800 truncate block">
+                                    <span className="text-sm font-medium text-foreground truncate block">
                                         {chat.title ?? "Untitled Chat"}
                                     </span>
                                 )}
                             </div>
-                            <div className="ml-auto w-32 shrink-0 text-sm text-gray-500 truncate">
+                            <div className="ml-auto w-32 shrink-0 text-right text-[13px] text-muted-foreground truncate">
                                 {formatDate(chat.created_at)}
                             </div>
                             <div

@@ -45,7 +45,6 @@ import type {
     MikeChat,
     TabularReview,
 } from "@/app/components/shared/types";
-import { ToolbarTabs } from "@/app/components/shared/ToolbarTabs";
 import {
     closeRowActionMenus,
     RowActionMenuItems,
@@ -554,7 +553,7 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
         // Server-side this would 404 silently for non-owners; surface a
         // clear permission warning instead.
         if (project && project.is_owner === false) {
-            setOwnerOnlyAction("rename this project");
+            setOwnerOnlyAction("rename this matter");
             return;
         }
         setProject((prev) => (prev ? { ...prev, name: newName } : prev));
@@ -768,24 +767,24 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
         return (
             <div
                 ref={newFolderInputRef}
-                className="group flex items-center h-10 pr-8 border-b border-gray-50"
+                className="group flex items-center h-[52px] pr-8 border-b border-border"
                 key={`new-folder-${parentId ?? "root"}`}
             >
                 <div
-                    className={`sticky left-0 z-[60] ${CHECK_W} bg-white p-2 flex items-center justify-center self-stretch`}
+                    className={`sticky left-0 z-[60] ${CHECK_W} bg-card p-2 flex items-center justify-center self-stretch`}
                     style={treeControlCellStyle(depth)}
                 >
-                    <ChevronRight className="h-3.5 w-3.5 text-gray-300 shrink-0" />
+                    <ChevronRight className="h-3.5 w-3.5 text-kd-text-3 shrink-0" />
                 </div>
                 <div
-                    className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-white p-2`}
+                    className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-card p-2`}
                     style={treeNameCellStyle(depth)}
                 >
                     <div className="flex items-center gap-1.5">
-                        <FolderPlus className="h-4 w-4 text-amber-400 shrink-0" />
+                        <FolderPlus className="h-4 w-4 text-kd-brass shrink-0" />
                         <input
                             autoFocus
-                            className="flex-1 min-w-0 text-sm text-gray-800 bg-transparent outline-none border-b border-gray-300"
+                            className="flex-1 min-w-0 text-sm text-foreground bg-transparent outline-none border-b border-border"
                             placeholder="Folder name"
                             value={newFolderName}
                             onChange={(e) => setNewFolderName(e.target.value)}
@@ -811,38 +810,38 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
         return uploadingDroppedFilenames.map((filename) => (
             <div
                 key={`uploading-doc-${filename}`}
-                className="group flex items-center h-10 pr-8 border-b border-gray-50"
+                className="group flex items-center h-[52px] pr-8 border-b border-border"
             >
                 <div
-                    className={`sticky left-0 z-[60] ${CHECK_W} bg-white p-2 flex items-center justify-center self-stretch`}
+                    className={`sticky left-0 z-[60] ${CHECK_W} bg-card p-2 flex items-center justify-center self-stretch`}
                     style={treeControlCellStyle(depth)}
                 >
                     <input
                         type="checkbox"
                         disabled
-                        className="h-2.5 w-2.5 rounded border-gray-200 cursor-default accent-black disabled:opacity-100"
+                        className="h-2.5 w-2.5 rounded border-border cursor-default accent-kd-brass disabled:opacity-100"
                     />
                 </div>
                 <div
-                    className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-white p-2`}
+                    className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-card p-2`}
                     style={treeNameCellStyle(depth)}
                 >
                     <div className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin text-gray-400 shrink-0" />
-                        <span className="text-sm text-gray-400 truncate">
+                        <Loader2 className="h-4 w-4 animate-spin text-kd-text-3 shrink-0" />
+                        <span className="text-sm text-kd-text-3 truncate">
                             {filename}
                         </span>
                     </div>
                 </div>
-                <div className="ml-auto w-20 shrink-0 text-xs text-gray-300 uppercase truncate">
+                <div className="ml-auto w-20 shrink-0 text-xs text-kd-text-3 uppercase truncate">
                     {filename.includes(".") ? filename.split(".").pop() : "file"}
                 </div>
-                <div className="w-24 shrink-0 text-sm text-gray-300">
+                <div className="w-24 shrink-0 text-right font-mono text-xs text-kd-text-3">
                     Uploading
                 </div>
-                <div className="w-20 shrink-0 text-sm text-gray-300">—</div>
-                <div className="w-32 shrink-0 text-sm text-gray-300">—</div>
-                <div className="w-32 shrink-0 text-sm text-gray-300">—</div>
+                <div className="w-20 shrink-0 text-sm text-kd-text-3">—</div>
+                <div className="w-32 shrink-0 text-right text-[13px] text-kd-text-3">—</div>
+                <div className="w-32 shrink-0 text-right text-[13px] text-kd-text-3">—</div>
                 <div className="w-8 shrink-0" />
             </div>
         ));
@@ -893,16 +892,16 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
                                         showFolderActions: false,
                                     });
                                 }}
-                            className="group flex items-center h-10 pr-8 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors"
+                            className="group flex items-center h-[52px] pr-8 border-b border-border hover:bg-muted cursor-pointer transition-colors"
                             >
                                 {(() => {
                                     const rowBg = selectedDocIds.includes(doc.id)
-                                        ? "bg-gray-50"
-                                        : "bg-white";
+                                        ? "bg-muted"
+                                        : "bg-card";
                                     return (
                                         <>
                                 <div
-                                    className={`sticky left-0 z-[60] ${CHECK_W} p-2 flex items-center justify-center ${rowBg} group-hover:bg-gray-50`}
+                                    className={`sticky left-0 z-[60] ${CHECK_W} p-2 flex items-center justify-center ${rowBg} group-hover:bg-muted`}
                                     style={treeControlCellStyle(depth)}
                                     onClick={(e) => e.stopPropagation()}
                                 >
@@ -916,22 +915,22 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
                                                     : [...prev, doc.id],
                                             )
                                         }
-                                        className="h-2.5 w-2.5 rounded border-gray-200 cursor-pointer accent-black"
+                                        className="h-2.5 w-2.5 rounded border-border cursor-pointer accent-kd-brass"
                                     />
                                 </div>
-                                <div className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-white p-2 group-hover:bg-gray-50`} style={treeNameCellStyle(depth)}>
+                                <div className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-card p-2 group-hover:bg-muted`} style={treeNameCellStyle(depth)}>
                                 <div className="flex items-center gap-2">
                                     {isProcessing ? (
-                                        <Loader2 className="h-4 w-4 animate-spin text-gray-400 shrink-0" />
+                                        <Loader2 className="h-4 w-4 animate-spin text-kd-text-3 shrink-0" />
                                     ) : isError ? (
-                                        <AlertCircle className="h-4 w-4 text-red-500 shrink-0" />
+                                        <AlertCircle className="h-4 w-4 text-kd-danger shrink-0" />
                                     ) : (
                                         <DocIcon fileType={doc.file_type} />
                                     )}
                                     {renamingDocumentId === doc.id ? (
                                         <input
                                             autoFocus
-                                            className="min-w-0 flex-1 text-sm text-gray-800 bg-transparent outline-none border-b border-gray-300"
+                                            className="min-w-0 flex-1 text-sm text-foreground bg-transparent outline-none border-b border-border"
                                             value={renameDocumentValue}
                                             onClick={(e) => e.stopPropagation()}
                                             onDragStart={(e) => {
@@ -960,41 +959,41 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
                                             }
                                         />
                                     ) : (
-                                        <span className="text-sm text-gray-800 truncate">{doc.filename}</span>
+                                        <span className="text-sm text-foreground truncate">{doc.filename}</span>
                                     )}
                                 </div>
                                 </div>
-                                <div className="ml-auto w-20 shrink-0 text-xs text-gray-500 uppercase truncate">
-                                    {doc.file_type ?? <span className="text-gray-300">—</span>}
+                                <div className="ml-auto w-20 shrink-0 font-mono text-xs text-muted-foreground uppercase truncate">
+                                    {doc.file_type ?? <span className="text-kd-text-3">—</span>}
                                 </div>
-                                <div className="w-24 shrink-0 text-sm text-gray-500 truncate">
-                                    {doc.size_bytes != null ? formatBytes(doc.size_bytes) : <span className="text-gray-300">—</span>}
+                                <div className="w-24 shrink-0 text-right font-mono text-xs text-muted-foreground truncate">
+                                    {doc.size_bytes != null ? formatBytes(doc.size_bytes) : <span className="text-kd-text-3">—</span>}
                                 </div>
                                 <div
-                                    className="w-20 shrink-0 text-sm text-gray-500 flex items-center gap-1"
+                                    className="w-20 shrink-0 text-sm text-muted-foreground flex items-center gap-1"
                                     onClick={(e) => e.stopPropagation()}
                                 >
                                     {hasVersions ? (
                                         <button
                                             onClick={() => void toggleVersions(doc.id)}
-                                            className="flex items-center gap-1 rounded px-1 py-0.5 hover:bg-gray-100 transition-colors"
+                                            className="flex items-center gap-1 rounded px-1 py-0.5 hover:bg-muted transition-colors"
                                         >
                                             <span>{doc.latest_version_number}</span>
                                             {isVersionsOpen ? (
-                                                <ChevronDown className="h-3 w-3 text-gray-400" />
+                                                <ChevronDown className="h-3 w-3 text-kd-text-3" />
                                             ) : (
-                                                <ChevronRight className="h-3 w-3 text-gray-400" />
+                                                <ChevronRight className="h-3 w-3 text-kd-text-3" />
                                             )}
                                         </button>
                                     ) : (
-                                        <span className="text-gray-300 pl-1">—</span>
+                                        <span className="text-kd-text-3 pl-1">—</span>
                                     )}
                                 </div>
-                                <div className="w-32 shrink-0 text-sm text-gray-500 truncate">
-                                    {doc.created_at ? formatDate(doc.created_at) : <span className="text-gray-300">—</span>}
+                                <div className="w-32 shrink-0 text-right text-[13px] text-muted-foreground truncate">
+                                    {doc.created_at ? formatDate(doc.created_at) : <span className="text-kd-text-3">—</span>}
                                 </div>
-                                <div className="w-32 shrink-0 text-sm text-gray-500 truncate">
-                                    {doc.updated_at ? formatDate(doc.updated_at) : <span className="text-gray-300">—</span>}
+                                <div className="w-32 shrink-0 text-right text-[13px] text-muted-foreground truncate">
+                                    {doc.updated_at ? formatDate(doc.updated_at) : <span className="text-kd-text-3">—</span>}
                                 </div>
                                 <div className="w-8 shrink-0 flex justify-end">
                                     {!isProcessing && (
@@ -1082,24 +1081,24 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
                                     closeRowActionMenus();
                                     setContextMenu({ x: e.clientX, y: e.clientY, folderId: folder.id, showFolderActions: true });
                                 }}
-                                className={`group flex items-center h-10 pr-8 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors ${isRenaming ? "" : "select-none"} ${dragOverFolderId === folder.id ? "bg-blue-50 ring-1 ring-inset ring-blue-200" : ""}`}
+                                className={`group flex items-center h-[52px] pr-8 border-b border-border hover:bg-muted cursor-pointer transition-colors ${isRenaming ? "" : "select-none"} ${dragOverFolderId === folder.id ? "bg-kd-accent/10 ring-1 ring-inset ring-kd-accent/30" : ""}`}
                             >
-                                <div className={`sticky left-0 z-[60] ${CHECK_W} p-2 flex items-center justify-center ${dragOverFolderId === folder.id ? "bg-blue-50" : "bg-white"} group-hover:bg-gray-50 self-stretch`} style={treeControlCellStyle(depth)}>
+                                <div className={`sticky left-0 z-[60] ${CHECK_W} p-2 flex items-center justify-center ${dragOverFolderId === folder.id ? "bg-kd-accent/10" : "bg-card"} group-hover:bg-muted self-stretch`} style={treeControlCellStyle(depth)}>
                                     {isExpanded
-                                        ? <ChevronDown className="h-3.5 w-3.5 text-gray-400 shrink-0" />
-                                        : <ChevronRight className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+                                        ? <ChevronDown className="h-3.5 w-3.5 text-kd-text-3 shrink-0" />
+                                        : <ChevronRight className="h-3.5 w-3.5 text-kd-text-3 shrink-0" />
                                     }
                                 </div>
-                                <div className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} p-2 ${dragOverFolderId === folder.id ? "bg-blue-50" : "bg-white"} group-hover:bg-gray-50`} style={treeNameCellStyle(depth)}>
+                                <div className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} p-2 ${dragOverFolderId === folder.id ? "bg-kd-accent/10" : "bg-card"} group-hover:bg-muted`} style={treeNameCellStyle(depth)}>
                                 <div className="flex items-center gap-1.5">
                                     {isExpanded
-                                        ? <FolderOpen className="h-4 w-4 text-amber-500 shrink-0" />
-                                        : <Folder className="h-4 w-4 text-amber-500 shrink-0" />
+                                        ? <FolderOpen className="h-4 w-4 text-kd-brass shrink-0" />
+                                        : <Folder className="h-4 w-4 text-kd-brass shrink-0" />
                                     }
                                     {isRenaming ? (
                                         <input
                                             autoFocus
-                                            className="flex-1 min-w-0 text-sm text-gray-800 bg-transparent outline-none"
+                                            className="flex-1 min-w-0 text-sm text-foreground bg-transparent outline-none"
                                             value={renameFolderValue}
                                             onDragStart={(e) => {
                                                 e.preventDefault();
@@ -1114,15 +1113,15 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
                                             onClick={(e) => e.stopPropagation()}
                                         />
                                     ) : (
-                                        <span className="text-sm text-gray-800 truncate">{folder.name}</span>
+                                        <span className="text-sm text-foreground truncate">{folder.name}</span>
                                     )}
                                 </div>
                                 </div>
-                                <div className="ml-auto w-20 shrink-0 text-xs text-gray-300">—</div>
-                                <div className="w-24 shrink-0 text-sm text-gray-300">—</div>
-                                <div className="w-20 shrink-0 text-sm text-gray-300">—</div>
-                                <div className="w-32 shrink-0 text-sm text-gray-300">—</div>
-                                <div className="w-32 shrink-0 text-sm text-gray-300">—</div>
+                                <div className="ml-auto w-20 shrink-0 text-xs text-kd-text-3">—</div>
+                                <div className="w-24 shrink-0 text-right font-mono text-xs text-kd-text-3">—</div>
+                                <div className="w-20 shrink-0 text-sm text-kd-text-3">—</div>
+                                <div className="w-32 shrink-0 text-right text-[13px] text-kd-text-3">—</div>
+                                <div className="w-32 shrink-0 text-right text-[13px] text-kd-text-3">—</div>
                                 <div
                                     className="w-8 shrink-0 flex justify-end"
                                     onClick={(e) => e.stopPropagation()}
@@ -1154,7 +1153,9 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
     if (!project) {
         return (
             <div className="flex h-full items-center justify-center">
-                <p className="text-gray-400">Project not found</p>
+                <p className="font-serif text-xl text-muted-foreground">
+                    Matter not found.
+                </p>
             </div>
         );
     }
@@ -1186,17 +1187,17 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
         <div ref={actionsRef} className="relative">
             <button
                 onClick={() => setActionsOpen((v) => !v)}
-                className="flex items-center gap-1 text-xs font-medium text-gray-700 hover:text-gray-900 transition-colors"
+                className="flex h-9 items-center gap-1.5 rounded-[10px] border border-border bg-card px-3.5 text-[13px] font-medium text-foreground transition-colors hover:border-kd-text-3"
             >
                 Actions
-                <ChevronDown className="h-3.5 w-3.5" />
+                <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.5} />
             </button>
             {actionsOpen && (
-                <div className="absolute top-full right-0 mt-1 w-36 rounded-lg border border-gray-100 bg-white shadow-lg z-[120] overflow-hidden">
+                <div className="absolute top-full right-0 mt-1 w-36 rounded-lg border border-border bg-card shadow-[var(--kd-shadow-2)] z-[120] overflow-hidden">
                     {tab === "documents" && (
                         <button
                             onClick={handleDownloadSelectedDocs}
-                            className="w-full px-3 py-1.5 text-left text-xs text-gray-600 hover:bg-gray-50 transition-colors"
+                            className="w-full px-3 py-1.5 text-left text-xs text-muted-foreground hover:bg-muted transition-colors"
                         >
                             Download
                         </button>
@@ -1204,14 +1205,14 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
                     {tab === "documents" && selectedDocIds.some((id) => docs.find((d) => d.id === id)?.folder_id != null) && (
                         <button
                             onClick={handleRemoveSelectedFromFolder}
-                            className="w-full px-3 py-1.5 text-left text-xs text-gray-600 hover:bg-gray-50 transition-colors"
+                            className="w-full px-3 py-1.5 text-left text-xs text-muted-foreground hover:bg-muted transition-colors"
                         >
                             Remove from subfolder
                         </button>
                     )}
                     <button
                         onClick={handleDeleteSelected}
-                        className="w-full px-3 py-1.5 text-left text-xs text-red-600 hover:bg-red-50 transition-colors"
+                        className="w-full px-3 py-1.5 text-left text-xs text-kd-danger hover:bg-kd-danger/10 transition-colors"
                     >
                         Delete
                     </button>
@@ -1221,23 +1222,23 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
     ) : null;
 
     const toolbarActions = (
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-2.5">
             {actionsDropdown}
             {tab === "documents" && (
                 <>
                     <button
                         onClick={() => { setCreatingFolderIn(null); setNewFolderName(""); }}
-                        className="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
+                        className="flex h-9 items-center gap-2 rounded-[10px] border border-border bg-card px-3.5 text-[13px] font-medium text-foreground transition-colors hover:border-kd-text-3"
                     >
-                        <FolderPlus className="h-3.5 w-3.5" />
-                        Add Subfolder
+                        <FolderPlus className="h-3.5 w-3.5" strokeWidth={1.5} />
+                        Add subfolder
                     </button>
                     <button
                         onClick={() => setAddDocsOpen(true)}
-                        className="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
+                        className="flex h-9 items-center gap-2 rounded-[10px] border border-border bg-card px-3.5 text-[13px] font-medium text-foreground transition-colors hover:border-kd-text-3"
                     >
-                        <Upload className="h-3.5 w-3.5" />
-                        Add Documents
+                        <Upload className="h-3.5 w-3.5" strokeWidth={1.5} />
+                        Add documents
                     </button>
                 </>
             )}
@@ -1245,7 +1246,7 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
     );
 
     return (
-        <div className="flex-1 overflow-y-auto bg-white flex flex-col h-full">
+        <div className="flex-1 overflow-y-auto bg-background flex flex-col h-full">
             <ProjectPageHeader
                 project={project}
                 tab={tab}
@@ -1262,31 +1263,43 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
                 onNewReview={handleNewReview}
             />
 
-            <ToolbarTabs
-                tabs={[
-                    { id: "documents", label: "Documents" },
-                    { id: "assistant", label: "Assistant" },
-                    { id: "reviews", label: "Tabular Reviews" },
-                ]}
-                active={tab}
-                onChange={handleTabChange}
-                actions={
-                    <>
-                        {toolbarActions}
-                    </>
-                }
-            />
+            {/* Tab row */}
+            <div className="mt-7 flex items-end border-b border-border px-4 md:px-10 shrink-0">
+                <div className="flex flex-1 items-end gap-1">
+                    {(
+                        [
+                            { id: "documents", label: "Documents" },
+                            { id: "assistant", label: "Assistant" },
+                            { id: "reviews", label: "Tabular Reviews" },
+                        ] as { id: ProjectTab; label: string }[]
+                    ).map((t) => (
+                        <button
+                            key={t.id}
+                            onClick={() => handleTabChange(t.id)}
+                            className={
+                                tab === t.id
+                                    ? "-mb-px border-b-2 border-kd-brass px-4 py-2.5 text-sm font-medium text-foreground"
+                                    : "-mb-px border-b-2 border-transparent px-4 py-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                            }
+                        >
+                            {t.label}
+                        </button>
+                    ))}
+                </div>
+                <div className="flex items-center pb-2">{toolbarActions}</div>
+            </div>
 
             {/* Table content */}
-            <div className="w-full flex-1 min-h-0 overflow-x-auto">
-            <div className="min-w-max flex min-h-full flex-col">
+            <div className="w-full flex-1 min-h-0 px-4 pt-6 pb-8 md:px-10 flex flex-col">
+            <div className="flex-1 flex flex-col min-h-0 overflow-x-auto rounded-[14px] border border-border bg-card">
+            <div className="min-w-max flex min-h-full flex-1 flex-col">
 
                 {/* Tab: Documents */}
                 {tab === "documents" && (
                     <div className="flex-1 flex flex-col min-h-0">
                         {/* Table header */}
-                        <div className="flex items-center h-8 pr-8 border-b border-gray-200 text-xs text-gray-500 font-medium select-none shrink-0">
-                            <div className={`sticky left-0 z-[60] ${CHECK_W} relative bg-white flex items-center justify-center self-stretch before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-white`}>
+                        <div className="flex items-center h-11 pr-8 border-b border-border bg-muted kd-label text-muted-foreground select-none shrink-0">
+                            <div className={`sticky left-0 z-[60] ${CHECK_W} bg-muted flex items-center justify-center self-stretch`}>
                                 <input
                                     type="checkbox"
                                     checked={allDocsSelected}
@@ -1295,17 +1308,17 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
                                         if (allDocsSelected) setSelectedDocIds([]);
                                         else setSelectedDocIds(filteredDocs.map((d) => d.id));
                                     }}
-                                    className="h-2.5 w-2.5 rounded border-gray-200 cursor-pointer accent-black"
+                                    className="h-2.5 w-2.5 rounded border-border cursor-pointer accent-kd-brass"
                                 />
                             </div>
-                            <div className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-white pl-2 text-left`}>
+                            <div className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-muted pl-2 text-left`}>
                                 Name
                             </div>
                             <div className="ml-auto w-20 shrink-0 text-left">Type</div>
-                            <div className="w-24 shrink-0 text-left">Size</div>
+                            <div className="w-24 shrink-0 text-right">Size</div>
                             <div className="w-20 shrink-0 text-left">Version</div>
-                            <div className="w-32 shrink-0 text-left">Created</div>
-                            <div className="w-32 shrink-0 text-left">Updated</div>
+                            <div className="w-32 shrink-0 text-right">Created</div>
+                            <div className="w-32 shrink-0 text-right">Updated</div>
                             <div className="w-8 shrink-0" />
                         </div>
 
@@ -1336,10 +1349,10 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
                             }}
                         >
                             {dragOverRoot && dragOverFolderId === null && (
-                                <div className="absolute inset-0 border-2 border-blue-400 pointer-events-none z-[80]" />
+                                <div className="absolute inset-0 border-2 border-kd-accent pointer-events-none z-[80]" />
                             )}
                             {dragOverFileRoot && (
-                                <div className="absolute inset-0 z-[90] border-2 border-blue-400 bg-blue-50/40 pointer-events-none" />
+                                <div className="absolute inset-0 z-[90] border-2 border-kd-accent bg-kd-accent/5 pointer-events-none" />
                             )}
 
                         {/* Empty state */}
@@ -1350,8 +1363,17 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
                                 onClick={() => setAddDocsOpen(true)}
                                 className="flex-1 flex cursor-pointer flex-col items-center justify-center py-24 text-center"
                             >
-                                <Upload className="h-8 w-8 text-gray-200 mb-3" />
-                                <p className="text-sm text-gray-400">Drop PDF or DOCX files here</p>
+                                <Upload
+                                    className="h-8 w-8 text-kd-text-3 mb-4"
+                                    strokeWidth={1.5}
+                                />
+                                <p className="font-serif text-xl text-foreground">
+                                    Every matter starts with its documents.
+                                </p>
+                                <p className="mt-2 text-sm text-muted-foreground">
+                                    Drop PDF or DOCX files here, or click to
+                                    browse.
+                                </p>
                             </div>
                         ) : (
                             <div
@@ -1410,23 +1432,23 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
                                                             showFolderActions: false,
                                                         });
                                                     }}
-                                                    className="group flex items-center h-10 pr-8 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors"
+                                                    className="group flex items-center h-[52px] pr-8 border-b border-border hover:bg-muted cursor-pointer transition-colors"
                                                 >
-                                                    <div className={`sticky left-0 z-[60] ${CHECK_W} p-2 flex items-center justify-center ${selectedDocIds.includes(doc.id) ? "bg-gray-50" : "bg-white"} group-hover:bg-gray-50`} onClick={(e) => e.stopPropagation()}>
+                                                    <div className={`sticky left-0 z-[60] ${CHECK_W} p-2 flex items-center justify-center ${selectedDocIds.includes(doc.id) ? "bg-muted" : "bg-card"} group-hover:bg-muted`} onClick={(e) => e.stopPropagation()}>
                                                         <input
                                                             type="checkbox"
                                                             checked={selectedDocIds.includes(doc.id)}
                                                             onChange={() => setSelectedDocIds((prev) => prev.includes(doc.id) ? prev.filter((x) => x !== doc.id) : [...prev, doc.id])}
-                                                            className="h-2.5 w-2.5 rounded border-gray-200 cursor-pointer accent-black"
+                                                            className="h-2.5 w-2.5 rounded border-border cursor-pointer accent-kd-brass"
                                                         />
                                                     </div>
-                                                    <div className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-white p-2 group-hover:bg-gray-50`}>
+                                                    <div className={`sticky left-8 z-[60] ${DOC_NAME_COL_W} bg-card p-2 group-hover:bg-muted`}>
                                                     <div className="flex items-center gap-2">
-                                                        {isProcessing ? <Loader2 className="h-4 w-4 animate-spin text-gray-400 shrink-0" /> : isError ? <AlertCircle className="h-4 w-4 text-red-500 shrink-0" /> : <DocIcon fileType={doc.file_type} />}
+                                                        {isProcessing ? <Loader2 className="h-4 w-4 animate-spin text-kd-text-3 shrink-0" /> : isError ? <AlertCircle className="h-4 w-4 text-kd-danger shrink-0" /> : <DocIcon fileType={doc.file_type} />}
                                                         {renamingDocumentId === doc.id ? (
                                                             <input
                                                                 autoFocus
-                                                                className="min-w-0 flex-1 text-sm text-gray-800 bg-transparent outline-none border-b border-gray-300"
+                                                                className="min-w-0 flex-1 text-sm text-foreground bg-transparent outline-none border-b border-border"
                                                                 value={renameDocumentValue}
                                                                 onClick={(e) => e.stopPropagation()}
                                                                 onDragStart={(e) => {
@@ -1455,37 +1477,37 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
                                                                 }
                                                             />
                                                         ) : (
-                                                            <span className="text-sm text-gray-800 truncate">{doc.filename}</span>
+                                                            <span className="text-sm text-foreground truncate">{doc.filename}</span>
                                                         )}
                                                     </div>
                                                     </div>
-                                                    <div className="ml-auto w-20 shrink-0 text-xs text-gray-500 uppercase truncate">{doc.file_type ?? <span className="text-gray-300">—</span>}</div>
-                                                    <div className="w-24 shrink-0 text-sm text-gray-500 truncate">{doc.size_bytes != null ? formatBytes(doc.size_bytes) : <span className="text-gray-300">—</span>}</div>
+                                                    <div className="ml-auto w-20 shrink-0 font-mono text-xs text-muted-foreground uppercase truncate">{doc.file_type ?? <span className="text-kd-text-3">—</span>}</div>
+                                                    <div className="w-24 shrink-0 text-right font-mono text-xs text-muted-foreground truncate">{doc.size_bytes != null ? formatBytes(doc.size_bytes) : <span className="text-kd-text-3">—</span>}</div>
                                                     <div
-                                                        className="w-20 shrink-0 text-sm text-gray-500 flex items-center gap-1"
+                                                        className="w-20 shrink-0 text-sm text-muted-foreground flex items-center gap-1"
                                                         onClick={(e) => e.stopPropagation()}
                                                     >
                                                         {hasVersions ? (
                                                             <button
                                                                 onClick={() => void toggleVersions(doc.id)}
-                                                                className="flex items-center gap-1 rounded px-1 py-0.5 hover:bg-gray-100 transition-colors"
+                                                                className="flex items-center gap-1 rounded px-1 py-0.5 hover:bg-muted transition-colors"
                                                             >
                                                                 <span>{doc.latest_version_number}</span>
                                                                 {isVersionsOpen ? (
-                                                                    <ChevronDown className="h-3 w-3 text-gray-400" />
+                                                                    <ChevronDown className="h-3 w-3 text-kd-text-3" />
                                                                 ) : (
-                                                                    <ChevronRight className="h-3 w-3 text-gray-400" />
+                                                                    <ChevronRight className="h-3 w-3 text-kd-text-3" />
                                                                 )}
                                                             </button>
                                                         ) : (
-                                                            <span className="text-gray-300 pl-1">—</span>
+                                                            <span className="text-kd-text-3 pl-1">—</span>
                                                         )}
                                                     </div>
-                                                    <div className="w-32 shrink-0 text-sm text-gray-500 truncate">
-                                                        {doc.created_at ? formatDate(doc.created_at) : <span className="text-gray-300">—</span>}
+                                                    <div className="w-32 shrink-0 text-right text-[13px] text-muted-foreground truncate">
+                                                        {doc.created_at ? formatDate(doc.created_at) : <span className="text-kd-text-3">—</span>}
                                                     </div>
-                                                    <div className="w-32 shrink-0 text-sm text-gray-500 truncate">
-                                                        {doc.updated_at ? formatDate(doc.updated_at) : <span className="text-gray-300">—</span>}
+                                                    <div className="w-32 shrink-0 text-right text-[13px] text-muted-foreground truncate">
+                                                        {doc.updated_at ? formatDate(doc.updated_at) : <span className="text-kd-text-3">—</span>}
                                                     </div>
                                                     <div className="w-8 shrink-0 flex justify-end">
                                                         {!isProcessing && (
@@ -1553,7 +1575,7 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
                                 return (
                                     <div
                                         ref={contextMenuRef}
-                                        className="fixed z-[120] w-48 rounded-xl border border-gray-100 bg-white shadow-lg overflow-hidden"
+                                        className="fixed z-[120] w-48 rounded-xl border border-border bg-card shadow-[var(--kd-shadow-2)] overflow-hidden"
                                         style={{ top: contextMenu.y, left: contextMenu.x }}
                                         onClick={(e) => e.stopPropagation()}
                                     >
@@ -1708,12 +1730,13 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
                 )}
             </div>
             </div>
+            </div>
 
             <AddDocumentsModal
                 open={addDocsOpen}
                 onClose={() => setAddDocsOpen(false)}
                 onSelect={handleDocsSelected}
-                breadcrumb={["Projects", project.name + (project.cm_number ? ` (${project.cm_number})` : ""), "Add Documents"]}
+                breadcrumb={["Matters", project.name + (project.cm_number ? ` (${project.cm_number})` : ""), "Add documents"]}
                 projectId={projectId}
             />
 
@@ -1759,7 +1782,7 @@ export function ProjectPage({ projectId, initialTab = "documents" }: Props) {
                 fetchPeople={getProjectPeople}
                 currentUserEmail={user?.email ?? null}
                 breadcrumb={[
-                    "Projects",
+                    "Matters",
                     project
                         ? project.name +
                           (project.cm_number ? ` (${project.cm_number})` : "")

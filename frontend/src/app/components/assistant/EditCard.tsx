@@ -280,12 +280,12 @@ export function EditCard({
             )}
             <div className="text-sm leading-relaxed font-serif bg-background border border-border rounded-md px-2 py-2">
                 {annotation.inserted_text && (
-                    <span className="text-green-700">
+                    <span className="text-kd-ok">
                         {annotation.inserted_text}
                     </span>
                 )}
                 {annotation.deleted_text && (
-                    <span className="text-red-600 line-through">
+                    <span className="text-kd-danger line-through">
                         {annotation.deleted_text}
                     </span>
                 )}

@@ -41,18 +41,20 @@ export function SelectAssistantProjectModal({ open, onClose }: Props) {
     }
 
     return createPortal(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/10 backdrop-blur-xs">
-            <div className="w-full max-w-2xl rounded-2xl bg-background shadow-2xl flex flex-col h-[600px]">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-foreground/10 backdrop-blur-xs">
+            <div className="w-full max-w-2xl rounded-2xl bg-card border border-border shadow-[var(--kd-shadow-2)] flex flex-col h-[600px]">
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
+                    <div className="flex items-center gap-1.5 kd-label text-kd-text-3">
                         <span>Assistant</span>
-                        <span>›</span>
-                        <span>Start Chat in a Project</span>
+                        <span>/</span>
+                        <span className="text-muted-foreground">
+                            Start chat in a matter
+                        </span>
                     </div>
                     <button
                         onClick={onClose}
-                        className="rounded-lg p-1.5 text-muted-foreground/70 hover:bg-muted hover:text-muted-foreground"
+                        className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                     >
                         <X className="h-4 w-4" />
                     </button>
@@ -66,17 +68,17 @@ export function SelectAssistantProjectModal({ open, onClose }: Props) {
                 />
 
                 {/* Footer */}
-                <div className="border-t border-border/60 px-4 py-3 flex items-center justify-end gap-2">
+                <div className="border-t border-border px-4 py-3 flex items-center justify-end gap-2">
                     <button
                         onClick={onClose}
-                        className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted"
+                        className="rounded-[10px] px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleContinue}
                         disabled={!selectedId || creating}
-                        className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-40"
+                        className="rounded-[10px] bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
                     >
                         {creating ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />

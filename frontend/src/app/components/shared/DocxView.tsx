@@ -468,15 +468,15 @@ export function DocxView({
 
     return (
         <div
-            className={`relative flex flex-col flex-1 overflow-hidden ${bordered ? "border border-gray-200" : ""} ${rounded ? "rounded-xl" : ""}`}
+            className={`relative flex flex-col flex-1 overflow-hidden ${bordered ? "border border-border" : ""} ${rounded ? "rounded-xl" : ""}`}
         >
             {warning && (
-                <div className="absolute top-2 left-2 z-10 flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-xs text-amber-800 shadow-sm">
+                <div className="absolute top-2 left-2 z-10 flex items-center gap-2 rounded-md border border-kd-accent/30 bg-kd-accent/10 px-2 py-1 text-xs text-kd-accent shadow-[var(--kd-shadow-1)]">
                     <span>{warning}</span>
                     <button
                         type="button"
                         onClick={() => onWarningDismiss?.()}
-                        className="text-amber-600 hover:text-amber-900"
+                        className="text-kd-accent hover:text-kd-accent-strong"
                         aria-label="Dismiss warning"
                     >
                         ×
@@ -485,7 +485,7 @@ export function DocxView({
             )}
             <div
                 ref={scrollRef}
-                className="flex-1 overflow-auto bg-gray-100 px-5 pt-5 pb-3 docx-view-scroll"
+                className="flex-1 overflow-auto bg-muted px-5 pt-5 pb-3 docx-view-scroll"
                 data-document-id={documentId}
                 data-version-id={versionId ?? ""}
             >
@@ -496,7 +496,7 @@ export function DocxView({
                 )}
                 {error && (
                     <div className="flex h-full items-center justify-center">
-                        <p className="text-sm text-red-500">{error}</p>
+                        <p className="text-sm text-destructive">{error}</p>
                     </div>
                 )}
                 <div ref={containerRef} className="docx-view-container" />

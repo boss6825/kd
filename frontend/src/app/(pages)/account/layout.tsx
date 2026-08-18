@@ -33,8 +33,8 @@ export default function AccountLayout({
 
     if (authLoading) {
         return (
-            <div className="h-dvh bg-white flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <div className="h-dvh bg-background flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-kd-accent" />
             </div>
         );
     }
@@ -45,8 +45,9 @@ export default function AccountLayout({
 
     return (
         <div className="flex h-full flex-col overflow-y-auto">
-            <header className="mx-auto flex h-16 w-full max-w-5xl shrink-0 items-end px-6 pb-2 md:h-24 md:pb-4">
-                <h1 className="text-4xl font-medium font-eb-garamond">
+            <header className="mx-auto flex h-16 w-full max-w-5xl shrink-0 flex-col justify-end gap-1 px-6 pb-2 md:h-24 md:pb-4">
+                <p className="kd-label text-kd-text-3">Account</p>
+                <h1 className="font-serif text-[40px] leading-[1.1] tracking-[-0.01em] font-normal text-foreground">
                     Settings
                 </h1>
             </header>
@@ -79,8 +80,8 @@ export default function AccountLayout({
                                                     }
                                                     className={`flex h-9 w-full items-center rounded-lg px-3 text-left text-sm font-medium whitespace-nowrap transition-colors ${
                                                         active
-                                                            ? "bg-gray-100 text-gray-900"
-                                                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                                                            ? "bg-muted text-foreground"
+                                                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                                     }`}
                                                 >
                                                     {tab.label}

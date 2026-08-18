@@ -86,7 +86,7 @@ export default function AccountPage() {
                 </div>
                 <div className="space-y-4">
                     <div>
-                        <label className="text-sm text-gray-600 block mb-2">
+                        <label className="text-sm text-muted-foreground block mb-2">
                             Display Name
                         </label>
                         <div className="flex gap-2">
@@ -102,7 +102,7 @@ export default function AccountPage() {
                                 disabled={
                                     isSavingName || !displayName.trim() || saved
                                 }
-                                className="min-w-[80px] transition-all bg-black hover:bg-gray-900 text-white"
+                                className="min-w-[80px] transition-all rounded-[10px]"
                             >
                                 {isSavingName ? (
                                     "Saving..."
@@ -118,7 +118,7 @@ export default function AccountPage() {
                         </div>
                     </div>
                     <div>
-                        <label className="text-sm text-gray-600 block mb-2">
+                        <label className="text-sm text-muted-foreground block mb-2">
                             Organisation
                         </label>
                         <div className="flex gap-2">
@@ -139,7 +139,7 @@ export default function AccountPage() {
                                         (profile?.organisation ?? "") ||
                                     orgSaved
                                 }
-                                className="min-w-[80px] transition-all bg-black hover:bg-gray-900 text-white"
+                                className="min-w-[80px] transition-all rounded-[10px]"
                             >
                                 {isSavingOrg ? (
                                     "Saving..."
@@ -155,7 +155,7 @@ export default function AccountPage() {
                         </div>
                     </div>
                     <div>
-                        <label className="text-sm text-gray-600 block mb-2">
+                        <label className="text-sm text-muted-foreground block mb-2">
                             Email
                         </label>
                         <p className="text-base">{user?.email}</p>
@@ -171,7 +171,7 @@ export default function AccountPage() {
                     </h2>
                 </div>
                 <div>
-                    <p className="text-base font-medium text-gray-500 capitalize">
+                    <p className="text-base font-medium text-muted-foreground capitalize">
                         {profile?.tier || "Free"}
                     </p>
                 </div>
@@ -194,16 +194,16 @@ export default function AccountPage() {
 
             {/* Danger Zone */}
             <div className="py-6">
-                <h2 className="text-2xl font-medium font-serif mb-1 text-red-600">
+                <h2 className="text-2xl font-normal font-serif mb-1 text-destructive">
                     Danger Zone
                 </h2>
-                <p className="text-sm text-gray-500 mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
                     Permanently delete your account and all associated data.
                     This action cannot be undone.
                 </p>
                 {deleteConfirm ? (
-                    <div className="rounded-lg border border-red-200 bg-red-50 p-4 space-y-3 max-w-sm">
-                        <p className="text-sm font-medium text-red-700">
+                    <div className="rounded-[10px] border border-kd-danger/30 bg-kd-danger/10 p-4 space-y-3 max-w-sm">
+                        <p className="text-sm font-medium text-kd-danger">
                             Are you sure? This will permanently delete your
                             account.
                         </p>
@@ -219,7 +219,8 @@ export default function AccountPage() {
                             <Button
                                 onClick={handleDeleteAccount}
                                 disabled={isDeleting}
-                                className="text-sm bg-red-600 hover:bg-red-700 text-white"
+                                variant="destructive"
+                                className="text-sm"
                             >
                                 {isDeleting ? "Deleting…" : "Delete Account"}
                             </Button>
@@ -229,7 +230,7 @@ export default function AccountPage() {
                     <Button
                         variant="outline"
                         onClick={() => setDeleteConfirm(true)}
-                        className="w-full sm:w-auto border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                        className="w-full sm:w-auto border-kd-danger/30 text-kd-danger hover:bg-kd-danger/10 hover:text-kd-danger"
                     >
                         Delete Account
                     </Button>

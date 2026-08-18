@@ -52,11 +52,11 @@ export function AddDocButton({ onSelectDoc, onBrowseAll, selectedDocIds = [] }: 
             <DropdownMenu onOpenChange={setIsOpen}>
                 <DropdownMenuTrigger asChild>
                     <button
-                        className={`flex items-center gap-1 px-2 h-8 rounded-lg text-sm transition-colors cursor-pointer ${
+                        className={`flex items-center gap-1.5 h-[34px] px-3 rounded-full border text-[13.5px] transition-colors cursor-pointer ${
                             selectedDocIds.length > 0
-                                ? "text-black hover:bg-muted"
-                                : "text-muted-foreground/70 hover:text-foreground/80 hover:bg-muted"
-                        } ${isOpen ? "bg-muted" : ""}`}
+                                ? "border-kd-text-3 text-foreground"
+                                : "border-border text-muted-foreground hover:text-foreground hover:border-kd-text-3"
+                        } ${isOpen ? "text-foreground border-kd-text-3" : ""}`}
                         title="Add documents"
                         aria-label="Add documents"
                     >
@@ -64,7 +64,8 @@ export function AddDocButton({ onSelectDoc, onBrowseAll, selectedDocIds = [] }: 
                             <span className="font-medium tabular-nums">{selectedDocIds.length}</span>
                         ) : (
                             <PlusIcon
-                                className={`h-4 w-4 shrink-0 transition-transform duration-300 ${isOpen ? "rotate-[135deg]" : ""}`}
+                                strokeWidth={1.5}
+                                className={`h-3.5 w-3.5 shrink-0 transition-transform duration-300 ${isOpen ? "rotate-[135deg]" : ""}`}
                             />
                         )}
                         <span className="hidden sm:inline">

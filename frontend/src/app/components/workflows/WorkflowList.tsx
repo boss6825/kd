@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
     Plus,
-    Library,
     Table2,
     MessageSquare,
     User,
@@ -23,9 +22,9 @@ import type { MikeWorkflow } from "../shared/types";
 import { BUILT_IN_WORKFLOWS, BUILT_IN_IDS } from "./builtinWorkflows";
 import { DisplayWorkflowModal } from "./DisplayWorkflowModal";
 import { NewWorkflowModal } from "./NewWorkflowModal";
-import { ToolbarTabs } from "../shared/ToolbarTabs";
 import { RowActions } from "../shared/RowActions";
-import { MikeIcon } from "@/components/chat/mike-icon";
+import { KDMark } from "@/components/kd-mark";
+import { ThemeToggleButton } from "@/app/components/shared/ThemeToggleButton";
 import { useAuth } from "@/contexts/AuthContext";
 
 type Tab = "all" | "builtin" | "custom" | "hidden";
@@ -201,47 +200,55 @@ export function WorkflowList() {
 
     const getTypeMeta = (type: MikeWorkflow["type"]) =>
         type === "tabular"
-            ? { label: "Tabular", Icon: Table2, className: "text-violet-700" }
+            ? {
+                  label: "Tabular",
+                  Icon: Table2,
+                  pill: "bg-kd-accent/10 text-kd-accent",
+              }
             : {
                   label: "Assistant",
                   Icon: MessageSquare,
-                  className: "text-blue-700",
+                  pill: "bg-muted-foreground/10 text-muted-foreground",
               };
+
+    const filterBtnClass = (isActive: boolean) =>
+        `flex h-9 items-center gap-2 rounded-[10px] border border-border bg-card px-3.5 text-[13px] transition-colors hover:border-kd-text-3 hover:text-foreground ${
+            isActive ? "text-foreground" : "text-muted-foreground"
+        }`;
 
     const typeFilterButton = (
         <div className="relative" ref={typeFilterRef}>
             <button
                 onClick={() => setTypeFilterOpen((o) => !o)}
-                className={`flex items-center gap-1 text-xs font-medium transition-colors ${
-                    typeFilter
-                        ? "text-gray-700 hover:text-gray-900"
-                        : "text-gray-500 hover:text-gray-700"
-                }`}
+                className={filterBtnClass(!!typeFilter)}
             >
                 {typeFilter
                     ? typeFilter === "tabular"
                         ? "Tabular"
                         : "Assistant"
-                    : "Filter by type"}
-                <ChevronDown className="h-3 w-3" />
+                    : "Type"}
+                <ChevronDown className="h-3 w-3" strokeWidth={1.5} />
             </button>
             {typeFilterOpen && (
-                <div className="absolute right-0 top-full mt-1.5 z-20 w-40 rounded-xl border border-gray-100 bg-white shadow-lg overflow-hidden">
+                <div className="absolute right-0 top-full mt-1.5 z-20 w-40 overflow-hidden rounded-xl border border-border bg-card shadow-[var(--kd-shadow-2)]">
                     <button
                         onClick={() => {
                             setTypeFilter(null);
                             setTypeFilterOpen(false);
                         }}
-                        className="flex items-center justify-between w-full px-3 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
+                        className="flex w-full items-center justify-between px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted"
                     >
                         All Types
                         {!typeFilter && (
-                            <Check className="h-3.5 w-3.5 text-gray-400" />
+                            <Check
+                                className="h-3.5 w-3.5 text-kd-accent"
+                                strokeWidth={1.5}
+                            />
                         )}
                     </button>
-                    <div className="border-t border-gray-100" />
+                    <div className="border-t border-border" />
                     {(["assistant", "tabular"] as const).map((t) => {
-                        const { label, Icon, className } = getTypeMeta(t);
+                        const { label, Icon } = getTypeMeta(t);
                         return (
                             <button
                                 key={t}
@@ -249,16 +256,20 @@ export function WorkflowList() {
                                     setTypeFilter(t);
                                     setTypeFilterOpen(false);
                                 }}
-                                className="flex items-center justify-between w-full px-3 py-2 text-xs hover:bg-gray-50 transition-colors"
+                                className="flex w-full items-center justify-between px-3 py-2 text-xs transition-colors hover:bg-muted"
                             >
-                                <span
-                                    className={`inline-flex items-center gap-1.5 font-medium ${className}`}
-                                >
-                                    <Icon className="h-3.5 w-3.5" />
+                                <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
+                                    <Icon
+                                        className="h-3.5 w-3.5 text-muted-foreground"
+                                        strokeWidth={1.5}
+                                    />
                                     {label}
                                 </span>
                                 {typeFilter === t && (
-                                    <Check className="h-3.5 w-3.5 shrink-0 text-gray-400" />
+                                    <Check
+                                        className="h-3.5 w-3.5 shrink-0 text-kd-accent"
+                                        strokeWidth={1.5}
+                                    />
                                 )}
                             </button>
                         );
@@ -272,31 +283,30 @@ export function WorkflowList() {
         <div className="relative" ref={practiceFilterRef}>
             <button
                 onClick={() => setPracticeFilterOpen((o) => !o)}
-                className={`flex items-center gap-1 text-xs font-medium transition-colors ${
-                    practiceFilter
-                        ? "text-gray-700 hover:text-gray-900"
-                        : "text-gray-500 hover:text-gray-700"
-                }`}
+                className={filterBtnClass(!!practiceFilter)}
             >
-                {practiceFilter ?? "Filter by practice"}
-                <ChevronDown className="h-3 w-3" />
+                {practiceFilter ?? "Practice"}
+                <ChevronDown className="h-3 w-3" strokeWidth={1.5} />
             </button>
             {practiceFilterOpen && (
-                <div className="absolute right-0 top-full mt-1.5 z-20 w-52 rounded-xl border border-gray-100 bg-white shadow-lg overflow-hidden">
+                <div className="absolute right-0 top-full mt-1.5 z-20 w-52 overflow-hidden rounded-xl border border-border bg-card shadow-[var(--kd-shadow-2)]">
                     <button
                         onClick={() => {
                             setPracticeFilter(null);
                             setPracticeFilterOpen(false);
                         }}
-                        className="flex items-center justify-between w-full px-3 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
+                        className="flex w-full items-center justify-between px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted"
                     >
                         All Practices
                         {!practiceFilter && (
-                            <Check className="h-3.5 w-3.5 text-gray-400" />
+                            <Check
+                                className="h-3.5 w-3.5 text-kd-accent"
+                                strokeWidth={1.5}
+                            />
                         )}
                     </button>
                     {practices.length > 0 && (
-                        <div className="border-t border-gray-100" />
+                        <div className="border-t border-border" />
                     )}
                     {practices.map((p) => (
                         <button
@@ -305,11 +315,14 @@ export function WorkflowList() {
                                 setPracticeFilter(p);
                                 setPracticeFilterOpen(false);
                             }}
-                            className="flex items-center justify-between w-full px-3 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
+                            className="flex w-full items-center justify-between px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted"
                         >
                             <span className="truncate pr-2">{p}</span>
                             {practiceFilter === p && (
-                                <Check className="h-3.5 w-3.5 shrink-0 text-gray-400" />
+                                <Check
+                                    className="h-3.5 w-3.5 shrink-0 text-kd-accent"
+                                    strokeWidth={1.5}
+                                />
                             )}
                         </button>
                     ))}
@@ -318,277 +331,338 @@ export function WorkflowList() {
         </div>
     );
 
-    const toolbarActions = (
-        <>
-            {selectedIds.length > 0 && (
-                <div ref={actionsRef} className="relative">
-                    <button
-                        onClick={() => setActionsOpen((v) => !v)}
-                        className="flex items-center gap-1 text-xs font-medium text-gray-700 hover:text-gray-900 transition-colors"
-                    >
-                        Actions
-                        <ChevronDown className="h-3.5 w-3.5" />
-                    </button>
-                    {actionsOpen && (
-                        <div className="absolute top-full right-0 mt-1 w-36 rounded-lg border border-gray-100 bg-white shadow-lg z-50 overflow-hidden">
-                            {activeTab === "hidden" ? (
-                                <button
-                                    onClick={handleBulkUnhide}
-                                    className="w-full px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors"
-                                >
-                                    Unhide
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={handleBulkRemove}
-                                    className="w-full px-3 py-1.5 text-left text-xs text-red-600 hover:bg-red-50 transition-colors"
-                                >
-                                    Delete
-                                </button>
-                            )}
-                        </div>
-                    )}
-                </div>
-            )}
-            <div className="flex items-center gap-5">
-                {typeFilterButton}
-                {practiceFilterButton}
-            </div>
-        </>
-    );
-
     return (
-        <div className="flex flex-col flex-1 overflow-hidden bg-white">
-            {/* Page header */}
-            <div className="mb-1 flex items-center justify-between px-4 py-3 md:px-10 shrink-0">
-                <h1 className="text-2xl font-medium font-serif text-gray-900">
-                    Workflows
-                </h1>
-                <div className="flex items-center gap-2">
+        <div className="flex flex-col flex-1 overflow-hidden bg-background">
+            {/* Top bar */}
+            <div className="flex h-[60px] shrink-0 items-center justify-between border-b border-border px-7">
+                <div className="kd-label text-kd-text-3">
+                    Workflows — Library
+                </div>
+                <div className="flex items-center gap-2.5">
                     <HeaderSearchBtn
                         value={search}
                         onChange={setSearch}
                         placeholder="Search workflows…"
                     />
+                    <ThemeToggleButton />
                     <button
                         onClick={() => setNewModalOpen(true)}
-                        className="flex items-center justify-center p-1.5 text-gray-500 hover:text-gray-900 transition-colors"
+                        className="flex h-10 items-center gap-2 rounded-[10px] bg-kd-brass px-4 text-sm font-semibold text-[#14120C] transition-colors hover:bg-kd-accent-strong"
                     >
-                        <Plus className="h-4 w-4" />
+                        <Plus className="h-[15px] w-[15px]" strokeWidth={1.8} />
+                        New workflow
                     </button>
                 </div>
             </div>
 
-            <ToolbarTabs
-                tabs={TABS}
-                active={activeTab}
-                onChange={setActiveTab}
-                actions={toolbarActions}
-            />
+            {/* Scrollable content */}
+            <div className="flex-1 overflow-y-auto">
+                <div className="mx-auto w-full max-w-[1200px] px-4 pt-9 pb-12 md:px-7">
+                    <h1 className="font-serif text-[40px] font-normal leading-[1.1] tracking-[-0.01em] text-foreground">
+                        Workflows
+                    </h1>
+                    <p className="mt-1.5 mb-7 text-sm text-muted-foreground">
+                        Multi-step legal work, executed end-to-end. Checkpoints
+                        stay with you.
+                    </p>
 
-            {/* Table */}
-            <div className="flex-1 overflow-auto">
-                <div className="min-w-max">
-                    {/* Column headers */}
-                    <div className="flex items-center h-8 pr-3 md:pr-10 border-b border-gray-200 text-xs text-gray-500 font-medium select-none">
-                        <div className={`sticky left-0 z-[60] ${CHECK_W} relative bg-white flex items-center justify-center self-stretch before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-white`}>
-                            {!loading && (
-                                <input
-                                    type="checkbox"
-                                    checked={allSelected}
-                                    ref={(el) => {
-                                        if (el) el.indeterminate = someSelected;
-                                    }}
-                                    onChange={toggleAll}
-                                    className="h-2.5 w-2.5 rounded border-gray-200 cursor-pointer accent-black"
-                                />
+                    {/* Tabs + filters */}
+                    <div className="flex items-center gap-1 border-b border-border">
+                        {TABS.map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`px-4 py-2.5 text-sm transition-colors ${
+                                    activeTab === tab.id
+                                        ? "-mb-px border-b-2 border-kd-brass font-medium text-foreground"
+                                        : "text-muted-foreground hover:text-foreground"
+                                }`}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                        <span className="flex-1" />
+                        <div className="flex items-center gap-2.5 pb-2">
+                            {selectedIds.length > 0 && (
+                                <div ref={actionsRef} className="relative">
+                                    <button
+                                        onClick={() =>
+                                            setActionsOpen((v) => !v)
+                                        }
+                                        className={filterBtnClass(true)}
+                                    >
+                                        Actions
+                                        <ChevronDown
+                                            className="h-3.5 w-3.5"
+                                            strokeWidth={1.5}
+                                        />
+                                    </button>
+                                    {actionsOpen && (
+                                        <div className="absolute top-full right-0 z-50 mt-1 w-36 overflow-hidden rounded-xl border border-border bg-card shadow-[var(--kd-shadow-2)]">
+                                            {activeTab === "hidden" ? (
+                                                <button
+                                                    onClick={handleBulkUnhide}
+                                                    className="w-full px-3 py-2 text-left text-xs text-foreground transition-colors hover:bg-muted"
+                                                >
+                                                    Unhide
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={handleBulkRemove}
+                                                    className="w-full px-3 py-2 text-left text-xs text-destructive transition-colors hover:bg-destructive/10"
+                                                >
+                                                    Delete
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             )}
+                            {typeFilterButton}
+                            {practiceFilterButton}
                         </div>
-                        <div className={`sticky left-8 z-[60] ${NAME_COL_W} bg-white pl-2 text-left`}>
-                            Name
-                        </div>
-                        <div className="ml-auto w-28 shrink-0">Type</div>
-                        <div className="w-40 shrink-0">Practice</div>
-                        <div className="w-28 shrink-0">Source</div>
-                        <div className="w-8 shrink-0" />
                     </div>
 
-                    {loading && activeTab !== "builtin" ? (
-                        <div>
-                            {[1, 2, 3].map((i) => (
+                    {/* Table */}
+                    <div className="mt-6 overflow-x-auto rounded-[14px] border border-border bg-card">
+                        <div className="min-w-max">
+                            {/* Column headers */}
+                            <div className="kd-label flex h-11 select-none items-center bg-muted pr-5 text-muted-foreground">
                                 <div
-                                    key={i}
-                                    className="flex items-center h-10 pr-3 md:pr-10 border-b border-gray-50"
+                                    className={`sticky left-0 z-[60] ${CHECK_W} flex items-center justify-center self-stretch bg-muted`}
                                 >
-                                    <div className="w-8 shrink-0" />
-                                    <div className="flex-1 min-w-0 pl-3 pr-4">
-                                        <div className="h-3.5 w-48 rounded bg-gray-100 animate-pulse" />
-                                    </div>
-                                    <div className="w-28 shrink-0">
-                                        <div className="h-3 w-16 rounded bg-gray-100 animate-pulse" />
-                                    </div>
-                                    <div className="w-40 shrink-0">
-                                        <div className="h-3 w-24 rounded bg-gray-100 animate-pulse" />
-                                    </div>
-                                    <div className="w-28 shrink-0">
-                                        <div className="h-3 w-14 rounded bg-gray-100 animate-pulse" />
-                                    </div>
-                                    <div className="w-8 shrink-0" />
-                                </div>
-                            ))}
-                        </div>
-                    ) : filtered.length === 0 ? (
-                        <div className="flex flex-col items-start py-24 w-full max-w-xs mx-auto">
-                            {activeTab === "custom" ? (
-                                <>
-                                    <Library className="h-8 w-8 text-gray-300 mb-4" />
-                                    <p className="text-2xl font-medium font-serif text-gray-900">
-                                        Custom Workflows
-                                    </p>
-                                    <p className="mt-1 text-xs text-gray-400 text-left">
-                                        Build reusable prompts and tabular
-                                        review templates tailored to your
-                                        practice.
-                                    </p>
-                                    <button
-                                        onClick={() => setNewModalOpen(true)}
-                                        className="mt-4 inline-flex items-center gap-1 rounded-full bg-gray-900 px-3 py-1 text-xs font-medium text-white hover:bg-gray-700 transition-colors shadow-md"
-                                    >
-                                        + Create New
-                                    </button>
-                                </>
-                            ) : activeTab === "hidden" ? (
-                                <>
-                                    <Library className="h-8 w-8 text-gray-300 mb-4" />
-                                    <p className="text-2xl font-medium font-serif text-gray-900">
-                                        Hidden Workflows
-                                    </p>
-                                    <p className="mt-1 text-xs text-gray-400 text-left">
-                                        Built-in workflows you've hidden will
-                                        appear here. You can unhide them at any
-                                        time.
-                                    </p>
-                                </>
-                            ) : (
-                                <>
-                                    <Library className="h-8 w-8 text-gray-300 mb-4" />
-                                    <p className="text-2xl font-medium font-serif text-gray-900">
-                                        Workflows
-                                    </p>
-                                    <p className="mt-1 text-xs text-gray-400 text-left">
-                                        Automate document analysis with reusable
-                                        prompts and tabular review templates.
-                                    </p>
-                                </>
-                            )}
-                        </div>
-                    ) : (
-                        filtered.map((wf) => {
-                            const rowBg = selectedIds.includes(wf.id)
-                                ? "bg-gray-50"
-                                : "bg-white";
-                            return (
-                            <div
-                                key={wf.id}
-                                onClick={() => setSelected(wf)}
-                                className="group flex items-center h-10 pr-3 md:pr-10 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors"
-                            >
-                                <div
-                                    className={`sticky left-0 z-[60] ${CHECK_W} p-2 flex items-center justify-center ${rowBg} group-hover:bg-gray-50`}
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedIds.includes(wf.id)}
-                                        onChange={() => toggleOne(wf.id)}
-                                        className="h-2.5 w-2.5 rounded border-gray-200 cursor-pointer accent-black"
-                                    />
-                                </div>
-                                <div className={`sticky left-8 z-[60] ${NAME_COL_W} p-2 ${rowBg} group-hover:bg-gray-50`}>
-                                    <span className="text-sm text-gray-800 truncate block">
-                                        {wf.title}
-                                    </span>
-                                </div>
-                                <div className="ml-auto w-28 shrink-0">
-                                    {(() => {
-                                        const { label, Icon, className } =
-                                            getTypeMeta(wf.type);
-                                        return (
-                                            <span
-                                                className={`inline-flex items-center gap-1.5 text-xs font-medium ${className}`}
-                                            >
-                                                <Icon className="h-3.5 w-3.5" />
-                                                {label}
-                                            </span>
-                                        );
-                                    })()}
-                                </div>
-                                <div className="w-40 shrink-0">
-                                    {wf.practice ? (
-                                        <span className="text-xs font-medium text-gray-600">
-                                            {wf.practice}
-                                        </span>
-                                    ) : (
-                                        <span className="text-xs text-gray-300">
-                                            —
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="w-28 shrink-0">
-                                    {wf.is_system ? (
-                                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600">
-                                            <MikeIcon size={14} />
-                                            Mike
-                                        </span>
-                                    ) : wf.user_id === user?.id ? (
-                                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600">
-                                            <User className="h-3.5 w-3.5 text-gray-500" />
-                                            Myself
-                                        </span>
-                                    ) : (
-                                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 truncate max-w-full">
-                                            <User className="h-3.5 w-3.5 text-gray-400 shrink-0" />
-                                            <span className="truncate">
-                                                {wf.shared_by_name ?? "Shared"}
-                                            </span>
-                                        </span>
-                                    )}
-                                </div>
-                                <div
-                                    className="w-8 shrink-0 flex justify-end"
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    {wf.is_system ? (
-                                        activeTab === "hidden" ? (
-                                            <RowActions
-                                                onUnhide={() =>
-                                                    handleUnhideWorkflow(wf.id)
-                                                }
-                                            />
-                                        ) : (
-                                            <RowActions
-                                                onHide={() =>
-                                                    handleHideWorkflow(wf.id)
-                                                }
-                                            />
-                                        )
-                                    ) : wf.is_owner === false ? null : (
-                                        <RowActions
-                                            onDelete={async () => {
-                                                await deleteWorkflow(wf.id);
-                                                setCustom((prev) =>
-                                                    prev.filter(
-                                                        (w) => w.id !== wf.id,
-                                                    ),
-                                                );
+                                    {!loading && (
+                                        <input
+                                            type="checkbox"
+                                            checked={allSelected}
+                                            ref={(el) => {
+                                                if (el)
+                                                    el.indeterminate =
+                                                        someSelected;
                                             }}
+                                            onChange={toggleAll}
+                                            className="h-2.5 w-2.5 cursor-pointer rounded border-border accent-kd-accent"
                                         />
                                     )}
                                 </div>
+                                <div
+                                    className={`sticky left-8 z-[60] ${NAME_COL_W} flex items-center self-stretch bg-muted pl-2 text-left`}
+                                >
+                                    Name
+                                </div>
+                                <div className="ml-auto w-28 shrink-0">
+                                    Type
+                                </div>
+                                <div className="w-40 shrink-0">Practice</div>
+                                <div className="w-28 shrink-0">Source</div>
+                                <div className="w-8 shrink-0" />
                             </div>
-                            );
-                        })
-                    )}
+
+                            {loading && activeTab !== "builtin" ? (
+                                <div>
+                                    {[1, 2, 3].map((i) => (
+                                        <div
+                                            key={i}
+                                            className="flex h-[52px] items-center border-t border-border pr-5"
+                                        >
+                                            <div className="w-8 shrink-0" />
+                                            <div className="min-w-0 flex-1 pl-2 pr-4">
+                                                <div className="h-3.5 w-48 animate-pulse rounded bg-muted" />
+                                            </div>
+                                            <div className="w-28 shrink-0">
+                                                <div className="h-3 w-16 animate-pulse rounded bg-muted" />
+                                            </div>
+                                            <div className="w-40 shrink-0">
+                                                <div className="h-3 w-24 animate-pulse rounded bg-muted" />
+                                            </div>
+                                            <div className="w-28 shrink-0">
+                                                <div className="h-3 w-14 animate-pulse rounded bg-muted" />
+                                            </div>
+                                            <div className="w-8 shrink-0" />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : filtered.length === 0 ? (
+                                <div className="flex w-full flex-col items-start border-t border-border px-8 py-20">
+                                    {activeTab === "custom" ? (
+                                        <>
+                                            <p className="font-serif text-[28px] font-normal leading-[1.2] text-foreground">
+                                                Build a workflow tailored to
+                                                your practice.
+                                            </p>
+                                            <button
+                                                onClick={() =>
+                                                    setNewModalOpen(true)
+                                                }
+                                                className="mt-5 inline-flex h-9 items-center rounded-[10px] bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                                            >
+                                                New workflow
+                                            </button>
+                                        </>
+                                    ) : activeTab === "hidden" ? (
+                                        <>
+                                            <p className="font-serif text-[28px] font-normal leading-[1.2] text-foreground">
+                                                Nothing hidden.
+                                            </p>
+                                            <p className="mt-2 text-sm text-muted-foreground">
+                                                Built-in workflows you hide
+                                                will appear here.
+                                            </p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <p className="font-serif text-[28px] font-normal leading-[1.2] text-foreground">
+                                                No workflows match.
+                                            </p>
+                                            <button
+                                                onClick={() =>
+                                                    setNewModalOpen(true)
+                                                }
+                                                className="mt-5 inline-flex h-9 items-center rounded-[10px] bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                                            >
+                                                New workflow
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+                            ) : (
+                                filtered.map((wf) => {
+                                    const rowBg = selectedIds.includes(wf.id)
+                                        ? "bg-muted"
+                                        : "bg-card";
+                                    return (
+                                        <div
+                                            key={wf.id}
+                                            onClick={() => setSelected(wf)}
+                                            className="group flex h-[52px] cursor-pointer items-center border-t border-border pr-5 transition-colors hover:bg-muted"
+                                        >
+                                            <div
+                                                className={`sticky left-0 z-[60] ${CHECK_W} flex items-center justify-center self-stretch ${rowBg} group-hover:bg-muted`}
+                                                onClick={(e) =>
+                                                    e.stopPropagation()
+                                                }
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedIds.includes(
+                                                        wf.id,
+                                                    )}
+                                                    onChange={() =>
+                                                        toggleOne(wf.id)
+                                                    }
+                                                    className="h-2.5 w-2.5 cursor-pointer rounded border-border accent-kd-accent"
+                                                />
+                                            </div>
+                                            <div
+                                                className={`sticky left-8 z-[60] ${NAME_COL_W} flex items-center self-stretch pl-2 ${rowBg} group-hover:bg-muted`}
+                                            >
+                                                <span className="block truncate text-sm font-medium text-foreground">
+                                                    {wf.title}
+                                                </span>
+                                            </div>
+                                            <div className="ml-auto w-28 shrink-0">
+                                                {(() => {
+                                                    const { label, pill } =
+                                                        getTypeMeta(wf.type);
+                                                    return (
+                                                        <span
+                                                            className={`inline-flex items-center rounded-full px-3 py-1 text-xs ${pill}`}
+                                                        >
+                                                            {label}
+                                                        </span>
+                                                    );
+                                                })()}
+                                            </div>
+                                            <div className="w-40 shrink-0">
+                                                {wf.practice ? (
+                                                    <span className="text-[13.5px] text-muted-foreground">
+                                                        {wf.practice}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-xs text-kd-text-3">
+                                                        —
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="w-28 shrink-0">
+                                                {wf.is_system ? (
+                                                    <span className="inline-flex items-center gap-2 text-[13.5px] text-muted-foreground">
+                                                        <KDMark size={18} />
+                                                        KD
+                                                    </span>
+                                                ) : wf.user_id === user?.id ? (
+                                                    <span className="inline-flex items-center gap-2 text-[13.5px] text-muted-foreground">
+                                                        <User
+                                                            className="h-3.5 w-3.5 text-muted-foreground"
+                                                            strokeWidth={1.5}
+                                                        />
+                                                        Myself
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex max-w-full items-center gap-2 truncate text-[13.5px] text-muted-foreground">
+                                                        <User
+                                                            className="h-3.5 w-3.5 shrink-0 text-kd-text-3"
+                                                            strokeWidth={1.5}
+                                                        />
+                                                        <span className="truncate">
+                                                            {wf.shared_by_name ??
+                                                                "Shared"}
+                                                        </span>
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div
+                                                className="flex w-8 shrink-0 justify-end"
+                                                onClick={(e) =>
+                                                    e.stopPropagation()
+                                                }
+                                            >
+                                                {wf.is_system ? (
+                                                    activeTab === "hidden" ? (
+                                                        <RowActions
+                                                            onUnhide={() =>
+                                                                handleUnhideWorkflow(
+                                                                    wf.id,
+                                                                )
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <RowActions
+                                                            onHide={() =>
+                                                                handleHideWorkflow(
+                                                                    wf.id,
+                                                                )
+                                                            }
+                                                        />
+                                                    )
+                                                ) : wf.is_owner ===
+                                                  false ? null : (
+                                                    <RowActions
+                                                        onDelete={async () => {
+                                                            await deleteWorkflow(
+                                                                wf.id,
+                                                            );
+                                                            setCustom((prev) =>
+                                                                prev.filter(
+                                                                    (w) =>
+                                                                        w.id !==
+                                                                        wf.id,
+                                                                ),
+                                                            );
+                                                        }}
+                                                    />
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
+                    </div>
+
+                    <p className="mt-5 text-xs text-kd-text-3">
+                        KD can make mistakes. Answers are not legal advice.
+                    </p>
                 </div>
             </div>
 

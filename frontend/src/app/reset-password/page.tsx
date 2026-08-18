@@ -65,28 +65,28 @@ export default function ResetPasswordPage() {
     };
 
     return (
-        <div className="min-h-dvh bg-white flex items-start justify-center px-6 pt-32 md:pt-40 pb-10 relative">
+        <div className="min-h-dvh bg-background flex items-start justify-center px-6 pt-32 md:pt-40 pb-10 relative">
             <div className="absolute top-4 md:top-8 left-1/2 -translate-x-1/2">
                 <SiteLogo size="md" className="md:text-4xl" asLink />
             </div>
             <div className="w-full max-w-md">
-                <div className="bg-white border border-gray-200 rounded-2xl p-8">
-                    <h2 className="text-left text-2xl font-serif mb-6">
+                <div className="bg-card border border-border rounded-[14px] p-8">
+                    <h2 className="text-left text-2xl font-serif tracking-[-0.01em] text-foreground mb-6">
                         Reset password
                     </h2>
 
                     {done ? (
-                        <p className="text-sm text-gray-700">
+                        <p className="text-sm text-foreground">
                             Password updated. Redirecting to log in…
                         </p>
                     ) : linkError ? (
                         <div className="space-y-4">
-                            <div className="text-red-600 text-sm bg-red-50 p-3 rounded">
+                            <div className="text-destructive text-sm bg-destructive/10 p-3 rounded-[10px]">
                                 {linkError}
                             </div>
                             <Link
                                 href="/login"
-                                className="text-sm text-blue-600 hover:underline"
+                                className="text-sm text-kd-accent hover:text-kd-accent-strong hover:underline"
                             >
                                 Back to log in
                             </Link>
@@ -96,7 +96,7 @@ export default function ResetPasswordPage() {
                             <div>
                                 <label
                                     htmlFor="password"
-                                    className="block text-sm font-medium text-gray-700 mb-2"
+                                    className="block text-sm font-medium text-foreground mb-2"
                                 >
                                     New password
                                 </label>
@@ -113,7 +113,7 @@ export default function ResetPasswordPage() {
                             <div>
                                 <label
                                     htmlFor="confirmPassword"
-                                    className="block text-sm font-medium text-gray-700 mb-2"
+                                    className="block text-sm font-medium text-foreground mb-2"
                                 >
                                     Confirm password
                                 </label>
@@ -130,14 +130,14 @@ export default function ResetPasswordPage() {
                                 />
                             </div>
                             {error && (
-                                <div className="text-red-600 text-sm bg-red-50 p-3 rounded">
+                                <div className="text-destructive text-sm bg-destructive/10 p-3 rounded-[10px]">
                                     {error}
                                 </div>
                             )}
                             <Button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full mt-2 bg-black hover:bg-gray-900 text-white"
+                                className="w-full mt-2 rounded-[10px]"
                             >
                                 {loading ? "Updating…" : "Update password"}
                             </Button>

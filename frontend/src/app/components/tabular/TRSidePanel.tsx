@@ -45,10 +45,10 @@ interface Props {
 }
 
 const FLAG_BADGE: Record<string, string> = {
-    green: "bg-emerald-600 backdrop-blur-md border border-emerald-300/20 text-white shadow-md",
-    grey: "bg-slate-500 backdrop-blur-md border border-slate-300/20 text-white shadow-md",
-    yellow: "bg-amber-500 backdrop-blur-md border border-amber-300/20 text-white shadow-md",
-    red: "bg-red-600 backdrop-blur-md border border-red-300/20 text-white shadow-md",
+    green: "bg-kd-ok/10 text-kd-ok",
+    grey: "bg-muted-foreground/10 text-muted-foreground",
+    yellow: "bg-kd-accent/10 text-kd-accent",
+    red: "bg-kd-danger/10 text-kd-danger",
 };
 
 // ---------------------------------------------------------------------------
@@ -115,27 +115,28 @@ export function TRSidePanel({
 
     return (
         <div
-            className="fixed right-0 top-0 bottom-0 z-100 flex flex-row shadow-md border-l border-gray-200"
+            className="fixed right-0 top-0 bottom-0 z-100 flex flex-row border-l border-border shadow-[var(--kd-shadow-2)]"
             style={{
-                background: "rgba(255,255,255,0.08)",
-                backdropFilter: "blur(10px) saturate(50%)",
-                WebkitBackdropFilter: "blur(10px) saturate(50%)",
+                background: "var(--kd-glass-bg)",
+                backdropFilter: "var(--kd-glass-blur, blur(16px) saturate(1.2))",
+                WebkitBackdropFilter:
+                    "var(--kd-glass-blur, blur(16px) saturate(1.2))",
             }}
         >
             {/* Document panel — left, 600px */}
             {docCitation !== undefined && (
-                <div className="relative flex w-[600px] shrink-0 flex-col border-r border-white/30 px-3">
+                <div className="relative flex w-[600px] shrink-0 flex-col border-r border-border px-3">
                     {/* Doc header */}
-                    <div className="flex items-center gap-2 pt-3 shrink-0 border-b border-white/30">
+                    <div className="flex items-center gap-2 pt-3 shrink-0 border-b border-border">
                         <p
-                            className="flex-1 truncate text-sm font-semibold font-sans text-slate-700 font-serif"
+                            className="flex-1 truncate text-sm font-semibold text-foreground"
                             title={doc.filename}
                         >
                             {doc.filename}
                         </p>
                         <button
                             onClick={() => setDocCitation(undefined)}
-                            className="shrink-0 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-white/40 hover:text-slate-600"
+                            className="shrink-0 rounded-lg p-1.5 text-kd-text-3 transition-colors hover:bg-muted hover:text-foreground"
                         >
                             <X className="h-4 w-4" />
                         </button>
@@ -143,7 +144,7 @@ export function TRSidePanel({
                     {/* Quote row */}
                     {docCitation.quote && (
                         <div className="py-2 shrink-0">
-                            <div className="w-full rounded-md bg-gray-50 border border-gray-200 px-2 py-2">
+                            <div className="w-full rounded-[10px] bg-muted border border-border px-2 py-2">
                                 <button
                                     onClick={() =>
                                         isTruncated || quoteExpanded
@@ -154,13 +155,14 @@ export function TRSidePanel({
                                 >
                                     <p
                                         ref={quoteParagraphRef}
-                                        className={`flex-1 text-sm text-gray-600 ${quoteExpanded ? "" : "truncate"}`}
+                                        className={`flex-1 text-sm text-muted-foreground ${quoteExpanded ? "" : "truncate"}`}
                                     >
                                         "{docCitation.quote}"
                                     </p>
                                     {(isTruncated || quoteExpanded) && (
                                         <ChevronDown
-                                            className={`mt-0.5 h-3 w-3 shrink-0 text-gray-500 transition-transform ${quoteExpanded ? "rotate-180" : ""}`}
+                                            className={`mt-0.5 h-3 w-3 shrink-0 text-muted-foreground transition-transform ${quoteExpanded ? "rotate-180" : ""}`}
+                                            strokeWidth={1.5}
                                         />
                                     )}
                                 </button>
@@ -190,7 +192,7 @@ export function TRSidePanel({
             {/* Info column — right, 300px fixed */}
             <div className="flex w-[300px] shrink-0 flex-col overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-end gap-3 px-5 pt-3 pb-1 shrink-0 border-b border-white/30">
+                <div className="flex items-center justify-end gap-3 px-5 pt-3 pb-1 shrink-0 border-b border-border">
                     <div className="flex items-center gap-1 mr-auto">
                         <button
                             onClick={() =>
@@ -198,11 +200,11 @@ export function TRSidePanel({
                             }
                             disabled={!prevColumn}
                             title={prevColumn ? prevColumn.name : undefined}
-                            className="rounded-lg p-0.5 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900 disabled:opacity-30 disabled:cursor-default"
+                            className="rounded-lg p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30 disabled:cursor-default"
                         >
-                            <ChevronLeft className="h-4 w-4" />
+                            <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
                         </button>
-                        <span className="text-xs text-slate-600 font-sans tabular-nums">
+                        <span className="font-mono text-xs text-muted-foreground tabular-nums">
                             {currentPos + 1} / {sortedColumns.length}
                         </span>
                         <button
@@ -211,9 +213,9 @@ export function TRSidePanel({
                             }
                             disabled={!nextColumn}
                             title={nextColumn ? nextColumn.name : undefined}
-                            className="rounded-lg p-0.5 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900 disabled:opacity-30 disabled:cursor-default"
+                            className="rounded-lg p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30 disabled:cursor-default"
                         >
-                            <ChevronRight className="h-4 w-4" />
+                            <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
                         </button>
                     </div>
                     {onRegenerate && (
@@ -228,7 +230,7 @@ export function TRSidePanel({
                             }}
                             disabled={regenerating}
                             title="Regenerate"
-                            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-40"
+                            className="rounded-lg p-1.5 text-kd-text-3 transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
                         >
                             {regenerating ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -239,7 +241,7 @@ export function TRSidePanel({
                     )}
                     <button
                         onClick={onClose}
-                        className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                        className="rounded-lg p-1.5 text-kd-text-3 transition-colors hover:bg-muted hover:text-foreground"
                     >
                         <X className="h-4 w-4" />
                     </button>
@@ -250,21 +252,21 @@ export function TRSidePanel({
                     <div className="pb-2 px-5">
                         {/* Column name */}
                         <div className="mb-1">
-                            <span className="text-lg font-semibold text-slate-900">
+                            <span className="text-lg font-semibold text-foreground">
                                 {column.name}
                             </span>
                         </div>
                         {/* Document name */}
-                        <p className="text-xs mb-4">{doc.filename}</p>
+                        <p className="text-xs text-muted-foreground mb-4">{doc.filename}</p>
 
                         {/* Flag section */}
                         {cell.content?.flag && (
                             <div className="mb-5">
-                                <h4 className="mb-2 text-sm font-semibold tracking-wider font-sans">
+                                <h4 className="mb-2 kd-label text-kd-text-3">
                                     Flag
                                 </h4>
                                 <span
-                                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${FLAG_BADGE[cell.content.flag] ?? FLAG_BADGE.grey}`}
+                                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs ${FLAG_BADGE[cell.content.flag] ?? FLAG_BADGE.grey}`}
                                 >
                                     {cell.content.flag.charAt(0).toUpperCase() +
                                         cell.content.flag.slice(1)}
@@ -274,10 +276,10 @@ export function TRSidePanel({
 
                         {/* Results */}
                         <div className="mb-6">
-                            <h4 className="mb-2 text-sm font-semibold tracking-wider font-sans">
+                            <h4 className="mb-2 kd-label text-kd-text-3">
                                 Results
                             </h4>
-                            <div className="text-xs leading-relaxed text-slate-600">
+                            <div className="text-xs leading-relaxed text-muted-foreground">
                                 <MarkdownContent
                                     citations={summaryCitations}
                                     onCitationClick={setDocCitation}
@@ -291,10 +293,10 @@ export function TRSidePanel({
                         {/* Reasoning */}
                         {cell.content?.reasoning && (
                             <div>
-                                <h4 className="mb-2 text-sm font-semibold tracking-wider font-sans">
+                                <h4 className="mb-2 kd-label text-kd-text-3">
                                     Reasoning
                                 </h4>
-                                <div className="text-xs leading-relaxed text-slate-600">
+                                <div className="text-xs leading-relaxed text-muted-foreground">
                                     <MarkdownContent
                                         citations={reasoningCitations}
                                         onCitationClick={setDocCitation}
@@ -336,9 +338,9 @@ function CitationBadge({
             onClick={() =>
                 onClick({ quote: citation.quote, page: citation.page })
             }
-            className="inline-flex items-center justify-center rounded-full bg-gray-200 w-3.5 h-3.5 text-[9px] font-medium text-gray-700 align-super cursor-pointer hover:bg-gray-300 transition-colors"
+            className="mx-0.5 font-mono text-[10px] font-medium text-kd-accent align-super cursor-pointer hover:text-kd-accent-strong transition-colors"
         >
-            {index + 1}
+            [{index + 1}]
         </button>
     );
 }
@@ -405,7 +407,7 @@ function MarkdownContent({
                         href={href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 underline"
+                        className="text-kd-accent hover:text-kd-accent-strong underline"
                         {...props}
                     >
                         {children}
@@ -442,7 +444,7 @@ function MarkdownContent({
                     }
                     return (
                         <code
-                            className="bg-gray-100 px-1 py-0.5 rounded text-[11px] font-mono"
+                            className="bg-muted px-1 py-0.5 rounded text-[11px] font-mono"
                             {...props}
                         >
                             {codeChildren}
