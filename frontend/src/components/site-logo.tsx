@@ -17,7 +17,7 @@ export function SiteLogo({
     const landingHref =
         process.env.NODE_ENV === "production"
             ? "https://mikeoss.com"
-            : "http://localhost:3000";
+            : "http://localhost:3006";
     const sizeClasses = {
         sm: "text-xl",
         md: "text-2xl",

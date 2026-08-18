@@ -100,7 +100,7 @@ app.use(
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL ?? "http://localhost:3000",
+    origin: process.env.FRONTEND_URL ?? "http://localhost:3006",
     credentials: true,
     // Better Auth's bearer plugin returns the session token in this response
     // header. The frontend reads it (authClient onSuccess) to persist the
