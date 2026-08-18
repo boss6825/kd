@@ -149,13 +149,13 @@ export function AssistantSidePanel({
     return (
         <div
             ref={panelRef}
-            className="flex h-full shrink-0 flex-col bg-background relative border-l border-border shadow-[-4px_0_12px_rgba(0,0,0,0.02)]"
+            className="flex h-full shrink-0 flex-col bg-background relative border-l border-border"
             style={{ width: panelWidth }}
         >
             {/* Drag handle */}
             <div
                 onMouseDown={onMouseDown}
-                className="absolute left-0 top-0 h-full w-1 cursor-col-resize hover:bg-blue-400 transition-colors z-10"
+                className="absolute left-0 top-0 h-full w-1 cursor-col-resize hover:bg-kd-accent transition-colors z-10"
                 style={{ marginLeft: -2 }}
             />
 

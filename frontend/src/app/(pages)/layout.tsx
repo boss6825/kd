@@ -67,7 +67,7 @@ export default function MikeLayout({
     if (authLoading) {
         return (
             <div className="flex h-screen items-center justify-center">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700" />
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-muted-foreground" />
             </div>
         );
     }
@@ -84,7 +84,7 @@ export default function MikeLayout({
                     },
                 }}
             >
-                <div className="h-dvh bg-white flex flex-col">
+                <div className="h-dvh bg-background flex flex-col">
                     <div className="flex-1 flex overflow-hidden">
                         <AppSidebar
                             isOpen={isSidebarOpen}
@@ -95,7 +95,7 @@ export default function MikeLayout({
                             <div className="flex md:hidden items-center gap-3 px-4 pt-3 pb-1 shrink-0">
                                 <button
                                     onClick={handleSidebarToggle}
-                                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/70 text-gray-700 shadow-[0_8px_24px_rgba(15,23,42,0.12)] ring-1 ring-white/70 backdrop-blur-md transition-all hover:bg-white/90 active:scale-95"
+                                    className="flex h-8 w-8 items-center justify-center rounded-full kd-glass text-muted-foreground transition-all hover:text-foreground active:scale-95"
                                     title="Open sidebar"
                                     aria-label="Open sidebar"
                                 >

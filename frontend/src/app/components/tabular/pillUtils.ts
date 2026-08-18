@@ -4,44 +4,24 @@ export type PillSegment =
     | { type: "text"; content: string }
     | { type: "pill"; content: string };
 
-/** Sequential colors assigned to tags by their position in the tags array. */
-export const TAG_COLORS = [
-    "bg-blue-100 text-blue-700",
-    "bg-violet-100 text-violet-700",
-    "bg-pink-100 text-pink-700",
-    "bg-orange-100 text-orange-700",
-    "bg-teal-100 text-teal-700",
-    "bg-amber-100 text-amber-700",
-    "bg-indigo-100 text-indigo-700",
-    "bg-rose-100 text-rose-700",
-];
+/** KD semantic pill tints — success / warning / danger / neutral. */
+const PILL_OK = "bg-kd-ok/10 text-kd-ok";
+const PILL_WARN = "bg-kd-accent/10 text-kd-accent";
+const PILL_DANGER = "bg-kd-danger/10 text-kd-danger";
+const PILL_NEUTRAL = "bg-muted-foreground/10 text-muted-foreground";
 
-const CURRENCY_COLORS: Record<string, string> = {
-    USD: "bg-green-100 text-green-700",
-    EUR: "bg-blue-100 text-blue-700",
-    GBP: "bg-purple-100 text-purple-700",
-    JPY: "bg-red-100 text-red-700",
-    CHF: "bg-orange-100 text-orange-700",
-    AUD: "bg-cyan-100 text-cyan-700",
-    CAD: "bg-teal-100 text-teal-700",
-    SGD: "bg-pink-100 text-pink-700",
-    HKD: "bg-rose-100 text-rose-700",
-    NZD: "bg-lime-100 text-lime-700",
-    CNY: "bg-amber-100 text-amber-700",
-};
+/** Sequential colors assigned to tags by their position in the tags array. */
+export const TAG_COLORS = [PILL_WARN, PILL_OK, PILL_NEUTRAL, PILL_DANGER];
 
 export function getPillClass(content: string, column?: ColumnConfig): string {
     if (column?.format === "yes_no") {
         const lower = content.toLowerCase();
-        if (lower === "yes") return "bg-green-100 text-green-700";
-        if (lower === "no") return "bg-red-100 text-red-700";
-        return "bg-gray-100 text-gray-700";
+        if (lower === "yes") return PILL_OK;
+        if (lower === "no") return PILL_DANGER;
+        return PILL_NEUTRAL;
     }
     if (column?.format === "currency") {
-        return (
-            CURRENCY_COLORS[content.toUpperCase()] ??
-            "bg-slate-100 text-slate-700"
-        );
+        return PILL_NEUTRAL;
     }
     if (column?.format === "tag" && column.tags?.length) {
         const idx = column.tags.findIndex(
@@ -49,7 +29,7 @@ export function getPillClass(content: string, column?: ColumnConfig): string {
         );
         if (idx >= 0) return TAG_COLORS[idx % TAG_COLORS.length]!;
     }
-    return "bg-gray-100 text-gray-700";
+    return PILL_NEUTRAL;
 }
 
 /** Split text on [[...]] pill markers, preserving surrounding text. */

@@ -84,24 +84,24 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-dvh bg-white flex items-start justify-center px-6 pt-32 md:pt-40 pb-10 relative">
+        <div className="min-h-dvh bg-background flex items-start justify-center px-6 pt-32 md:pt-40 pb-10 relative">
             <div className="absolute top-4 md:top-8 left-1/2 -translate-x-1/2">
                 <SiteLogo size="md" className="md:text-4xl" asLink />
             </div>
             <div className="w-full max-w-md">
                 {/* Login Form */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-8 mb-4">
+                <div className="bg-card border border-border rounded-[14px] p-8 mb-4">
                     <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-left text-2xl font-serif">
-                            Log In
+                        <h2 className="text-left text-2xl font-serif tracking-[-0.01em] text-foreground">
+                            Welcome back.
                         </h2>
-                        <div className="bg-gray-100 p-1 rounded-md flex text-xs font-medium">
-                            <span className="text-gray-600 px-3 py-1 bg-white rounded-sm shadow-sm">
+                        <div className="bg-muted p-1 rounded-md flex text-xs font-medium">
+                            <span className="text-foreground px-3 py-1 bg-card rounded-sm shadow-[var(--kd-shadow-1)]">
                                 Log in
                             </span>
                             <Link
                                 href="/signup"
-                                className="px-3 py-1 text-gray-500 hover:text-gray-900"
+                                className="px-3 py-1 text-muted-foreground hover:text-foreground"
                             >
                                 Sign up
                             </Link>
@@ -111,7 +111,7 @@ export default function LoginPage() {
                         <div>
                             <label
                                 htmlFor="email"
-                                className="block text-sm font-medium text-gray-700 mb-2"
+                                className="block text-sm font-medium text-foreground mb-2"
                             >
                                 Email
                             </label>
@@ -129,7 +129,7 @@ export default function LoginPage() {
                         <div>
                             <label
                                 htmlFor="password"
-                                className="block text-sm font-medium text-gray-700 mb-2"
+                                className="block text-sm font-medium text-foreground mb-2"
                             >
                                 Password
                             </label>
@@ -148,20 +148,20 @@ export default function LoginPage() {
                             <button
                                 type="button"
                                 onClick={handleForgot}
-                                className="text-xs text-gray-500 hover:text-gray-900"
+                                className="text-xs text-kd-accent hover:text-kd-accent-strong hover:underline"
                             >
                                 Forgot password?
                             </button>
                         </div>
 
                         {resetMsg && (
-                            <div className="text-green-700 text-sm bg-green-50 p-3 rounded">
+                            <div className="text-kd-ok text-sm bg-kd-ok/10 p-3 rounded-[10px]">
                                 {resetMsg}
                             </div>
                         )}
 
                         {error && (
-                            <div className="text-red-600 text-sm bg-red-50 p-3 rounded">
+                            <div className="text-destructive text-sm bg-destructive/10 p-3 rounded-[10px]">
                                 {error}
                             </div>
                         )}
@@ -169,26 +169,26 @@ export default function LoginPage() {
                         <Button
                             type="submit"
                             disabled={loading}
-                            className="w-full mt-5 bg-black hover:bg-gray-900 text-white"
+                            className="w-full mt-5 rounded-[10px]"
                         >
                             {loading ? "Logging in..." : "Log in"}
                         </Button>
                     </form>
                     <div className="flex items-center gap-3 my-4">
-                        <div className="h-px flex-1 bg-gray-200" />
-                        <span className="text-xs text-gray-400">or</span>
-                        <div className="h-px flex-1 bg-gray-200" />
+                        <div className="h-px flex-1 bg-border" />
+                        <span className="text-xs text-kd-text-3">or</span>
+                        <div className="h-px flex-1 bg-border" />
                     </div>
                     <Button
                         type="button"
                         onClick={handleGoogle}
-                        className="w-full bg-white border border-gray-300 text-gray-800 hover:bg-gray-50"
+                        className="w-full rounded-[10px] bg-card border border-border text-foreground hover:bg-muted"
                     >
                         Continue with Google
                     </Button>
                 </div>
-                <p className="text-center text-xs text-gray-500 leading-relaxed px-2">
-                    Mike hosted on MikeOSS.com is currently a demo service.
+                <p className="text-center text-xs text-muted-foreground leading-relaxed px-2">
+                    KD hosted on MikeOSS.com is currently a demo service.
                     Please do not upload, submit, or store sensitive,
                     confidential, privileged, client, or personally
                     identifiable documents.

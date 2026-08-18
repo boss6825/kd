@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, FolderOpen, ChevronDown } from "lucide-react";
+import { Plus, ChevronDown } from "lucide-react";
 import { HeaderSearchBtn } from "@/app/components/shared/HeaderSearchBtn";
+import { ThemeToggleButton } from "@/app/components/shared/ThemeToggleButton";
 import { listProjects, updateProject, deleteProject } from "@/app/lib/mikeApi";
 import { OwnerOnlyModal } from "@/app/components/shared/OwnerOnlyModal";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,7 +15,7 @@ import { RowActions } from "@/app/components/shared/RowActions";
 
 function formatDate(iso: string) {
     return new Date(iso).toLocaleDateString(undefined, {
-        day: "numeric",
+        day: "2-digit",
         month: "short",
         year: "numeric",
     });
@@ -66,7 +67,7 @@ export function ProjectsOverview() {
                 console.error("[projects] failed to load projects", err);
                 if (!cancelled) {
                     setProjects([]);
-                    setLoadError("Could not load projects.");
+                    setLoadError("Could not load matters.");
                 }
             })
             .finally(() => {
@@ -171,7 +172,7 @@ export function ProjectsOverview() {
         setProjects((prev) => prev.filter((p) => !owned.includes(p.id)));
         if (blocked > 0) {
             setOwnerOnlyAction(
-                `delete ${blocked} of the selected projects — only the project owner can delete a project`,
+                `delete ${blocked} of the selected matters — only the matter owner can delete a matter`,
             );
         }
     }
@@ -182,16 +183,19 @@ export function ProjectsOverview() {
                 <div ref={actionsRef} className="relative">
                     <button
                         onClick={() => setActionsOpen((v) => !v)}
-                        className="flex items-center gap-1 text-xs font-medium text-gray-700 hover:text-gray-900 transition-colors"
+                        className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
                     >
                         Actions
-                        <ChevronDown className="h-3.5 w-3.5" />
+                        <ChevronDown
+                            className="h-3.5 w-3.5"
+                            strokeWidth={1.5}
+                        />
                     </button>
                     {actionsOpen && (
-                        <div className="absolute top-full right-0 mt-1 w-36 rounded-lg border border-gray-100 bg-white shadow-lg z-50 overflow-hidden">
+                        <div className="absolute top-full right-0 mt-1 w-36 rounded-[10px] border border-border bg-card shadow-[var(--kd-shadow-2)] z-50 overflow-hidden">
                             <button
                                 onClick={handleDeleteSelected}
-                                className="w-full px-3 py-1.5 text-left text-xs text-red-600 hover:bg-red-50 transition-colors"
+                                className="w-full px-3 py-1.5 text-left text-xs text-kd-danger hover:bg-kd-danger/10 transition-colors"
                             >
                                 Delete
                             </button>
@@ -203,269 +207,342 @@ export function ProjectsOverview() {
     );
 
     return (
-        <div className="flex-1 overflow-y-auto bg-white">
-            {/* Page header */}
-            <div className="mb-1 flex items-center justify-between px-4 py-3 md:px-10">
-                <h1 className="text-2xl font-medium font-serif text-gray-900">
-                    Projects
-                </h1>
-                <div className="flex items-center gap-2">
+        <div className="flex-1 overflow-y-auto bg-background">
+            {/* Top bar */}
+            <div className="flex h-[60px] items-center justify-between border-b border-border px-4 md:px-7">
+                <span className="kd-label text-muted-foreground">Matters</span>
+                <div className="flex items-center gap-2.5">
                     <HeaderSearchBtn
                         value={search}
                         onChange={setSearch}
-                        placeholder="Search projects…"
+                        placeholder="Search matters…"
                     />
+                    <ThemeToggleButton />
                     <button
                         onClick={() => setModalOpen(true)}
-                        className="flex items-center justify-center p-1.5 text-gray-500 hover:text-gray-900 transition-colors"
+                        className="flex h-10 items-center gap-2 rounded-[10px] bg-kd-brass px-4 text-sm font-semibold text-[#14120C] transition-colors hover:bg-kd-accent-strong"
                     >
-                        <Plus className="h-4 w-4" />
+                        <Plus className="h-4 w-4" strokeWidth={1.8} />
+                        New matter
                     </button>
                 </div>
             </div>
 
-            <ToolbarTabs
-                tabs={tabs}
-                active={activeTab}
-                onChange={setActiveTab}
-                actions={toolbarActions}
-            />
+            {/* Title */}
+            <div className="px-4 pt-8 md:px-10">
+                <h1 className="font-serif text-[40px] font-normal leading-[1.1] tracking-[-0.01em] text-foreground">
+                    Matters
+                </h1>
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                    Documents, chats and tabular reviews — organised by matter.
+                </p>
+            </div>
+
+            <div className="mt-7">
+                <ToolbarTabs
+                    tabs={tabs}
+                    active={activeTab}
+                    onChange={setActiveTab}
+                    actions={toolbarActions}
+                />
+            </div>
 
             {/* Table */}
-            <div className="w-full overflow-x-auto">
-                <div className="min-w-max">
-                {/* Column headers */}
-                <div className="flex items-center h-8 pr-3 md:pr-10 border-b border-gray-200 text-xs text-gray-500 font-medium select-none">
-                    <div className={`sticky left-0 z-[60] ${CHECK_W} relative bg-white flex items-center justify-center self-stretch before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-white`}>
-                        {!loading && (
-                            <input
-                                type="checkbox"
-                                checked={allSelected}
-                                ref={(el) => {
-                                    if (el) el.indeterminate = someSelected;
-                                }}
-                                onChange={toggleAll}
-                                className="h-2.5 w-2.5 rounded border-gray-200 cursor-pointer accent-black"
-                            />
-                        )}
-                    </div>
-                    <div className={`sticky left-8 z-[60] ${NAME_COL_W} bg-white pl-2 text-left`}>
-                        Name
-                    </div>
-                    <div className="ml-auto w-32 shrink-0 text-left">CM</div>
-                    <div className="w-24 shrink-0 text-left">Files</div>
-                    <div className="w-24 shrink-0 text-left">Chats</div>
-                    <div className="w-36 shrink-0 text-left">
-                        Tabular Reviews
-                    </div>
-                    <div className="w-32 shrink-0 text-left">Created</div>
-                    <div className="w-8 shrink-0" />
-                </div>
-
-                {loading ? (
-                    <div>
-                        {[1, 2, 3].map((i) => (
+            <div className="w-full px-4 pt-6 pb-8 md:px-10">
+                <div className="overflow-x-auto rounded-[14px] border border-border bg-card">
+                    <div className="min-w-max">
+                        {/* Column headers */}
+                        <div className="flex items-center h-11 pr-3 md:pr-10 border-b border-border bg-muted kd-label text-muted-foreground select-none">
                             <div
-                                key={i}
-                                className="flex items-center h-10 pr-3 md:pr-10 border-b border-gray-50"
+                                className={`sticky left-0 z-[60] ${CHECK_W} bg-muted flex items-center justify-center self-stretch`}
                             >
-                                <div className="w-8 shrink-0" />
-                                <div className="flex-1 min-w-0 pl-3 pr-4">
-                                    <div className="h-3.5 w-48 rounded bg-gray-100 animate-pulse" />
-                                </div>
-                                <div className="w-32 shrink-0">
-                                    <div className="h-3 w-20 rounded bg-gray-100 animate-pulse" />
-                                </div>
-                                <div className="w-24 shrink-0">
-                                    <div className="h-3 w-8 rounded bg-gray-100 animate-pulse" />
-                                </div>
-                                <div className="w-24 shrink-0">
-                                    <div className="h-3 w-8 rounded bg-gray-100 animate-pulse" />
-                                </div>
-                                <div className="w-36 shrink-0">
-                                    <div className="h-3 w-8 rounded bg-gray-100 animate-pulse" />
-                                </div>
-                                <div className="w-32 shrink-0">
-                                    <div className="h-3 w-20 rounded bg-gray-100 animate-pulse" />
-                                </div>
-                                <div className="w-8 shrink-0" />
-                            </div>
-                        ))}
-                    </div>
-                ) : loadError ? (
-                    <div className="flex flex-col items-start py-24 w-full max-w-xs mx-auto">
-                        <FolderOpen className="h-8 w-8 text-gray-300 mb-4" />
-                        <p className="text-2xl font-medium font-serif text-gray-900">
-                            Projects
-                        </p>
-                        <p className="mt-1 text-xs text-red-500 max-w-xs">
-                            {loadError}
-                        </p>
-                    </div>
-                ) : filtered.length === 0 ? (
-                    <div className="flex flex-col items-start py-24 w-full max-w-xs mx-auto">
-                        {activeTab === "all" || activeTab === "mine" ? (
-                            <>
-                                <FolderOpen className="h-8 w-8 text-gray-300 mb-4" />
-                                <p className="text-2xl font-medium font-serif text-gray-900">
-                                    Projects
-                                </p>
-                                <p className="mt-1 text-xs text-gray-400 max-w-xs">
-                                    Upload documents into projects and to
-                                    commence chats and tabular reviews with
-                                    them.
-                                </p>
-                                <button
-                                    onClick={() => setModalOpen(true)}
-                                    className="mt-4 inline-flex items-center gap-1 rounded-full bg-gray-900 px-3 py-1 text-xs font-medium text-white hover:bg-gray-700 transition-colors shadow-md"
-                                >
-                                    + Create New
-                                </button>
-                            </>
-                        ) : (
-                            <p className="text-sm text-gray-400">
-                                No {activeTab} projects
-                            </p>
-                        )}
-                    </div>
-                ) : (
-                    <div>
-                        {filtered.map((project) => {
-                            const rowBg = selectedIds.includes(project.id)
-                                ? "bg-gray-50"
-                                : "bg-white";
-                            return (
-                            <div
-                                key={project.id}
-                                onClick={() => {
-                                    if (renamingId === project.id) return;
-                                    router.push(`/projects/${project.id}`);
-                                }}
-                                className="group flex items-center h-10 pr-3 md:pr-10 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors"
-                            >
-                                <div
-                                    className={`sticky left-0 z-[60] ${CHECK_W} p-2 flex items-center justify-center ${rowBg} group-hover:bg-gray-50`}
-                                    onClick={(e) => e.stopPropagation()}
-                                >
+                                {!loading && (
                                     <input
                                         type="checkbox"
-                                        checked={selectedIds.includes(
-                                            project.id,
-                                        )}
-                                        onChange={() => toggleOne(project.id)}
-                                        className="h-2.5 w-2.5 rounded border-gray-200 cursor-pointer accent-black"
+                                        checked={allSelected}
+                                        ref={(el) => {
+                                            if (el)
+                                                el.indeterminate = someSelected;
+                                        }}
+                                        onChange={toggleAll}
+                                        className="h-2.5 w-2.5 rounded border-border cursor-pointer accent-kd-brass"
                                     />
-                                </div>
-
-                                {/* Project Name */}
-                                <div className={`sticky left-8 z-[60] ${NAME_COL_W} bg-white p-2 group-hover:bg-gray-50`}>
-                                    {renamingId === project.id ? (
-                                        <input
-                                            autoFocus
-                                            value={renameValue}
-                                            onChange={(e) =>
-                                                setRenameValue(e.target.value)
-                                            }
-                                            onKeyDown={(e) => {
-                                                if (e.key === "Enter")
-                                                    handleRenameSubmit(
-                                                        project.id,
-                                                    );
-                                                if (e.key === "Escape")
-                                                    setRenamingId(null);
-                                            }}
-                                            onBlur={() =>
-                                                handleRenameSubmit(project.id)
-                                            }
-                                            onClick={(e) => e.stopPropagation()}
-                                            className="w-full text-sm text-gray-800 bg-transparent outline-none"
-                                        />
-                                    ) : (
-                                        <span className="text-sm text-gray-800 truncate block">
-                                            {project.name}
-                                        </span>
-                                    )}
-                                </div>
-
-                                <div
-                                    className="ml-auto w-32 shrink-0 text-sm text-gray-500 truncate"
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    {cmEditingId === project.id ? (
-                                        <input
-                                            autoFocus
-                                            value={cmValue}
-                                            onChange={(e) =>
-                                                setCmValue(e.target.value)
-                                            }
-                                            onKeyDown={(e) => {
-                                                if (e.key === "Enter")
-                                                    handleCmSubmit(project.id);
-                                                if (e.key === "Escape")
-                                                    setCmEditingId(null);
-                                            }}
-                                            onBlur={() =>
-                                                handleCmSubmit(project.id)
-                                            }
-                                            placeholder="CM #"
-                                            className="w-full text-sm text-gray-800 bg-transparent outline-none"
-                                        />
-                                    ) : (
-                                        (project.cm_number ?? (
-                                            <span className="text-gray-300">
-                                                —
-                                            </span>
-                                        ))
-                                    )}
-                                </div>
-                                <div className="w-24 shrink-0 text-sm text-gray-500 truncate">
-                                    {project.document_count ?? 0}
-                                </div>
-                                <div className="w-24 shrink-0 text-sm text-gray-500 truncate">
-                                    {project.chat_count ?? 0}
-                                </div>
-                                <div className="w-36 shrink-0 text-sm text-gray-500 truncate">
-                                    {project.review_count ?? 0}
-                                </div>
-                                <div className="w-32 shrink-0 text-sm text-gray-500 truncate">
-                                    {formatDate(project.created_at)}
-                                </div>
-
-                                <div
-                                    className="w-8 shrink-0 flex justify-end"
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    {(project.is_owner ??
-                                        project.user_id === user?.id) && (
-                                        <RowActions
-                                            onRename={() => {
-                                                setRenameValue(project.name);
-                                                setRenamingId(project.id);
-                                            }}
-                                            onUpdateCmNumber={() => {
-                                                setCmValue(
-                                                    project.cm_number ?? "",
-                                                );
-                                                setCmEditingId(project.id);
-                                            }}
-                                            onDelete={async () => {
-                                                await deleteProject(project.id);
-                                                setProjects((prev) =>
-                                                    prev.filter(
-                                                        (p) =>
-                                                            p.id !== project.id,
-                                                    ),
-                                                );
-                                            }}
-                                        />
-                                    )}
-                                </div>
+                                )}
                             </div>
-                            );
-                        })}
+                            <div
+                                className={`sticky left-8 z-[60] ${NAME_COL_W} bg-muted pl-2 text-left`}
+                            >
+                                Name
+                            </div>
+                            <div className="ml-auto w-32 shrink-0 text-left">
+                                CM
+                            </div>
+                            <div className="w-24 shrink-0 text-right">Files</div>
+                            <div className="w-24 shrink-0 text-right">
+                                Chats
+                            </div>
+                            <div className="w-36 shrink-0 text-right">
+                                Tabular Reviews
+                            </div>
+                            <div className="w-32 shrink-0 text-right">
+                                Created
+                            </div>
+                            <div className="w-8 shrink-0" />
+                        </div>
+
+                        {loading ? (
+                            <div>
+                                {[1, 2, 3].map((i) => (
+                                    <div
+                                        key={i}
+                                        className="flex items-center h-[52px] pr-3 md:pr-10 border-b border-border"
+                                    >
+                                        <div className="w-8 shrink-0" />
+                                        <div className="flex-1 min-w-0 pl-3 pr-4">
+                                            <div className="h-3.5 w-48 rounded bg-muted animate-pulse" />
+                                        </div>
+                                        <div className="w-32 shrink-0">
+                                            <div className="h-3 w-20 rounded bg-muted animate-pulse" />
+                                        </div>
+                                        <div className="w-24 shrink-0">
+                                            <div className="h-3 w-8 rounded bg-muted animate-pulse" />
+                                        </div>
+                                        <div className="w-24 shrink-0">
+                                            <div className="h-3 w-8 rounded bg-muted animate-pulse" />
+                                        </div>
+                                        <div className="w-36 shrink-0">
+                                            <div className="h-3 w-8 rounded bg-muted animate-pulse" />
+                                        </div>
+                                        <div className="w-32 shrink-0">
+                                            <div className="h-3 w-20 rounded bg-muted animate-pulse" />
+                                        </div>
+                                        <div className="w-8 shrink-0" />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : loadError ? (
+                            <div className="flex flex-col items-center justify-center py-24 w-full text-center">
+                                <p className="font-serif text-xl text-foreground">
+                                    Matters could not be loaded.
+                                </p>
+                                <p className="mt-2 text-sm text-kd-danger">
+                                    {loadError}
+                                </p>
+                            </div>
+                        ) : filtered.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-24 w-full text-center">
+                                {activeTab === "all" || activeTab === "mine" ? (
+                                    <>
+                                        <p className="font-serif text-xl text-foreground">
+                                            Every great matter starts here.
+                                        </p>
+                                        <button
+                                            onClick={() => setModalOpen(true)}
+                                            className="mt-5 inline-flex h-10 items-center gap-2 rounded-[10px] bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                                        >
+                                            New matter
+                                        </button>
+                                    </>
+                                ) : (
+                                    <p className="font-serif text-xl text-muted-foreground">
+                                        No matters here.
+                                    </p>
+                                )}
+                            </div>
+                        ) : (
+                            <div>
+                                {filtered.map((project) => {
+                                    const rowBg = selectedIds.includes(
+                                        project.id,
+                                    )
+                                        ? "bg-muted"
+                                        : "bg-card";
+                                    return (
+                                        <div
+                                            key={project.id}
+                                            onClick={() => {
+                                                if (renamingId === project.id)
+                                                    return;
+                                                router.push(
+                                                    `/projects/${project.id}`,
+                                                );
+                                            }}
+                                            className="group flex items-center h-[52px] pr-3 md:pr-10 border-b border-border hover:bg-muted cursor-pointer transition-colors"
+                                        >
+                                            <div
+                                                className={`sticky left-0 z-[60] ${CHECK_W} p-2 flex items-center justify-center ${rowBg} group-hover:bg-muted`}
+                                                onClick={(e) =>
+                                                    e.stopPropagation()
+                                                }
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedIds.includes(
+                                                        project.id,
+                                                    )}
+                                                    onChange={() =>
+                                                        toggleOne(project.id)
+                                                    }
+                                                    className="h-2.5 w-2.5 rounded border-border cursor-pointer accent-kd-brass"
+                                                />
+                                            </div>
+
+                                            {/* Matter name */}
+                                            <div
+                                                className={`sticky left-8 z-[60] ${NAME_COL_W} bg-card p-2 group-hover:bg-muted`}
+                                            >
+                                                {renamingId === project.id ? (
+                                                    <input
+                                                        autoFocus
+                                                        value={renameValue}
+                                                        onChange={(e) =>
+                                                            setRenameValue(
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                        onKeyDown={(e) => {
+                                                            if (
+                                                                e.key ===
+                                                                "Enter"
+                                                            )
+                                                                handleRenameSubmit(
+                                                                    project.id,
+                                                                );
+                                                            if (
+                                                                e.key ===
+                                                                "Escape"
+                                                            )
+                                                                setRenamingId(
+                                                                    null,
+                                                                );
+                                                        }}
+                                                        onBlur={() =>
+                                                            handleRenameSubmit(
+                                                                project.id,
+                                                            )
+                                                        }
+                                                        onClick={(e) =>
+                                                            e.stopPropagation()
+                                                        }
+                                                        className="w-full text-sm text-foreground bg-transparent outline-none"
+                                                    />
+                                                ) : (
+                                                    <span className="text-sm font-medium text-foreground truncate block">
+                                                        {project.name}
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <div
+                                                className="ml-auto w-32 shrink-0 font-mono text-xs text-muted-foreground truncate"
+                                                onClick={(e) =>
+                                                    e.stopPropagation()
+                                                }
+                                            >
+                                                {cmEditingId === project.id ? (
+                                                    <input
+                                                        autoFocus
+                                                        value={cmValue}
+                                                        onChange={(e) =>
+                                                            setCmValue(
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                        onKeyDown={(e) => {
+                                                            if (
+                                                                e.key ===
+                                                                "Enter"
+                                                            )
+                                                                handleCmSubmit(
+                                                                    project.id,
+                                                                );
+                                                            if (
+                                                                e.key ===
+                                                                "Escape"
+                                                            )
+                                                                setCmEditingId(
+                                                                    null,
+                                                                );
+                                                        }}
+                                                        onBlur={() =>
+                                                            handleCmSubmit(
+                                                                project.id,
+                                                            )
+                                                        }
+                                                        placeholder="CM #"
+                                                        className="w-full font-mono text-xs text-foreground bg-transparent outline-none"
+                                                    />
+                                                ) : (
+                                                    (project.cm_number ?? (
+                                                        <span className="text-kd-text-3">
+                                                            —
+                                                        </span>
+                                                    ))
+                                                )}
+                                            </div>
+                                            <div className="w-24 shrink-0 text-right font-mono text-xs text-muted-foreground truncate">
+                                                {project.document_count ?? 0}
+                                            </div>
+                                            <div className="w-24 shrink-0 text-right font-mono text-xs text-muted-foreground truncate">
+                                                {project.chat_count ?? 0}
+                                            </div>
+                                            <div className="w-36 shrink-0 text-right font-mono text-xs text-muted-foreground truncate">
+                                                {project.review_count ?? 0}
+                                            </div>
+                                            <div className="w-32 shrink-0 text-right text-[13px] text-muted-foreground truncate">
+                                                {formatDate(project.created_at)}
+                                            </div>
+
+                                            <div
+                                                className="w-8 shrink-0 flex justify-end"
+                                                onClick={(e) =>
+                                                    e.stopPropagation()
+                                                }
+                                            >
+                                                {(project.is_owner ??
+                                                    project.user_id ===
+                                                        user?.id) && (
+                                                    <RowActions
+                                                        onRename={() => {
+                                                            setRenameValue(
+                                                                project.name,
+                                                            );
+                                                            setRenamingId(
+                                                                project.id,
+                                                            );
+                                                        }}
+                                                        onUpdateCmNumber={() => {
+                                                            setCmValue(
+                                                                project.cm_number ??
+                                                                    "",
+                                                            );
+                                                            setCmEditingId(
+                                                                project.id,
+                                                            );
+                                                        }}
+                                                        onDelete={async () => {
+                                                            await deleteProject(
+                                                                project.id,
+                                                            );
+                                                            setProjects(
+                                                                (prev) =>
+                                                                    prev.filter(
+                                                                        (p) =>
+                                                                            p.id !==
+                                                                            project.id,
+                                                                    ),
+                                                            );
+                                                        }}
+                                                    />
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
+                </div>
             </div>
 
             <NewProjectModal

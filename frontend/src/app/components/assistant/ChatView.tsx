@@ -485,15 +485,15 @@ export function ChatView({
                     className="absolute bottom-0 left-0 right-0 w-full z-30"
                 >
                     <div className="w-full max-w-4xl mx-auto px-4 md:px-6">
-                        <div className="w-full rounded-t-[20px] bg-background">
+                        <div className="w-full">
                             <ChatInput
                                 onSubmit={handleChat}
                                 onCancel={cancel}
                                 isLoading={isResponseLoading}
                             />
                             <div className="py-3 text-center">
-                                <p className="text-xs text-muted-foreground">
-                                    AI can make mistakes. Answers are not legal
+                                <p className="text-xs text-kd-text-3">
+                                    KD can make mistakes. Answers are not legal
                                     advice.
                                 </p>
                             </div>

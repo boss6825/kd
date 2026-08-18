@@ -52,7 +52,7 @@ function CitationPill({
             <TooltipTrigger asChild>
                 <button
                     onClick={() => onCitationClick?.(annotation)}
-                    className="mx-0.5 inline-flex items-center justify-center rounded-full w-4 h-4 text-[10px] font-medium transition-colors align-super bg-muted text-foreground hover:bg-accent"
+                    className="mx-0.5 inline-flex items-center justify-center rounded-full w-4 h-4 font-mono text-[10px] font-medium transition-colors align-super bg-kd-accent/10 text-kd-accent hover:bg-kd-accent/20"
                 >
                     {idx + 1}
                 </button>
@@ -86,7 +86,7 @@ export function MarkdownContent({
     return (
         <div
             ref={divRef}
-            className="text-foreground mb-4 text-base prose prose-sm max-w-none font-serif"
+            className="text-foreground mb-4 text-base prose prose-sm max-w-[68ch] font-serif"
         >
             <ReactMarkdown
                 remarkPlugins={[
@@ -104,7 +104,7 @@ export function MarkdownContent({
                         </div>
                     ),
                     thead: ({ node, ...props }) => (
-                        <thead className="bg-muted/50" {...props} />
+                        <thead className="bg-muted" {...props} />
                     ),
                     tbody: ({ node, ...props }) => (
                         <tbody
@@ -208,14 +208,14 @@ export function MarkdownContent({
                     },
                     blockquote: ({ node, ...props }) => (
                         <blockquote
-                            className="border-l-4 border-input pl-4 italic my-4"
+                            className="border-l-4 border-border pl-4 italic my-4"
                             {...props}
                         />
                     ),
                     a: ({ node, href, children, ...props }) => (
                         <a
                             href={href}
-                            className="text-blue-600 hover:text-blue-700 underline"
+                            className="text-kd-accent hover:text-kd-accent-strong underline"
                             target="_blank"
                             rel="noopener noreferrer"
                             {...props}

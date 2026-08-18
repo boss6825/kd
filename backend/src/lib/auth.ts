@@ -20,7 +20,7 @@ import { db, schema } from "../db";
 import { userProfiles } from "../db/schema";
 import { sendEmail } from "./email";
 
-const FRONTEND_URL = process.env.FRONTEND_URL ?? "http://localhost:3000";
+const FRONTEND_URL = process.env.FRONTEND_URL ?? "http://localhost:3006";
 
 const googleConfigured = Boolean(
     process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,

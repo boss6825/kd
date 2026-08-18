@@ -203,10 +203,10 @@ export function AddDocumentsModal({
 
     return createPortal(
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/10 backdrop-blur-xs">
-            <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl flex flex-col h-[600px]">
+            <div className="w-full max-w-2xl rounded-2xl bg-card border border-border shadow-[var(--kd-shadow-2)] flex flex-col h-[600px]">
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4">
-                    <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                    <div className="kd-label flex items-center gap-1.5 text-kd-text-3">
                         {breadcrumb.map((segment, i) => (
                             <span key={i} className="flex items-center gap-1.5">
                                 {i > 0 && <span>›</span>}
@@ -216,7 +216,7 @@ export function AddDocumentsModal({
                     </div>
                     <button
                         onClick={onClose}
-                        className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                        className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                     >
                         <X className="h-4 w-4" />
                     </button>
@@ -224,20 +224,20 @@ export function AddDocumentsModal({
 
                 {/* Search bar */}
                 <div className="px-4 pt-1 pb-2">
-                    <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
-                        <Search className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+                    <div className="flex items-center gap-2 rounded-[10px] border border-border bg-card px-3 py-2 focus-within:border-kd-accent">
+                        <Search className="h-3.5 w-3.5 text-kd-text-3 shrink-0" />
                         <input
                             type="text"
                             placeholder="Search…"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="flex-1 bg-transparent text-sm text-gray-700 placeholder:text-gray-400 outline-none"
+                            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-kd-text-3 outline-none"
                             autoFocus
                         />
                         {search && (
                             <button
                                 onClick={() => setSearch("")}
-                                className="text-gray-400 hover:text-gray-600"
+                                className="text-muted-foreground hover:text-foreground"
                             >
                                 <X className="h-3.5 w-3.5" />
                             </button>
@@ -264,7 +264,7 @@ export function AddDocumentsModal({
                 </div>
 
                 {/* Footer */}
-                <div className="border-t border-gray-100 px-4 py-3 flex items-center justify-between gap-3">
+                <div className="border-t border-border px-4 py-3 flex items-center justify-between gap-3">
                     <div>
                         <input
                             ref={fileInputRef}
@@ -277,7 +277,7 @@ export function AddDocumentsModal({
                         <button
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploading}
-                            className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                            className="flex items-center gap-1.5 rounded-[10px] border border-border bg-card px-3 py-1.5 text-sm text-foreground hover:border-kd-text-3 disabled:opacity-50"
                         >
                             {uploading ? (
                                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -289,20 +289,20 @@ export function AddDocumentsModal({
                     </div>
                     <div className="flex items-center gap-2">
                         {selectedIds.size > 0 && (
-                            <span className="text-xs text-gray-400">
+                            <span className="text-xs text-muted-foreground">
                                 {selectedIds.size} selected
                             </span>
                         )}
                         <button
                             onClick={onClose}
-                            className="rounded-lg px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-100"
+                            className="rounded-[10px] px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleConfirm}
                             disabled={selectedIds.size === 0 || uploading}
-                            className="rounded-lg bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-40"
+                            className="rounded-[10px] bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
                         >
                             {uploading ? "Saving…" : "Confirm"}
                         </button>

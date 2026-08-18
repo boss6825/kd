@@ -33,9 +33,9 @@ export function CreditsExhaustedModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-md rounded-2xl p-6">
+            <DialogContent className="max-w-md rounded-2xl bg-card border-border shadow-[var(--kd-shadow-2)] p-6">
                 <DialogHeader>
-                    <DialogTitle className="text-3xl font-light font-eb-garamond text-foreground">
+                    <DialogTitle className="text-3xl font-normal font-serif tracking-[-0.01em] text-foreground">
                         Message Limit Reached
                     </DialogTitle>
                     <DialogDescription>
@@ -45,11 +45,11 @@ export function CreditsExhaustedModal({
                 </DialogHeader>
 
                 <div className="space-y-4">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <p className="text-sm text-blue font-medium mb-1">
+                    <div className="bg-kd-accent/10 border border-kd-accent/30 rounded-[10px] p-4">
+                        <p className="text-sm text-kd-accent font-medium mb-1">
                             Your credits will reset on:
                         </p>
-                        <p className="text-lg font-semibold text-blue-700">
+                        <p className="text-lg font-semibold text-kd-accent">
                             {formatResetDate(resetDate)}
                         </p>
                     </div>

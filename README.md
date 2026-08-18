@@ -47,7 +47,7 @@ Create `backend/.env`:
 
 ```bash
 PORT=3001
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:3006
 DOWNLOAD_SIGNING_SECRET=replace-with-a-random-32-byte-hex-string
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SECRET_KEY=your-supabase-service-role-key
@@ -106,7 +106,7 @@ Start the main app:
 npm run dev --prefix frontend
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3006`.
 
 ## First Run
 

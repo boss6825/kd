@@ -35,12 +35,12 @@ export function ActivityDot({
         );
     }
     if (state === "error") {
-        return <div className="mt-2 w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />;
+        return <div className="mt-2 w-1.5 h-1.5 rounded-full bg-kd-danger shrink-0" />;
     }
     if (state === "idle") {
         return <div className="mt-2 w-1.5 h-1.5 rounded-full bg-border shrink-0" />;
     }
-    return <div className="mt-2 w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />;
+    return <div className="mt-2 w-1.5 h-1.5 rounded-full bg-kd-ok shrink-0" />;
 }
 
 function Connector() {

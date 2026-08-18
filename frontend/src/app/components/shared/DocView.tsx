@@ -542,11 +542,11 @@ export function DocView({
 
     return (
         <div
-            className={`relative flex flex-col flex-1 overflow-hidden ${bordered ? "border border-gray-200" : ""} ${rounded ? "rounded-xl" : ""}`}
+            className={`relative flex flex-col flex-1 overflow-hidden ${bordered ? "border border-border" : ""} ${rounded ? "rounded-xl" : ""}`}
         >
             <div
                 ref={scrollContainerRef}
-                className="flex-1 overflow-auto bg-gray-100 px-3 pt-5 pb-3"
+                className="flex-1 overflow-auto bg-muted px-3 pt-5 pb-3"
             >
                 {loading && (
                     <div className="flex h-full items-center justify-center">
@@ -555,7 +555,7 @@ export function DocView({
                 )}
                 {error && (
                     <div className="flex h-full items-center justify-center">
-                        <p className="text-sm text-red-500">{error}</p>
+                        <p className="text-sm text-destructive">{error}</p>
                     </div>
                 )}
                 <div ref={containerRef} />
@@ -564,29 +564,29 @@ export function DocView({
                 <>
                     {/* Page counter — bottom left */}
                     <div className="absolute bottom-4 left-4 pointer-events-none">
-                        <span className="flex items-center px-3 py-1.5 rounded-full text-xs font-medium tabular-nums text-gray-700 bg-white/25 backdrop-blur-md border border-white/30 shadow-md">
+                        <span className="kd-glass flex items-center px-3 py-1.5 rounded-full text-xs font-mono font-medium tabular-nums text-foreground">
                             {currentPage}/{numPages}
                         </span>
                     </div>
 
                     {/* Zoom controls — bottom right */}
-                    <div className="absolute bottom-4 right-4 flex items-center gap-px rounded-full bg-white/25 backdrop-blur-md border border-white/30 shadow-md px-1 py-1">
+                    <div className="kd-glass absolute bottom-4 right-4 flex items-center gap-px rounded-full px-1 py-1">
                         <button
                             onClick={handleZoomOut}
                             disabled={zoom <= ZOOM_MIN}
-                            className="flex items-center justify-center w-7 h-7 rounded-full text-gray-600 hover:bg-white/80 disabled:opacity-30 transition-colors"
+                            className="flex items-center justify-center w-7 h-7 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30 transition-colors"
                         >
-                            <ZoomOut className="h-3.5 w-3.5" />
+                            <ZoomOut className="h-3.5 w-3.5" strokeWidth={1.5} />
                         </button>
-                        <span className="text-xs font-medium text-gray-600 tabular-nums w-9 text-center select-none">
+                        <span className="text-xs font-mono font-medium text-muted-foreground tabular-nums w-9 text-center select-none">
                             {Math.round(zoom * 100)}%
                         </span>
                         <button
                             onClick={handleZoomIn}
                             disabled={zoom >= ZOOM_MAX}
-                            className="flex items-center justify-center w-7 h-7 rounded-full text-gray-600 hover:bg-white/80 disabled:opacity-30 transition-colors"
+                            className="flex items-center justify-center w-7 h-7 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30 transition-colors"
                         >
-                            <ZoomIn className="h-3.5 w-3.5" />
+                            <ZoomIn className="h-3.5 w-3.5" strokeWidth={1.5} />
                         </button>
                     </div>
                 </>

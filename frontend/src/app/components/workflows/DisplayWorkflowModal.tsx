@@ -35,10 +35,10 @@ function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
         <button
             type="button"
             onClick={onToggle}
-            className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ${on ? "bg-gray-900" : "bg-gray-200"}`}
+            className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ${on ? "bg-primary" : "bg-muted-foreground/30"}`}
         >
             <span
-                className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow transition-transform duration-200 ${on ? "translate-x-4" : "translate-x-0"}`}
+                className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-card shadow-[var(--kd-shadow-1)] transition-transform duration-200 ${on ? "translate-x-4" : "translate-x-0"}`}
             />
         </button>
     );
@@ -77,8 +77,8 @@ function SimpleProjectPicker({
                 }}
                 onFocus={() => setOpen(true)}
                 onBlur={() => setTimeout(() => setOpen(false), 150)}
-                placeholder="Select a project…"
-                className="w-full text-xs text-gray-700 placeholder:text-gray-400 bg-gray-50 border border-gray-200 rounded-md px-3 py-2 outline-none"
+                placeholder="Select a matter…"
+                className="w-full rounded-[10px] border border-border bg-muted px-3 py-2 text-xs text-foreground outline-none placeholder:text-kd-text-3 focus:border-kd-accent"
             />
             {selectedId && (
                 <button
@@ -86,16 +86,16 @@ function SimpleProjectPicker({
                         onSelect(null);
                         setSearch("");
                     }}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                    <X className="h-3 w-3" />
+                    <X className="h-3 w-3" strokeWidth={1.5} />
                 </button>
             )}
             {open && !selectedId && (
-                <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-sm overflow-y-auto max-h-40">
+                <div className="absolute z-10 top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto rounded-[10px] border border-border bg-card shadow-[var(--kd-shadow-2)]">
                     {filtered.length === 0 ? (
-                        <p className="px-3 py-3 text-xs text-gray-400 text-center">
-                            No projects found
+                        <p className="px-3 py-3 text-center text-xs text-kd-text-3">
+                            No matters found
                         </p>
                     ) : (
                         filtered.map((p) => (
@@ -106,9 +106,9 @@ function SimpleProjectPicker({
                                     setSearch("");
                                     setOpen(false);
                                 }}
-                                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:bg-gray-50 text-gray-700"
+                                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-foreground hover:bg-muted"
                             >
-                                <Folder className="h-3.5 w-3.5 shrink-0 text-gray-400" />
+                                <Folder className="h-3.5 w-3.5 shrink-0 text-muted-foreground" strokeWidth={1.5} />
                                 {p.name}
                             </button>
                         ))
@@ -128,17 +128,17 @@ function MarkdownBody({ content }: { content: string }) {
             remarkPlugins={[remarkGfm]}
             components={{
                 h1: ({ children }) => (
-                    <h1 className="text-base font-semibold text-gray-900 mt-4 mb-1 first:mt-0">
+                    <h1 className="text-base font-semibold text-foreground mt-4 mb-1 first:mt-0">
                         {children}
                     </h1>
                 ),
                 h2: ({ children }) => (
-                    <h2 className="text-sm font-semibold text-gray-900 mt-3 mb-1 first:mt-0">
+                    <h2 className="text-sm font-semibold text-foreground mt-3 mb-1 first:mt-0">
                         {children}
                     </h2>
                 ),
                 h3: ({ children }) => (
-                    <h3 className="text-xs font-semibold text-gray-900 mt-2 mb-0.5 first:mt-0">
+                    <h3 className="text-xs font-semibold text-foreground mt-2 mb-0.5 first:mt-0">
                         {children}
                     </h3>
                 ),
@@ -157,7 +157,7 @@ function MarkdownBody({ content }: { content: string }) {
                 ),
                 li: ({ children }) => <li>{children}</li>,
                 strong: ({ children }) => (
-                    <strong className="font-semibold text-gray-800">
+                    <strong className="font-semibold text-foreground">
                         {children}
                     </strong>
                 ),
@@ -174,13 +174,13 @@ function MarkdownBody({ content }: { content: string }) {
 // ---------------------------------------------------------------------------
 function AssistantPanel({ workflow }: { workflow: MikeWorkflow }) {
     return (
-        <div className="flex-1 border-l border-t border-gray-200 flex flex-col overflow-hidden px-3 pb-3">
+        <div className="flex-1 border-l border-t border-border flex flex-col overflow-hidden px-3 pb-3">
             <div className="py-3 shrink-0">
-                <p className="text-xs font-medium text-gray-700">
+                <p className="text-xs font-medium text-foreground">
                     Workflow Prompt
                 </p>
             </div>
-            <div className="flex-1 overflow-y-auto px-4 py-3 text-sm border border-gray-200 rounded-md text-gray-600 leading-relaxed font-serif bg-gray-50">
+            <div className="flex-1 overflow-y-auto px-4 py-3 text-sm border border-border rounded-[10px] text-muted-foreground leading-relaxed font-serif bg-muted">
                 <MarkdownBody
                     content={workflow.prompt_md ?? "_No prompt defined._"}
                 />
@@ -199,13 +199,13 @@ function TabularPanel({ workflow }: { workflow: MikeWorkflow }) {
     );
 
     return (
-        <div className="flex-1 border-l border-t border-gray-200 flex flex-col overflow-hidden px-3 pb-3">
+        <div className="flex-1 border-l border-t border-border flex flex-col overflow-hidden px-3 pb-3">
             <div className="py-3 shrink-0">
-                <p className="text-xs font-medium text-gray-700">Columns</p>
+                <p className="text-xs font-medium text-foreground">Columns</p>
             </div>
-            <div className="flex-1 overflow-y-auto border border-gray-200 rounded-md bg-gray-50">
+            <div className="flex-1 overflow-y-auto border border-border rounded-[10px] bg-muted">
                 {columns.length === 0 ? (
-                    <p className="px-4 py-6 text-xs text-center text-gray-400">
+                    <p className="px-4 py-6 text-xs text-center text-kd-text-3">
                         No columns defined
                     </p>
                 ) : (
@@ -215,7 +215,7 @@ function TabularPanel({ workflow }: { workflow: MikeWorkflow }) {
                         return (
                             <div
                                 key={col.index}
-                                className="border-b border-gray-200"
+                                className="border-b border-border"
                             >
                                 <button
                                     type="button"
@@ -224,31 +224,32 @@ function TabularPanel({ workflow }: { workflow: MikeWorkflow }) {
                                             isExpanded ? null : col.index,
                                         )
                                     }
-                                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-left hover:bg-white transition-colors"
+                                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-left hover:bg-card transition-colors"
                                 >
-                                    <FormatIcon className="h-3.5 w-3.5 shrink-0 text-gray-400" />
-                                    <span className="flex-1 truncate text-gray-800">
+                                    <FormatIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" strokeWidth={1.5} />
+                                    <span className="flex-1 truncate text-foreground">
                                         {col.name}
                                     </span>
-                                    <span className="shrink-0 text-gray-400">
+                                    <span className="shrink-0 text-muted-foreground">
                                         {formatLabel(col.format ?? "text")}
                                     </span>
                                     <ChevronDown
-                                        className={`h-3 w-3 shrink-0 text-gray-300 transition-transform duration-150 ${isExpanded ? "rotate-180" : ""}`}
+                                        className={`h-3 w-3 shrink-0 text-kd-text-3 transition-transform duration-150 ${isExpanded ? "rotate-180" : ""}`}
+                                        strokeWidth={1.5}
                                     />
                                 </button>
                                 {isExpanded && (
-                                    <div className="px-4 py-3 bg-white border-t border-gray-200 text-sm text-gray-600 leading-relaxed font-serif space-y-3">
+                                    <div className="px-4 py-3 bg-card border-t border-border text-sm text-muted-foreground leading-relaxed font-serif space-y-3">
                                         {col.tags && col.tags.length > 0 && (
                                             <div>
-                                                <p className="text-xs font-medium text-gray-400 mb-1.5 font-sans">
+                                                <p className="text-xs font-medium text-kd-text-3 mb-1.5 font-sans">
                                                     Tags
                                                 </p>
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {col.tags.map((tag) => (
                                                         <span
                                                             key={tag}
-                                                            className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600 font-sans"
+                                                            className="inline-block rounded-full bg-muted-foreground/10 px-2 py-0.5 text-xs text-muted-foreground font-sans"
                                                         >
                                                             {tag}
                                                         </span>
@@ -257,7 +258,7 @@ function TabularPanel({ workflow }: { workflow: MikeWorkflow }) {
                                             </div>
                                         )}
                                         <div>
-                                            <p className="text-xs font-medium text-gray-400 mb-1 font-sans">
+                                            <p className="text-xs font-medium text-kd-text-3 mb-1 font-sans">
                                                 Prompt
                                             </p>
                                             <MarkdownBody
@@ -445,33 +446,33 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
     // Render
     // ---------------------------------------------------------------------------
     return createPortal(
-        <div className="fixed inset-0 z-[101] flex items-center justify-center bg-black/20 backdrop-blur-xs">
+        <div className="fixed inset-0 z-[101] flex items-center justify-center bg-black/50">
             <div
-                className={`w-full rounded-2xl bg-white shadow-2xl flex flex-col h-[600px] transition-all duration-200 ${screen === "select" ? "max-w-4xl" : "max-w-2xl"}`}
+                className={`w-full rounded-2xl border border-border bg-card shadow-[var(--kd-shadow-2)] flex flex-col h-[600px] transition-all duration-200 ${screen === "select" ? "max-w-4xl" : "max-w-2xl"}`}
             >
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4 shrink-0">
-                    <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                    <div className="kd-label flex items-center gap-2 text-kd-text-3">
                         {screen === "select" ? (
                             <>
                                 <span>Workflows</span>
-                                <span>›</span>
-                                <span>Select workflow</span>
+                                <span>/</span>
+                                <span className="text-muted-foreground">Select workflow</span>
                             </>
                         ) : (
                             <>
                                 <button
                                     onClick={() => setScreen("select")}
-                                    className="hover:text-gray-700 transition-colors"
+                                    className="kd-label transition-colors hover:text-foreground"
                                 >
                                     Workflows
                                 </button>
-                                <span>›</span>
+                                <span>/</span>
                                 <span className="truncate max-w-[160px]">
                                     {wf.title}
                                 </span>
-                                <span>›</span>
-                                <span>
+                                <span>/</span>
+                                <span className="text-muted-foreground">
                                     {wf.type === "assistant"
                                         ? "New Chat"
                                         : "New Review"}
@@ -481,9 +482,9 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                     </div>
                     <button
                         onClick={onClose}
-                        className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                        className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                     >
-                        <X className="h-4 w-4" />
+                        <X className="h-4 w-4" strokeWidth={1.5} />
                     </button>
                 </div>
 
@@ -492,21 +493,21 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                     <>
                         <div className="flex flex-row flex-1 min-h-0 overflow-hidden">
                             {/* Left: workflow list */}
-                            <div className="w-80 shrink-0 flex flex-col border-t border-gray-200">
+                            <div className="w-80 shrink-0 flex flex-col border-t border-border">
                                 {/* Search */}
-                                <div className="px-3 py-2 shrink-0 border-b border-gray-100">
-                                    <div className="flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1">
-                                        <Search className="h-3 w-3 text-gray-400 shrink-0" />
+                                <div className="px-3 py-2 shrink-0 border-b border-border">
+                                    <div className="flex items-center gap-1.5 rounded-[10px] border border-border bg-muted px-2.5 py-1 focus-within:border-kd-accent">
+                                        <Search className="h-3 w-3 text-kd-text-3 shrink-0" strokeWidth={1.5} />
                                         <input
                                             type="text"
                                             placeholder="Search…"
                                             value={listSearch}
                                             onChange={(e) => setListSearch(e.target.value)}
-                                            className="flex-1 bg-transparent text-xs text-gray-700 placeholder:text-gray-400 outline-none"
+                                            className="flex-1 bg-transparent text-xs text-foreground placeholder:text-kd-text-3 outline-none"
                                         />
                                         {listSearch && (
-                                            <button onClick={() => setListSearch("")} className="text-gray-400 hover:text-gray-600">
-                                                <X className="h-3 w-3" />
+                                            <button onClick={() => setListSearch("")} className="text-muted-foreground hover:text-foreground">
+                                                <X className="h-3 w-3" strokeWidth={1.5} />
                                             </button>
                                         )}
                                     </div>
@@ -524,12 +525,12 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                                                     ref={isSelected ? selectedRowRef : null}
                                                     type="button"
                                                     onClick={() => setSelected(wfItem)}
-                                                    className={`w-full flex items-center gap-3 px-4 py-3 text-xs text-left border-b border-gray-200 transition-colors ${isSelected ? "bg-gray-100" : "hover:bg-gray-50"}`}
+                                                    className={`w-full flex items-center gap-3 px-4 py-3 text-xs text-left border-b border-border transition-colors ${isSelected ? "bg-muted" : "hover:bg-muted"}`}
                                                 >
-                                                    <span className={`flex-1 truncate ${isSelected ? "text-gray-900 font-medium" : "text-gray-700"}`}>
+                                                    <span className={`flex-1 truncate ${isSelected ? "text-foreground font-medium" : "text-muted-foreground"}`}>
                                                         {wfItem.title}
                                                     </span>
-                                                    <Icon className="h-3.5 w-3.5 shrink-0 text-gray-400" />
+                                                    <Icon className={`h-3.5 w-3.5 shrink-0 ${isSelected ? "text-kd-accent" : "text-kd-text-3"}`} strokeWidth={1.5} />
                                                 </button>
                                             );
                                         })}
@@ -544,14 +545,14 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                             )}
                         </div>
 
-                        <div className="border-t border-gray-200 px-5 py-3 flex items-center justify-between shrink-0">
+                        <div className="border-t border-border px-5 py-3 flex items-center justify-between shrink-0">
                             {wf.is_system ? (
                                 <button
                                     onClick={() => {
                                         router.push(`/workflows/${wf.id}`);
                                         handleClose();
                                     }}
-                                    className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50 transition-colors"
+                                    className="rounded-[10px] border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-kd-text-3 hover:text-foreground"
                                 >
                                     View Page
                                 </button>
@@ -561,14 +562,14 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                                         router.push(`/workflows/${wf.id}`);
                                         handleClose();
                                     }}
-                                    className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50 transition-colors"
+                                    className="rounded-[10px] border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-kd-text-3 hover:text-foreground"
                                 >
                                     Edit
                                 </button>
                             )}
                             <button
                                 onClick={() => setScreen("configure")}
-                                className="rounded-lg bg-gray-900 px-5 py-2 text-sm font-medium text-white hover:bg-gray-700"
+                                className="rounded-[10px] bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
                             >
                                 Use
                             </button>
@@ -582,7 +583,7 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
                             {/* Add-on prompt */}
                             <div className="px-5 pb-3 shrink-0">
-                                <p className="text-xs font-medium text-gray-700 mb-2">
+                                <p className="text-xs font-medium text-foreground mb-2">
                                     Message (optional)
                                 </p>
                                 <textarea
@@ -592,14 +593,14 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                                         setAssistantPrompt(e.target.value)
                                     }
                                     placeholder="Add any additional instructions to the workflow prompt…"
-                                    className="w-full text-sm text-gray-700 placeholder:text-gray-400 bg-gray-50 border border-gray-200 rounded-md px-3 py-2 resize-none outline-none leading-relaxed"
+                                    className="w-full rounded-[10px] border border-border bg-muted px-3 py-2 text-sm text-foreground placeholder:text-kd-text-3 resize-none outline-none leading-relaxed focus:border-kd-accent"
                                 />
                             </div>
 
                             {/* Toggle row */}
                             <div className="px-5 py-3 flex flex-col gap-2 shrink-0">
-                                <span className="text-xs font-medium text-gray-700">
-                                    Create in a project
+                                <span className="text-xs font-medium text-foreground">
+                                    Create in a matter
                                 </span>
                                 <Toggle
                                     on={inProject}
@@ -615,8 +616,8 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                             {inProject ? (
                                 <>
                                     <div className="px-5 pt-1 pb-1 shrink-0">
-                                        <p className="text-xs font-medium text-gray-700">
-                                            Select project
+                                        <p className="text-xs font-medium text-foreground">
+                                            Select matter
                                         </p>
                                     </div>
                                     <div className="px-5 pb-2 shrink-0">
@@ -630,15 +631,15 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                             ) : (
                                 <>
                                     <div className="px-5 pt-1 pb-1 shrink-0">
-                                        <p className="text-xs font-medium text-gray-700">
+                                        <p className="text-xs font-medium text-foreground">
                                             Select documents
                                         </p>
                                     </div>
 
                                     {/* Search */}
                                     <div className="px-4 pt-1.5 pb-1 shrink-0">
-                                        <div className="flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1">
-                                            <Search className="h-3 w-3 text-gray-400 shrink-0" />
+                                        <div className="flex items-center gap-1.5 rounded-[10px] border border-border bg-muted px-2.5 py-1 focus-within:border-kd-accent">
+                                            <Search className="h-3 w-3 text-kd-text-3 shrink-0" strokeWidth={1.5} />
                                             <input
                                                 type="text"
                                                 placeholder="Search…"
@@ -646,16 +647,16 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                                                 onChange={(e) =>
                                                     setDocSearch(e.target.value)
                                                 }
-                                                className="flex-1 bg-transparent text-xs text-gray-700 placeholder:text-gray-400 outline-none"
+                                                className="flex-1 bg-transparent text-xs text-foreground placeholder:text-kd-text-3 outline-none"
                                             />
                                             {docSearch && (
                                                 <button
                                                     onClick={() =>
                                                         setDocSearch("")
                                                     }
-                                                    className="text-gray-400 hover:text-gray-600"
+                                                    className="text-muted-foreground hover:text-foreground"
                                                 >
-                                                    <X className="h-3 w-3" />
+                                                    <X className="h-3 w-3" strokeWidth={1.5} />
                                                 </button>
                                             )}
                                         </div>
@@ -684,8 +685,8 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                             )}
                         </div>
 
-                        <div className="border-t border-gray-200 px-5 py-3 flex items-center justify-between shrink-0">
-                            <span className="text-xs text-gray-400">
+                        <div className="border-t border-border px-5 py-3 flex items-center justify-between shrink-0">
+                            <span className="text-xs text-kd-text-3">
                                 {!inProject && selectedDocIds.size > 0
                                     ? `${selectedDocIds.size} selected`
                                     : ""}
@@ -695,7 +696,7 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                                 disabled={
                                     saving || (inProject && !selectedProjectId)
                                 }
-                                className="rounded-lg bg-gray-900 px-5 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+                                className="rounded-[10px] bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
                             >
                                 {saving ? "Starting…" : "Start Chat"}
                             </button>
@@ -709,8 +710,8 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
                             {/* Toggle stacked */}
                             <div className="px-5 pb-3 flex flex-col gap-2 shrink-0">
-                                <span className="text-xs font-medium text-gray-700">
-                                    Create in a project
+                                <span className="text-xs font-medium text-foreground">
+                                    Create in a matter
                                 </span>
                                 <Toggle
                                     on={inProject}
@@ -727,8 +728,8 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                             {inProject && (
                                 <>
                                     <div className="px-5 pt-1 pb-1 shrink-0">
-                                        <p className="text-xs font-medium text-gray-700">
-                                            Select Project
+                                        <p className="text-xs font-medium text-foreground">
+                                            Select matter
                                         </p>
                                     </div>
                                     <div className="px-5 pb-2 shrink-0">
@@ -749,15 +750,15 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
 
                             {/* Documents section */}
                             <div className="px-5 pt-3 pb-1 shrink-0">
-                                <p className="text-xs font-medium text-gray-700">
-                                    Select Documents
+                                <p className="text-xs font-medium text-foreground">
+                                    Select documents
                                 </p>
                             </div>
 
                             {/* Search */}
                             <div className="px-4 pt-1.5 pb-1 shrink-0">
-                                <div className="flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1">
-                                    <Search className="h-3 w-3 text-gray-400 shrink-0" />
+                                <div className="flex items-center gap-1.5 rounded-[10px] border border-border bg-muted px-2.5 py-1 focus-within:border-kd-accent">
+                                    <Search className="h-3 w-3 text-kd-text-3 shrink-0" strokeWidth={1.5} />
                                     <input
                                         type="text"
                                         placeholder="Search…"
@@ -765,14 +766,14 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                                         onChange={(e) =>
                                             setDocSearch(e.target.value)
                                         }
-                                        className="flex-1 bg-transparent text-xs text-gray-700 placeholder:text-gray-400 outline-none"
+                                        className="flex-1 bg-transparent text-xs text-foreground placeholder:text-kd-text-3 outline-none"
                                     />
                                     {docSearch && (
                                         <button
                                             onClick={() => setDocSearch("")}
-                                            className="text-gray-400 hover:text-gray-600"
+                                            className="text-muted-foreground hover:text-foreground"
                                         >
-                                            <X className="h-3 w-3" />
+                                            <X className="h-3 w-3" strokeWidth={1.5} />
                                         </button>
                                     )}
                                 </div>
@@ -798,15 +799,15 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                                         q
                                             ? "No matches found"
                                             : inProject
-                                              ? "No documents in this project"
+                                              ? "No documents in this matter"
                                               : "No documents yet"
                                     }
                                 />
                             </div>
                         </div>
 
-                        <div className="border-t border-gray-200 px-5 py-3 flex items-center justify-between shrink-0">
-                            <span className="text-xs text-gray-400">
+                        <div className="border-t border-border px-5 py-3 flex items-center justify-between shrink-0">
+                            <span className="text-xs text-kd-text-3">
                                 {selectedDocIds.size > 0
                                     ? `${selectedDocIds.size} selected`
                                     : ""}
@@ -818,7 +819,7 @@ export function DisplayWorkflowModal({ workflows, workflow, onClose }: Props) {
                                     selectedDocIds.size === 0 ||
                                     (inProject && !selectedProjectId)
                                 }
-                                className="rounded-lg bg-gray-900 px-5 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+                                className="rounded-[10px] bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
                             >
                                 {saving ? "Creating…" : "Create Review"}
                             </button>

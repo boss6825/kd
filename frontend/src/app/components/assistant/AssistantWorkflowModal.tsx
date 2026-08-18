@@ -88,39 +88,43 @@ export function AssistantWorkflowModal({
     }
 
     return createPortal(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/10 backdrop-blur-xs">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-foreground/10 backdrop-blur-xs">
             <div
-                className={`w-full rounded-2xl bg-background shadow-2xl flex flex-col h-[600px] ${selected ? "max-w-4xl" : "max-w-2xl"}`}
+                className={`w-full rounded-2xl bg-card border border-border shadow-[var(--kd-shadow-2)] flex flex-col h-[600px] ${selected ? "max-w-4xl" : "max-w-2xl"}`}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 py-4 shrink-0 border-b border-border/60">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
+                <div className="flex items-center justify-between px-4 py-4 shrink-0 border-b border-border">
+                    <div className="flex items-center gap-1.5 kd-label text-kd-text-3">
                         {projectName ? (
                             <>
-                                <span>Projects</span>
-                                <span>›</span>
+                                <span>Matters</span>
+                                <span>/</span>
                                 <span>
                                     {projectName}
                                     {projectCmNumber
                                         ? ` (#${projectCmNumber})`
                                         : ""}
                                 </span>
-                                <span>›</span>
+                                <span>/</span>
                                 <span>Assistant</span>
-                                <span>›</span>
-                                <span>Add workflow</span>
+                                <span>/</span>
+                                <span className="text-muted-foreground">
+                                    Add workflow
+                                </span>
                             </>
                         ) : (
                             <>
                                 <span>Assistant</span>
-                                <span>›</span>
-                                <span>Add workflow</span>
+                                <span>/</span>
+                                <span className="text-muted-foreground">
+                                    Add workflow
+                                </span>
                             </>
                         )}
                     </div>
                     <button
                         onClick={onClose}
-                        className="rounded-lg p-1.5 text-muted-foreground/70 hover:bg-muted hover:text-muted-foreground transition-colors"
+                        className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                     >
                         <X className="h-4 w-4" />
                     </button>
@@ -269,11 +273,11 @@ export function AssistantWorkflowModal({
                 </div>
 
                 {/* Footer */}
-                <div className="border-t border-border/60 px-4 py-3 flex items-center justify-end gap-2 shrink-0">
+                <div className="border-t border-border px-4 py-3 flex items-center justify-end gap-2 shrink-0">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted transition-colors"
+                        className="rounded-[10px] px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted transition-colors"
                     >
                         Cancel
                     </button>
@@ -281,7 +285,7 @@ export function AssistantWorkflowModal({
                         type="button"
                         onClick={handleUse}
                         disabled={!selected}
-                        className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-40 transition-colors"
+                        className="rounded-[10px] bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40 transition-colors"
                     >
                         Use
                     </button>

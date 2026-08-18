@@ -20,16 +20,16 @@ export function ToolbarTabs<T extends string>({
     actions,
 }: Props<T>) {
     return (
-        <div className="flex items-center h-10 px-4 border-b border-gray-200 md:px-10">
-            <div className="flex-1 flex items-center gap-5">
+        <div className="flex items-center h-10 px-4 border-b border-border md:px-10">
+            <div className="flex-1 flex h-full items-center gap-5">
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
                         onClick={() => onChange(tab.id)}
-                        className={`text-xs transition-colors ${
+                        className={`h-full text-xs transition-colors border-b-2 -mb-px ${
                             active === tab.id
-                                ? "font-medium text-gray-700"
-                                : "font-normal text-gray-500 hover:text-gray-700"
+                                ? "font-medium text-foreground border-kd-brass"
+                                : "font-normal text-muted-foreground hover:text-foreground border-transparent"
                         }`}
                     >
                         {tab.label}

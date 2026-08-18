@@ -53,7 +53,7 @@ export function ModelToggle({ value, onChange, apiKeys }: Props) {
             <DropdownMenuTrigger asChild>
                 <button
                     type="button"
-                    className={`flex items-center gap-1.5 rounded-lg px-2 h-8 text-sm transition-colors cursor-pointer text-muted-foreground/70 hover:bg-muted hover:text-foreground/80 ${isOpen ? "bg-muted text-foreground/80" : ""}`}
+                    className={`flex items-center gap-1.5 rounded-full px-2.5 h-[34px] font-mono text-xs tracking-[0.06em] transition-colors cursor-pointer text-muted-foreground hover:text-foreground ${isOpen ? "text-foreground" : ""}`}
                     title={
                         !selectedAvailable
                             ? "API key missing for selected model"
@@ -61,7 +61,7 @@ export function ModelToggle({ value, onChange, apiKeys }: Props) {
                     }
                 >
                     {!selectedAvailable && (
-                        <AlertCircle className="h-3 w-3 shrink-0 text-red-500" />
+                        <AlertCircle className="h-3 w-3 shrink-0 text-destructive" />
                     )}
                     <span className="max-w-[140px] truncate">{selectedLabel}</span>
                     <ChevronDown
@@ -76,7 +76,7 @@ export function ModelToggle({ value, onChange, apiKeys }: Props) {
                     return (
                         <div key={group}>
                             {gi > 0 && <DropdownMenuSeparator />}
-                            <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/70">
+                            <DropdownMenuLabel className="kd-label text-kd-text-3">
                                 {group}
                             </DropdownMenuLabel>
                             {items.map((m) => {
@@ -96,7 +96,7 @@ export function ModelToggle({ value, onChange, apiKeys }: Props) {
                                         </span>
                                         {!available && (
                                             <AlertCircle
-                                                className="h-3.5 w-3.5 text-red-500 ml-1"
+                                                className="h-3.5 w-3.5 text-destructive ml-1"
                                                 aria-label="API key missing"
                                             />
                                         )}

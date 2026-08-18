@@ -16,6 +16,7 @@ import {
 } from "@/app/components/workflows/builtinWorkflows";
 import { formatIcon, formatLabel } from "@/app/components/tabular/columnFormat";
 import { RenameableTitle } from "@/app/components/shared/RenameableTitle";
+import { ThemeToggleButton } from "@/app/components/shared/ThemeToggleButton";
 // dynamic import keeps Tiptap (browser-only) out of the SSR bundle
 const WorkflowPromptEditor = dynamic(
     () =>
@@ -189,32 +190,32 @@ export default function WorkflowDetailPage({ params }: Props) {
     // ---------------------------------------------------------------------------
     if (loading) {
         return (
-            <div className="flex flex-col h-full">
-                {/* Header skeleton */}
-                <div className="flex items-center justify-between px-8 py-4 shrink-0">
+            <div className="flex h-full flex-col bg-background">
+                {/* Top bar skeleton */}
+                <div className="flex h-[60px] shrink-0 items-center justify-between border-b border-border px-7">
                     <div className="flex items-center gap-1.5">
-                        <div className="h-6 w-24 rounded bg-gray-100 animate-pulse" />
-                        <span className="text-gray-300">›</span>
-                        <div className="h-6 w-40 rounded bg-gray-100 animate-pulse" />
+                        <div className="h-3 w-24 animate-pulse rounded bg-muted" />
+                        <span className="text-kd-text-3">/</span>
+                        <div className="h-3 w-40 animate-pulse rounded bg-muted" />
                     </div>
                 </div>
 
-                {/* Toolbar skeleton */}
-                <div className="flex items-center px-8 h-10 border-b border-gray-200 shrink-0">
-                    <div className="h-3 w-20 rounded bg-gray-100 animate-pulse" />
+                {/* Title skeleton */}
+                <div className="shrink-0 px-7 pt-7 pb-4">
+                    <div className="h-10 w-72 animate-pulse rounded bg-muted" />
                 </div>
 
                 {/* Table header skeleton */}
-                <div className="flex items-center h-8 pr-8 border-b border-gray-200 shrink-0">
-                    <div className="w-8 shrink-0 border-r border-gray-100 self-stretch" />
-                    <div className="flex-1 pl-3">
-                        <div className="h-2.5 w-20 rounded bg-gray-100 animate-pulse" />
+                <div className="flex h-9 shrink-0 items-center border-b border-border pr-7">
+                    <div className="w-8 shrink-0 self-stretch" />
+                    <div className="flex-1 pl-2">
+                        <div className="h-2.5 w-20 animate-pulse rounded bg-muted" />
                     </div>
                     <div className="w-36 shrink-0">
-                        <div className="h-2.5 w-14 rounded bg-gray-100 animate-pulse" />
+                        <div className="h-2.5 w-14 animate-pulse rounded bg-muted" />
                     </div>
                     <div className="flex-1">
-                        <div className="h-2.5 w-12 rounded bg-gray-100 animate-pulse" />
+                        <div className="h-2.5 w-12 animate-pulse rounded bg-muted" />
                     </div>
                     <div className="w-8 shrink-0" />
                 </div>
@@ -222,16 +223,16 @@ export default function WorkflowDetailPage({ params }: Props) {
                 {/* Row skeletons */}
                 <div className="flex-1 overflow-hidden">
                     {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="flex items-center h-10 pr-8 border-b border-gray-50">
-                            <div className="w-8 shrink-0 border-r border-gray-100 self-stretch" />
-                            <div className="flex-1 pl-3 pr-4">
-                                <div className="h-3 rounded bg-gray-100 animate-pulse" style={{ width: `${40 + (i * 13) % 35}%` }} />
+                        <div key={i} className="flex h-[52px] items-center border-b border-border pr-7">
+                            <div className="w-8 shrink-0 self-stretch" />
+                            <div className="flex-1 pl-2 pr-4">
+                                <div className="h-3 animate-pulse rounded bg-muted" style={{ width: `${40 + (i * 13) % 35}%` }} />
                             </div>
                             <div className="w-36 shrink-0">
-                                <div className="h-3 w-16 rounded bg-gray-100 animate-pulse" />
+                                <div className="h-3 w-16 animate-pulse rounded bg-muted" />
                             </div>
                             <div className="flex-1 pr-4">
-                                <div className="h-3 rounded bg-gray-100 animate-pulse" style={{ width: `${50 + (i * 17) % 35}%` }} />
+                                <div className="h-3 animate-pulse rounded bg-muted" style={{ width: `${50 + (i * 17) % 35}%` }} />
                             </div>
                             <div className="w-8 shrink-0" />
                         </div>
@@ -243,34 +244,34 @@ export default function WorkflowDetailPage({ params }: Props) {
 
     if (notFound || !workflow) {
         return (
-            <div className="flex-1 flex items-center justify-center">
-                <p className="text-gray-400 font-serif">Workflow not found.</p>
+            <div className="flex flex-1 items-center justify-center bg-background">
+                <p className="font-serif text-[28px] text-muted-foreground">
+                    Workflow not found.
+                </p>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col h-full">
-            {/* Page header */}
-            <div className="flex items-center justify-between px-8 py-4 shrink-0">
-                <div className="flex items-center gap-1.5 text-2xl font-medium font-serif">
+        <div className="flex h-full flex-col bg-background">
+            {/* Top bar */}
+            <div className="flex h-[60px] shrink-0 items-center justify-between border-b border-border px-7">
+                <div className="kd-label flex min-w-0 items-center gap-2 text-kd-text-3">
                     <button
                         onClick={() => router.push("/workflows")}
-                        className="text-gray-500 hover:text-gray-700 transition-colors"
+                        className="kd-label transition-colors hover:text-foreground"
                     >
                         Workflows
                     </button>
-                    <span className="text-gray-300">›</span>
-                    {readOnly ? (
-                        <span className="text-gray-900 truncate max-w-xs">{workflow.title}</span>
-                    ) : (
-                        <RenameableTitle value={workflow.title} onCommit={handleTitleCommit} />
-                    )}
+                    <span>/</span>
+                    <span className="max-w-xs truncate text-muted-foreground">
+                        {workflow.title}
+                    </span>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5">
                     {/* Save status */}
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-kd-text-3">
                         {saveStatus === "saving"
                             ? "Saving…"
                             : saveStatus === "saved"
@@ -284,11 +285,12 @@ export default function WorkflowDetailPage({ params }: Props) {
                             onClick={() => setShareOpen(true)}
                             aria-label="Open workflow people"
                             title="People"
-                            className="flex items-center text-gray-500 hover:text-gray-900 transition-colors"
+                            className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-border bg-card text-muted-foreground transition-colors hover:border-kd-text-3 hover:text-foreground"
                         >
-                            <Users className="h-4 w-4" />
+                            <Users className="h-[17px] w-[17px]" strokeWidth={1.5} />
                         </button>
                     )}
+                    <ThemeToggleButton />
                     {shareOpen && (
                         <ShareWorkflowModal
                             workflowId={id}
@@ -299,18 +301,27 @@ export default function WorkflowDetailPage({ params }: Props) {
                 </div>
             </div>
 
-            {/* Read-only badge for built-in workflows */}
-            {readOnly && (
-                <div className="flex items-center h-10 px-8 border-b border-gray-200">
-                    <span className="text-xs text-gray-400">Read-only</span>
-                </div>
-            )}
+            {/* Title */}
+            <div className="flex shrink-0 items-baseline gap-3 px-7 pt-7 pb-5">
+                <h1 className="min-w-0 truncate font-serif text-[40px] font-normal leading-[1.1] tracking-[-0.01em] text-foreground">
+                    {readOnly ? (
+                        <span className="text-foreground">{workflow.title}</span>
+                    ) : (
+                        <RenameableTitle value={workflow.title} onCommit={handleTitleCommit} />
+                    )}
+                </h1>
+                {readOnly && (
+                    <span className="inline-flex shrink-0 items-center rounded-full bg-muted-foreground/10 px-3 py-1 text-xs text-muted-foreground">
+                        Read-only
+                    </span>
+                )}
+            </div>
 
             {/* Body */}
-            <div className="flex-1 min-h-0 flex flex-col">
+            <div className="flex min-h-0 flex-1 flex-col">
                 {workflow.type === "assistant" ? (
                     /* ── Assistant: WYSIWYG editor ── */
-                    <div className="flex-1 min-h-0 p-6">
+                    <div className="min-h-0 flex-1 px-7 pb-7">
                         <WorkflowPromptEditor
                             value={promptMd}
                             onChange={readOnly ? undefined : handlePromptChange}
@@ -319,28 +330,28 @@ export default function WorkflowDetailPage({ params }: Props) {
                     </div>
                 ) : (
                     /* ── Tabular: Column table ── */
-                    <div className="flex flex-col flex-1 min-h-0">
+                    <div className="flex min-h-0 flex-1 flex-col">
                         {/* Toolbar */}
                         {!readOnly && (
-                            <div className="flex items-center justify-between px-8 h-10 border-b border-gray-200 shrink-0">
+                            <div className="flex h-11 shrink-0 items-center justify-between border-b border-border px-7">
                                 <button
                                     onClick={() => setAddColumnOpen(true)}
-                                    className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                                    className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
                                 >
-                                    <Plus className="h-3.5 w-3.5" />
+                                    <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
                                     Add Column
                                 </button>
                                 {selectedColIndices.length > 0 && (
                                     <div ref={colActionsRef} className="relative">
                                         <button
                                             onClick={() => setColActionsOpen((v) => !v)}
-                                            className="flex items-center gap-1 text-xs font-medium text-gray-700 hover:text-gray-900 transition-colors"
+                                            className="flex items-center gap-1 text-xs font-medium text-foreground transition-colors hover:text-muted-foreground"
                                         >
                                             Actions
-                                            <ChevronDown className="h-3.5 w-3.5" />
+                                            <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.5} />
                                         </button>
                                         {colActionsOpen && (
-                                            <div className="absolute top-full right-0 mt-1 w-36 rounded-lg border border-gray-100 bg-white shadow-lg z-50 overflow-hidden">
+                                            <div className="absolute top-full right-0 z-50 mt-1 w-36 overflow-hidden rounded-xl border border-border bg-card shadow-[var(--kd-shadow-2)]">
                                                 <button
                                                     onClick={() => {
                                                         const next = columns
@@ -351,7 +362,7 @@ export default function WorkflowDetailPage({ params }: Props) {
                                                         setSelectedColIndices([]);
                                                         setColActionsOpen(false);
                                                     }}
-                                                    className="w-full px-3 py-1.5 text-left text-xs text-red-600 hover:bg-red-50 transition-colors"
+                                                    className="w-full px-3 py-2 text-left text-xs text-destructive transition-colors hover:bg-destructive/10"
                                                 >
                                                     Delete
                                                 </button>
@@ -362,46 +373,42 @@ export default function WorkflowDetailPage({ params }: Props) {
                             </div>
                         )}
 
-                        <div className="flex-1 min-h-0 overflow-auto">
-                        <div className="min-w-max flex min-h-full flex-col">
+                        <div className="min-h-0 flex-1 overflow-auto">
+                        <div className="flex min-h-full min-w-max flex-col">
                         {/* Table header */}
-                        <div className="flex items-center h-8 pr-8 border-b border-gray-200 text-xs text-gray-500 font-medium shrink-0 select-none">
-                            <div className={`sticky left-0 z-[60] ${CHECK_W} relative bg-white flex items-center justify-center self-stretch before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-white`}>
+                        <div className="kd-label flex h-9 shrink-0 select-none items-center border-b border-border bg-muted pr-7 text-muted-foreground">
+                            <div className={`sticky left-0 z-[60] ${CHECK_W} flex items-center justify-center self-stretch bg-muted`}>
                                 {columns.length > 0 && (
                                     <input
                                         type="checkbox"
                                         checked={columns.length > 0 && selectedColIndices.length === columns.length}
                                         ref={(el) => { if (el) el.indeterminate = selectedColIndices.length > 0 && selectedColIndices.length < columns.length; }}
                                         onChange={() => setSelectedColIndices(selectedColIndices.length === columns.length ? [] : columns.map((c) => c.index))}
-                                        className="h-2.5 w-2.5 rounded border-gray-200 cursor-pointer accent-black"
+                                        className="h-2.5 w-2.5 cursor-pointer rounded border-border accent-kd-accent"
                                     />
                                 )}
                             </div>
-                            <div className={`sticky left-8 z-[60] ${NAME_COL_W} bg-white pl-2 text-left`}>
+                            <div className={`sticky left-8 z-[60] ${NAME_COL_W} flex items-center self-stretch bg-muted pl-2 text-left`}>
                                 Column Title
                             </div>
                             <div className="ml-auto w-36 shrink-0">Format</div>
-                            <div className="flex-1 min-w-0">Prompt</div>
+                            <div className="min-w-0 flex-1">Prompt</div>
                             {!readOnly && <div className="w-8 shrink-0" />}
                         </div>
 
                         {/* Rows */}
                         <div className="flex-1">
                             {columns.length === 0 ? (
-                                <div className="flex flex-col items-start py-24 w-full max-w-xs mx-auto">
-                                    <Plus className="h-8 w-8 text-gray-300 mb-4" />
-                                    <p className="text-2xl font-medium font-serif text-gray-900">
-                                        Columns
-                                    </p>
-                                    <p className="mt-1 text-xs text-gray-400 text-left">
-                                        Add columns to define what this tabular review workflow extracts from each document.
+                                <div className="flex w-full flex-col items-start px-8 py-20">
+                                    <p className="font-serif text-[28px] font-normal leading-[1.2] text-foreground">
+                                        Define what each column extracts.
                                     </p>
                                     {!readOnly && (
                                         <button
                                             onClick={() => setAddColumnOpen(true)}
-                                            className="mt-4 inline-flex items-center gap-1 rounded-full bg-gray-900 px-3 py-1 text-xs font-medium text-white hover:bg-gray-700 transition-colors shadow-md"
+                                            className="mt-5 inline-flex h-9 items-center rounded-[10px] bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
                                         >
-                                            + Add Column
+                                            Add Column
                                         </button>
                                     )}
                                 </div>
@@ -413,37 +420,37 @@ export default function WorkflowDetailPage({ params }: Props) {
                                         <div
                                             key={col.index}
                                             onClick={() => readOnly ? setViewingColumn(col) : setEditingColumn(col)}
-                                            className="group flex items-center h-10 pr-8 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors"
+                                            className="group flex h-[52px] cursor-pointer items-center border-b border-border pr-7 transition-colors hover:bg-muted"
                                         >
                                             <div
-                                                className={`sticky left-0 z-[60] ${CHECK_W} p-2 flex items-center justify-center ${isChecked ? "bg-gray-50" : "bg-white"} group-hover:bg-gray-50`}
+                                                className={`sticky left-0 z-[60] ${CHECK_W} flex items-center justify-center self-stretch ${isChecked ? "bg-muted" : "bg-background"} group-hover:bg-muted`}
                                                 onClick={(e) => e.stopPropagation()}
                                             >
                                                 <input
                                                     type="checkbox"
                                                     checked={isChecked}
                                                     onChange={() => setSelectedColIndices((prev) => prev.includes(col.index) ? prev.filter((i) => i !== col.index) : [...prev, col.index])}
-                                                    className="h-2.5 w-2.5 rounded border-gray-200 cursor-pointer accent-black"
+                                                    className="h-2.5 w-2.5 cursor-pointer rounded border-border accent-kd-accent"
                                                 />
                                             </div>
-                                            <div className={`sticky left-8 z-[60] ${NAME_COL_W} p-2 ${isChecked ? "bg-gray-50" : "bg-white"} group-hover:bg-gray-50`}>
-                                                <span className="text-sm text-gray-800 truncate block">
+                                            <div className={`sticky left-8 z-[60] ${NAME_COL_W} flex items-center self-stretch pl-2 ${isChecked ? "bg-muted" : "bg-background"} group-hover:bg-muted`}>
+                                                <span className="block truncate text-sm font-medium text-foreground">
                                                     {col.name}
                                                 </span>
                                             </div>
                                             <div className="ml-auto w-36 shrink-0">
-                                                <span className="inline-flex items-center gap-1.5 text-xs text-gray-600">
-                                                    <FormatIcon className="h-3.5 w-3.5 text-gray-400" />
+                                                <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                                                    <FormatIcon className="h-3.5 w-3.5 text-kd-text-3" strokeWidth={1.5} />
                                                     {formatLabel(col.format ?? "text")}
                                                 </span>
                                             </div>
-                                            <div className="flex-1 min-w-0 pr-4">
-                                                <span className="text-xs text-gray-500 truncate block">
+                                            <div className="min-w-0 flex-1 pr-4">
+                                                <span className="block truncate text-xs text-muted-foreground">
                                                     {col.prompt}
                                                 </span>
                                             </div>
                                             {!readOnly && (
-                                                <div className="w-8 shrink-0 flex justify-end">
+                                                <div className="flex w-8 shrink-0 justify-end">
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
@@ -453,9 +460,9 @@ export default function WorkflowDetailPage({ params }: Props) {
                                                             setColumns(next);
                                                             saveColumns(next);
                                                         }}
-                                                        className="p-1 text-gray-300 hover:text-red-500 transition-colors"
+                                                        className="p-1 text-kd-text-3 transition-colors hover:text-destructive"
                                                     >
-                                                        <X className="h-3.5 w-3.5" />
+                                                        <X className="h-3.5 w-3.5" strokeWidth={1.5} />
                                                     </button>
                                                 </div>
                                             )}

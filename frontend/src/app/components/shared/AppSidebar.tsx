@@ -19,14 +19,14 @@ import { useUserProfile } from "@/contexts/UserProfileContext";
 import { useChatHistoryContext } from "@/app/contexts/ChatHistoryContext";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { MikeIcon } from "@/components/chat/mike-icon";
+import { KDMark } from "@/components/kd-mark";
 import { SidebarChatItem } from "@/app/components/shared/SidebarChatItem";
 import { listProjects } from "@/app/lib/mikeApi";
 import type { MikeProject } from "@/app/components/shared/types";
 
 const NAV_ITEMS = [
     { href: "/assistant", label: "Assistant", icon: MessageSquare },
-    { href: "/projects", label: "Projects", icon: FolderOpen },
+    { href: "/projects", label: "Matters", icon: FolderOpen },
     { href: "/tabular-reviews", label: "Tabular Review", icon: Table2 },
     { href: "/workflows", label: "Workflows", icon: Library },
 ];
@@ -152,15 +152,15 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                     <div className="px-2.5">
                         <Link
                             href="/assistant"
-                            className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+                            className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
                         >
-                            <MikeIcon size={22} />
+                            <KDMark size={28} />
                             <span
-                                className={`text-2xl font-light font-serif ${
+                                className={`text-2xl font-serif tracking-[-0.01em] ${
                                     shouldAnimate ? "sidebar-fade-in" : ""
                                 }`}
                             >
-                                Mike
+                                KD
                             </span>
                         </Link>
                     </div>
@@ -183,16 +183,19 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                         <button
                             onClick={() => router.push(href)}
                             title={!isOpen ? label : ""}
-                            className={`w-full h-9 flex items-center gap-3 px-2.5 py-2 rounded-md transition-colors text-left ${
+                            className={`w-full h-10 flex items-center gap-3 px-2.5 py-2 rounded-lg transition-colors text-left ${
                                 isActive
-                                    ? "bg-muted text-foreground"
-                                    : "hover:bg-muted text-foreground/80"
+                                    ? "bg-muted text-foreground font-medium"
+                                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
                             } ${!isOpen ? "hidden md:flex" : "flex"}`}
                         >
                             <Icon
-                                className={`h-4 w-4 flex-shrink-0 ${
-                                    isActive ? "text-foreground" : "text-black"
+                                className={`h-[18px] w-[18px] flex-shrink-0 ${
+                                    isActive
+                                        ? "text-kd-accent"
+                                        : "text-current"
                                 }`}
+                                strokeWidth={1.5}
                             />
                             {isOpen && (
                                 <span
@@ -214,11 +217,11 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                     <div>
                         <button
                             onClick={() => setProjectsCollapsed((v) => !v)}
-                            className={`mb-2 flex w-full items-center justify-between px-5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground/80 ${
+                            className={`mb-2 flex w-full items-center justify-between px-5 kd-label text-kd-text-3 transition-colors hover:text-muted-foreground ${
                                 shouldAnimate ? "sidebar-fade-in" : ""
                             }`}
                         >
-                            <span>Recent Projects</span>
+                            <span>Recent matters</span>
                             <ChevronDown
                                 className={`h-3.5 w-3.5 transition-transform ${
                                     projectsCollapsed ? "-rotate-90" : ""
@@ -298,11 +301,11 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                     <div className="flex min-h-0 flex-1 flex-col">
                         <button
                             onClick={() => setHistoryCollapsed((v) => !v)}
-                            className={`mb-2 flex w-full items-center justify-between px-5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground/80 ${
+                            className={`mb-2 flex w-full items-center justify-between px-5 kd-label text-kd-text-3 transition-colors hover:text-muted-foreground ${
                                 shouldAnimate ? "sidebar-fade-in" : ""
                             }`}
                         >
-                            <span>Assistant History</span>
+                            <span>History</span>
                             <ChevronDown
                                 className={`h-3.5 w-3.5 transition-transform ${
                                     historyCollapsed ? "-rotate-90" : ""
@@ -402,7 +405,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                             }`}
                             title={!isOpen ? user.email : undefined}
                         >
-                            <div className="h-7 w-7 flex-shrink-0 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium font-serif">
+                            <div className="h-8 w-8 flex-shrink-0 rounded-full bg-muted border border-border flex items-center justify-center text-kd-accent text-xs font-semibold">
                                 {getUserInitials(user.email)}
                             </div>
                             {isOpen && (

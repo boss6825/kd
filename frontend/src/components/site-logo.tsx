@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MikeIcon } from "@/components/chat/mike-icon";
+import { KDMark } from "@/components/kd-mark";
 
 interface SiteLogoProps {
     size?: "sm" | "md" | "lg" | "xl";
@@ -17,7 +17,7 @@ export function SiteLogo({
     const landingHref =
         process.env.NODE_ENV === "production"
             ? "https://mikeoss.com"
-            : "http://localhost:3000";
+            : "http://localhost:3006";
     const sizeClasses = {
         sm: "text-xl",
         md: "text-2xl",
@@ -26,20 +26,20 @@ export function SiteLogo({
     };
 
     const iconSizes = {
-        sm: 20,
-        md: 22,
-        lg: 32,
-        xl: 48,
+        sm: 24,
+        md: 30,
+        lg: 40,
+        xl: 56,
     };
 
     const logo = (
         <h1
-            className={`flex items-center gap-1.5 ${sizeClasses[size]} font-light font-serif ${
+            className={`flex items-center gap-2.5 ${sizeClasses[size]} font-serif tracking-[-0.01em] ${
                 animate ? "sidebar-fade-in" : ""
             } ${className}`}
         >
-            <MikeIcon size={iconSizes[size]} />
-            <span>Mike</span>
+            <KDMark size={iconSizes[size]} />
+            <span>KD</span>
         </h1>
     );
 

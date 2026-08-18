@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef, useImperativeHandle, useRef } from "react";
-import { Loader2, Plus, Table2, Upload } from "lucide-react";
+import { FileText, Loader2, Plus, Table2, Upload } from "lucide-react";
 import type { ColumnConfig, MikeDocument, TabularCell } from "../shared/types";
 import { TabularCell as TabularCellComponent } from "./TabularCell";
 import { TREditColumnMenu } from "./TREditColumnMenu";
@@ -126,23 +126,23 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
 
     if (loading) {
         return (
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden m-4 md:mx-7 rounded-[14px] border border-border bg-card">
                 {/* Header */}
-                <div className="flex border-b border-gray-200">
+                <div className="flex bg-muted border-b border-border">
                     <div
-                        className={`${CHECK_W} border-r border-gray-200 p-2`}
+                        className={`${CHECK_W} border-r border-border p-2`}
                     />
                     <div
-                        className={`${COL_W} border-r border-gray-200 p-2 text-xs font-medium text-gray-500`}
+                        className={`${COL_W} border-r border-border p-2 kd-label text-muted-foreground`}
                     >
                         Document
                     </div>
                     {Array.from({ length: SKELETON_COLS }).map((_, i) => (
                         <div
                             key={i}
-                            className={`${COL_W} border-r border-gray-200 p-2`}
+                            className={`${COL_W} border-r border-border p-2`}
                         >
-                            <div className="h-4 w-28 rounded bg-gray-100 animate-pulse" />
+                            <div className="h-4 w-28 rounded bg-muted-foreground/10 animate-pulse" />
                         </div>
                     ))}
                     <div className="flex-1" />
@@ -151,15 +151,15 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
                 {Array.from({ length: SKELETON_ROWS }).map((_, row) => (
                     <div
                         key={row}
-                        className={`flex border-b border-gray-50 ${row % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
+                        className="flex border-b border-border bg-card"
                     >
                         <div className={`${CHECK_W} p-2`} />
                         <div className={`${COL_W} p-2`}>
-                            <div className="h-4 w-32 rounded bg-gray-100 animate-pulse" />
+                            <div className="h-4 w-32 rounded bg-muted animate-pulse" />
                         </div>
                         {Array.from({ length: SKELETON_COLS }).map((_, col) => (
                             <div key={col} className={`${COL_W} p-2`}>
-                                <div className="h-4 rounded bg-gray-100 animate-pulse" />
+                                <div className="h-4 rounded bg-muted animate-pulse" />
                             </div>
                         ))}
                         <div className="flex-1" />
@@ -175,11 +175,11 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
         uploadingFilenames.length === 0
     ) {
         return (
-            <div className="flex flex-1 flex-col overflow-hidden">
-                <div className="flex items-center border-b border-gray-200">
-                    <div className={`${CHECK_W} border-r border-gray-200`} />
+            <div className="flex flex-1 flex-col overflow-hidden m-4 md:mx-7 rounded-[14px] border border-border bg-card">
+                <div className="flex items-center bg-muted border-b border-border">
+                    <div className={`${CHECK_W} border-r border-border self-stretch`} />
                     <div
-                        className={`${COL_W} border-r border-gray-200 p-2 text-xs font-medium text-gray-500 select-none`}
+                        className={`${COL_W} border-r border-border p-2 kd-label text-muted-foreground select-none`}
                     >
                         Document
                     </div>
@@ -187,29 +187,29 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
                 </div>
                 <div className="relative flex min-h-0 flex-1">
                     {dragOverFiles && (
-                        <div className="absolute inset-0 z-[90] border-2 border-blue-400 bg-blue-50/40 pointer-events-none" />
+                        <div className="absolute inset-0 z-[90] border-2 border-kd-accent bg-kd-accent/10 pointer-events-none" />
                     )}
                     <div className="flex flex-1 flex-col items-start justify-center w-full max-w-xs mx-auto">
-                        <Table2 className="h-8 w-8 text-gray-300 mb-4" />
-                        <p className="text-2xl font-medium font-serif text-gray-900">
-                            Tabular Review
+                        <Table2 className="h-8 w-8 text-kd-text-3 mb-4" strokeWidth={1.5} />
+                        <p className="font-serif text-[28px] leading-[1.2] tracking-[-0.01em] font-normal text-foreground">
+                            Every clause, in its column.
                         </p>
-                        <p className="mt-1 text-xs text-gray-400 text-left">
+                        <p className="mt-1 text-[13px] text-muted-foreground text-left">
                             Add columns and documents to get started.
                         </p>
                         <div className="mt-4 flex items-center gap-2">
                             <button
                                 onClick={onAddColumn}
-                                className="inline-flex items-center gap-1 rounded-full bg-gray-900 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-gray-700 shadow-md"
+                                className="inline-flex items-center gap-1 rounded-[10px] bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90"
                             >
-                                + Add Columns
+                                + Add columns
                             </button>
                             <button
                                 onClick={onAddDocuments}
-                                className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors shadow-sm"
+                                className="inline-flex items-center gap-1.5 rounded-[10px] border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-foreground hover:border-kd-text-3 transition-colors"
                             >
-                                <Upload className="h-3.5 w-3.5" />
-                                Add Documents
+                                <Upload className="h-3.5 w-3.5" strokeWidth={1.5} />
+                                Add documents
                             </button>
                         </div>
                     </div>
@@ -220,16 +220,16 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
 
     return (
         <div
-            className="flex flex-1 flex-col overflow-auto"
+            className="flex flex-1 flex-col overflow-auto m-4 md:mx-7 rounded-[14px] border border-border bg-card"
             ref={scrollContainerRef}
         >
             {/* Header */}
             <div
-                className="sticky top-0 z-20 flex bg-white h-8"
+                className="sticky top-0 z-20 flex bg-muted h-11"
                 style={{ minWidth: totalContentWidth }}
             >
                 <div
-                    className={`sticky left-0 z-30 ${CHECK_W} bg-white border-b border-r border-gray-200 flex justify-center items-center select-none`}
+                    className={`sticky left-0 z-30 ${CHECK_W} bg-muted border-b border-r border-border flex justify-center items-center select-none`}
                 >
                     <input
                         type="checkbox"
@@ -238,20 +238,20 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
                             if (el) el.indeterminate = someSelected;
                         }}
                         onChange={toggleAll}
-                        className="h-2.5 w-2.5 rounded border-gray-200 cursor-pointer accent-black"
+                        className="h-2.5 w-2.5 rounded border-border cursor-pointer accent-kd-accent"
                     />
                 </div>
                 <div
-                    className={`sticky left-8 z-30 ${COL_W} bg-white border-b border-r border-gray-200 p-2 text-left text-xs font-medium text-gray-500 select-none`}
+                    className={`sticky left-8 z-30 ${COL_W} bg-muted border-b border-r border-border p-2 text-left kd-label text-muted-foreground select-none flex items-center`}
                 >
                     Document
                 </div>
                 {columns.map((col) => (
                     <div
                         key={col.index}
-                        className={`${COL_W} border-b border-r border-gray-200 p-2 text-left text-xs font-medium text-gray-500 select-none`}
+                        className={`${COL_W} bg-muted border-b border-r border-border p-2 text-left kd-label text-muted-foreground select-none flex items-center`}
                     >
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex w-full items-center justify-between gap-3">
                             <span className="truncate">{col.name}</span>
                             <TREditColumnMenu
                                 column={col}
@@ -262,13 +262,14 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
                         </div>
                     </div>
                 ))}
-                <div className="flex-1 border-b border-gray-200 flex items-center justify-start p-2 min-w-8">
+                <div className="flex-1 bg-muted border-b border-border flex items-center justify-start p-2 min-w-8">
                     <button
                         onClick={onAddColumn}
                         disabled={savingColumn || savingColumnsConfig}
-                        className="flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors disabled:text-gray-200"
+                        className="flex items-center gap-1.5 h-7 px-2.5 rounded-[10px] border border-dashed border-border text-xs font-sans font-medium normal-case tracking-normal text-muted-foreground hover:text-foreground hover:border-kd-text-3 transition-colors disabled:opacity-40 whitespace-nowrap"
                     >
-                        <Plus className="h-4 w-4" />
+                        <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
+                        Add column
                     </button>
                 </div>
             </div>
@@ -276,27 +277,27 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
             {/* Rows */}
             <div className="relative min-h-0 flex-1">
                 {dragOverFiles && (
-                    <div className="absolute inset-0 z-[90] border-2 border-blue-400 bg-blue-50/40 pointer-events-none" />
+                    <div className="absolute inset-0 z-[90] border-2 border-kd-accent bg-kd-accent/10 pointer-events-none" />
                 )}
                 {uploadingFilenames.map((filename) => (
                     <div
                         key={`uploading-${filename}`}
-                        className="flex bg-white"
+                        className="flex bg-card"
                         style={{ minWidth: totalContentWidth }}
                     >
                         <div
-                            className={`sticky left-0 z-[60] ${CHECK_W} border-b border-r border-gray-200 p-2 flex items-center justify-center bg-white`}
+                            className={`sticky left-0 z-[60] ${CHECK_W} border-b border-r border-border p-2 flex items-center justify-center bg-card`}
                         >
                             <input
                                 type="checkbox"
                                 disabled
-                                className="h-2.5 w-2.5 shrink-0 rounded border-gray-200 cursor-default accent-black disabled:opacity-100"
+                                className="h-2.5 w-2.5 shrink-0 rounded border-border cursor-default accent-kd-accent disabled:opacity-100"
                             />
                         </div>
                         <div
-                            className={`sticky left-8 z-[60] ${COL_W} border-b border-r border-gray-200 p-2 text-xs text-gray-400 flex items-center gap-2 bg-white`}
+                            className={`sticky left-8 z-[60] ${COL_W} border-b border-r border-border p-2 text-[13.5px] text-kd-text-3 flex items-center gap-2 bg-card`}
                         >
-                            <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
+                            <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" strokeWidth={1.5} />
                             <span className="line-clamp-1" title={filename}>
                                 {filename}
                             </span>
@@ -304,41 +305,44 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
                         {sortedColumns.map((col) => (
                             <div
                                 key={col.index}
-                                className={`${COL_W} border-b border-r border-gray-200 p-2`}
+                                className={`${COL_W} border-b border-r border-border p-2`}
                             >
-                                <div className="h-4 w-20 rounded bg-gray-100 animate-pulse" />
+                                <div className="h-4 w-20 rounded bg-muted animate-pulse" />
                             </div>
                         ))}
-                        <div className="flex-1 border-b border-gray-200 min-h-8 min-w-8" />
+                        <div className="flex-1 border-b border-border min-h-8 min-w-8" />
                     </div>
                 ))}
                 {documents.map((doc, docIdx) => {
-                    const baseRowBg =
-                        docIdx % 2 === 0 ? "bg-white" : "bg-gray-50";
+                    const baseRowBg = "bg-card";
                     const rowBg = selectedDocIds.includes(doc.id)
-                        ? "bg-gray-100"
+                        ? "bg-muted"
                         : baseRowBg;
                     return (
                         <div
                             key={doc.id}
-                            className={`flex ${rowBg}`}
+                            className={`flex ${rowBg} transition-colors`}
                             style={{ minWidth: totalContentWidth }}
                         >
                             <div
-                                className={`sticky left-0 z-[60] ${CHECK_W} border-b border-r border-gray-200 p-2 flex items-center justify-center ${rowBg}`}
+                                className={`sticky left-0 z-[60] ${CHECK_W} border-b border-r border-border p-2 flex items-center justify-center ${rowBg}`}
                             >
                                 <input
                                     type="checkbox"
                                     checked={selectedDocIds.includes(doc.id)}
                                     onChange={() => toggleDoc(doc.id)}
-                                    className="h-2.5 w-2.5 shrink-0 rounded border-gray-200 cursor-pointer accent-black"
+                                    className="h-2.5 w-2.5 shrink-0 rounded border-border cursor-pointer accent-kd-accent"
                                 />
                             </div>
                             <div
-                                className={`sticky left-8 z-[60] ${COL_W} border-b border-r border-gray-200 p-2 text-xs text-gray-800 flex items-center ${baseRowBg}`}
+                                className={`sticky left-8 z-[60] ${COL_W} border-b border-r border-border p-2 text-[13.5px] text-foreground flex items-center gap-2.5 ${rowBg}`}
                             >
+                                <FileText
+                                    className="h-[15px] w-[15px] shrink-0 text-kd-text-3"
+                                    strokeWidth={1.5}
+                                />
                                 <span
-                                    className="line-clamp-1"
+                                    className="line-clamp-1 font-medium"
                                     title={doc.filename}
                                 >
                                     {doc.filename}
@@ -355,7 +359,7 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
                                 return (
                                     <div
                                         key={col.index}
-                                        className={`${COL_W} border-b border-r border-gray-200 transition-colors ${isHighlighted ? "bg-blue-200" : ""}`}
+                                        className={`${COL_W} border-b border-r border-border transition-colors ${isHighlighted ? "bg-kd-accent/20" : ""}`}
                                     >
                                         {cell && (
                                             <TabularCellComponent
@@ -377,7 +381,7 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
                                     </div>
                                 );
                             })}
-                            <div className="flex-1 border-b border-gray-200 min-h-8 min-w-8" />
+                            <div className="flex-1 border-b border-border min-h-8 min-w-8" />
                         </div>
                     );
                 })}
