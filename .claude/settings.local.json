@@ -8,5 +8,8 @@
       "Bash(rm -rf \"C:\\\\Users\\\\arpit\\\\OneDrive\\\\Desktop\\\\projects\\\\2026\\\\KD\\\\frontend\\\\.next-runtime\")",
       "Bash(npx tsc *)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "shadcn"
+  ]
 }
