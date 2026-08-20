@@ -1,0 +1,20 @@
+{
+  "name": "KD",
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "backend",
+      "command": "npm run dev --prefix backend",
+      "description": "KD Express API + Better Auth on http://localhost:3001"
+    },
+    {
+      "name": "frontend",
+      "command": "npm run dev --prefix frontend",
+      "description": "KD Next.js app on http://localhost:3006"
+    }
+  ],
+  "ports": [
+    { "name": "backend api", "port": 3001 },
+    { "name": "frontend", "port": 3006 }
+  ]
+}
