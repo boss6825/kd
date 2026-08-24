@@ -120,6 +120,8 @@ Open `http://localhost:3006`.
 
 **The model picker shows a missing-key warning.** Add a key for that provider in **Account > Models & API Keys**, or configure the provider key in `backend/.env` and restart the backend.
 
+**Saving an OpenAI or Anthropic key on Account > Models & API Keys fails.** The backend encrypts per-user keys with `USER_API_KEYS_ENCRYPTION_SECRET`. If that variable is missing, the settings page reports a save error even though Postgres is up. Set it in `backend/.env` (`openssl rand -hex 32`) and restart the backend. Placeholder values like `your-openai-key` in `.env` are ignored; paste a real key in Account settings or set a real env value.
+
 **DOC or DOCX conversion fails.** Install LibreOffice locally and restart the backend so document conversion commands are available on the process path.
 
 ## Useful Checks

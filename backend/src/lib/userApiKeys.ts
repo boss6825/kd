@@ -19,7 +19,29 @@ type EncryptedKeyRow = {
 
 const PROVIDERS: ApiKeyProvider[] = ["claude", "gemini", "openai"];
 
-function envApiKey(provider: ApiKeyProvider): string | null {
+const ENCRYPTION_SECRET_ERROR =
+    "USER_API_KEYS_ENCRYPTION_SECRET is not configured. Set it in backend/.env (openssl rand -hex 32) and restart the backend.";
+
+/**
+ * Values copied from .env.example (`your-openai-key`, etc.) are not real
+ * provider credentials. Treating them as configured makes Account > Models
+ * show "A key is saved" and hides the BYOK fields the user still needs.
+ */
+export function isPlaceholderProviderKey(
+    value: string | null | undefined,
+): boolean {
+    const v = value?.trim() ?? "";
+    if (!v) return true;
+    const lower = v.toLowerCase();
+    return (
+        /^your[-_].*key/.test(lower) ||
+        lower.includes("replace-with") ||
+        lower.includes("changeme") ||
+        lower === "placeholder"
+    );
+}
+
+function rawEnvApiKey(provider: ApiKeyProvider): string | null {
     if (provider === "claude") {
         return (
             process.env.ANTHROPIC_API_KEY?.trim() ||
@@ -33,16 +55,28 @@ function envApiKey(provider: ApiKeyProvider): string | null {
     return process.env.GEMINI_API_KEY?.trim() || null;
 }
 
+function envApiKey(provider: ApiKeyProvider): string | null {
+    const value = rawEnvApiKey(provider);
+    if (!value || isPlaceholderProviderKey(value)) return null;
+    return value;
+}
+
 export function hasEnvApiKey(provider: ApiKeyProvider): boolean {
     return !!envApiKey(provider);
 }
 
-function encryptionKey(): Buffer {
-    const secret = process.env.USER_API_KEYS_ENCRYPTION_SECRET;
-    if (!secret) {
-        throw new Error("USER_API_KEYS_ENCRYPTION_SECRET is not configured");
+export function assertUserApiKeysEncryptionConfigured(): void {
+    if (!process.env.USER_API_KEYS_ENCRYPTION_SECRET?.trim()) {
+        throw new Error(ENCRYPTION_SECRET_ERROR);
     }
-    return crypto.createHash("sha256").update(secret).digest();
+}
+
+function encryptionKey(): Buffer {
+    assertUserApiKeysEncryptionConfigured();
+    return crypto
+        .createHash("sha256")
+        .update(process.env.USER_API_KEYS_ENCRYPTION_SECRET as string)
+        .digest();
 }
 
 function encrypt(value: string): Omit<EncryptedKeyRow, "provider"> {

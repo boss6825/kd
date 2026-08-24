@@ -13,6 +13,9 @@ import { userRouter } from "./routes/user";
 import { downloadsRouter } from "./routes/downloads";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
+import { assertUserApiKeysEncryptionConfigured } from "./lib/userApiKeys";
+
+assertUserApiKeysEncryptionConfigured();
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -143,8 +146,18 @@ app.use("/user", userRouter);
 app.use("/users", userRouter);
 app.use("/download", downloadsRouter);
 
-app.get("/health", (_req, res) => res.json({ ok: true }));
+app.get("/health", (_req, res) =>
+  res.json({
+    ok: true,
+    userApiKeysEncryption: Boolean(
+      process.env.USER_API_KEYS_ENCRYPTION_SECRET?.trim(),
+    ),
+  }),
+);
 
-app.listen(PORT, () => {
-  console.log(`KD backend running on port ${PORT}`);
+const HOST = process.env.HOST ?? "0.0.0.0";
+const port = Number(PORT);
+const listenPort = Number.isFinite(port) && port > 0 ? port : 3001;
+app.listen(listenPort, HOST, () => {
+  console.log(`KD backend running on ${HOST}:${listenPort}`);
 });

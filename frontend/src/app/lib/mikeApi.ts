@@ -4,6 +4,7 @@
  */
 
 import { getAuthHeaders } from "@/lib/authClient";
+import { errorFromApiResponse, errorFromFailedFetch } from "@/app/lib/apiErrors";
 import type {
     AssistantEvent,
     MikeChat,
@@ -44,19 +45,25 @@ async function getAuthHeader(): Promise<Record<string, string>> {
 async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
     const authHeaders = await getAuthHeader();
     const { headers: initHeaders, ...restInit } = init ?? {};
-    const response = await fetch(`${API_BASE}${path}`, {
-        cache: "no-store",
-        ...restInit,
-        headers: {
-            Accept: "application/json",
-            ...authHeaders,
-            ...(initHeaders as Record<string, string> | undefined),
-        },
-    });
+    let response: Response;
+    try {
+        response = await fetch(`${API_BASE}${path}`, {
+            cache: "no-store",
+            credentials: "include",
+            ...restInit,
+            headers: {
+                Accept: "application/json",
+                ...authHeaders,
+                ...(initHeaders as Record<string, string> | undefined),
+            },
+        });
+    } catch (err) {
+        throw errorFromFailedFetch(API_BASE, err);
+    }
 
     if (!response.ok) {
         const detail = await response.text();
-        throw new Error(detail || `API error: ${response.status}`);
+        throw errorFromApiResponse(response.status, detail);
     }
 
     if (

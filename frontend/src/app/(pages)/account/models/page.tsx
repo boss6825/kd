@@ -222,8 +222,8 @@ function ApiKeyField({
     placeholder: string;
     hasSavedKey: boolean;
     isServerConfigured: boolean;
-    onSave: (value: string) => Promise<boolean>;
-    onRemove: () => Promise<boolean>;
+    onSave: (value: string) => Promise<void>;
+    onRemove: () => Promise<void>;
 }) {
     const [value, setValue] = useState("");
     const [reveal, setReveal] = useState(false);
@@ -241,23 +241,36 @@ function ApiKeyField({
     const handleSave = async () => {
         setError(null);
         setIsSaving(true);
-        const ok = await onSave(value);
-        setIsSaving(false);
-        if (ok) {
+        try {
+            await onSave(value);
             setValue("");
             setSaved(true);
             setTimeout(() => setSaved(false), 2000);
-        } else {
-            setError(`Failed to save ${label}. Check browser console for details.`);
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : `Failed to save ${label}.`,
+            );
+        } finally {
+            setIsSaving(false);
         }
     };
 
     const handleRemove = async () => {
         setError(null);
         setIsSaving(true);
-        const ok = await onRemove();
-        setIsSaving(false);
-        if (!ok) setError(`Failed to remove ${label}. Check browser console for details.`);
+        try {
+            await onRemove();
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : `Failed to remove ${label}.`,
+            );
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -305,6 +318,7 @@ function ApiKeyField({
                     </button>
                 </div>
                 <Button
+                    type="button"
                     onClick={handleSave}
                     disabled={isSaving || !dirty || saved}
                     className="min-w-[80px] transition-all rounded-[10px]"
