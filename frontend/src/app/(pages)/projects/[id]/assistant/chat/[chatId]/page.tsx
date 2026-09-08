@@ -31,7 +31,7 @@ import {
     deleteProjectFolder,
     moveDocumentToFolder,
     moveSubfolderToFolder,
-} from "@/app/lib/mikeApi";
+} from "@/app/lib/kdApi";
 import { useAssistantChat } from "@/app/hooks/useAssistantChat";
 import { useChatHistoryContext } from "@/app/contexts/ChatHistoryContext";
 import { UserMessage } from "@/app/components/assistant/UserMessage";
@@ -42,17 +42,17 @@ import { ProjectExplorer } from "@/app/components/projects/ProjectExplorer";
 import { DocView } from "@/app/components/shared/DocView";
 import { OwnerOnlyModal } from "@/app/components/shared/OwnerOnlyModal";
 import { DocxView } from "@/app/components/shared/DocxView";
-import { MikeIcon } from "@/components/chat/mike-icon";
+import { KdIcon } from "@/components/chat/kd-icon";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserProfile } from "@/contexts/UserProfileContext";
 import { useSidebar } from "@/app/contexts/SidebarContext";
 import type {
     CitationQuote,
-    MikeCitationAnnotation,
-    MikeDocument,
-    MikeEditAnnotation,
-    MikeMessage,
-    MikeProject,
+    KdCitationAnnotation,
+    KdDocument,
+    KdEditAnnotation,
+    KdMessage,
+    KdProject,
 } from "@/app/components/shared/types";
 import { expandCitationToEntries } from "@/app/components/shared/types";
 
@@ -125,7 +125,7 @@ function AssistantGreeting({ username }: { username: string }) {
                             "transform 900ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
                     }}
                 >
-                    <MikeIcon size={ICON_SIZE} />
+                    <KdIcon size={ICON_SIZE} />
                 </div>
                 <h1
                     ref={textRef}
@@ -206,7 +206,7 @@ export default function ProjectAssistantChatPage({ params }: Props) {
     const username =
         profile?.displayName?.trim() || user?.email?.split("@")[0] || "there";
 
-    const [project, setProject] = useState<MikeProject | null>(null);
+    const [project, setProject] = useState<KdProject | null>(null);
     const [chatTitle, setChatTitle] = useState<string | null>(null);
     const [chatOwnerId, setChatOwnerId] = useState<string | null>(null);
     const [ownerOnlyAction, setOwnerOnlyAction] = useState<string | null>(null);
@@ -254,7 +254,7 @@ export default function ProjectAssistantChatPage({ params }: Props) {
         chats,
         saveChat,
     } = useChatHistoryContext();
-    const [initialMessages] = useState<MikeMessage[]>(newChatMessages ?? []);
+    const [initialMessages] = useState<KdMessage[]>(newChatMessages ?? []);
     const { messages, isResponseLoading, handleChat, setMessages, cancel } =
         useAssistantChat({ initialMessages, chatId, projectId });
 
@@ -475,7 +475,7 @@ export default function ProjectAssistantChatPage({ params }: Props) {
 
     // ── Handlers ──────────────────────────────────────────────────────────────
     const handleSubmit = useCallback(
-        (message: MikeMessage) => {
+        (message: KdMessage) => {
             if (!activeTab) return handleChat(message);
             return handleChat(message, {
                 displayedDoc: {
@@ -487,11 +487,11 @@ export default function ProjectAssistantChatPage({ params }: Props) {
         [activeTab, handleChat],
     );
 
-    const handleDocClick = (doc: MikeDocument) => {
+    const handleDocClick = (doc: KdDocument) => {
         openTab(doc.id, doc.filename);
     };
 
-    const handleCitationClick = (citation: MikeCitationAnnotation) => {
+    const handleCitationClick = (citation: KdCitationAnnotation) => {
         openTab(
             citation.document_id,
             citation.filename,
@@ -508,7 +508,7 @@ export default function ProjectAssistantChatPage({ params }: Props) {
         openTab(args.documentId, args.filename, undefined, args.versionId);
     };
 
-    const handleEditViewClick = (ann: MikeEditAnnotation, filename: string) => {
+    const handleEditViewClick = (ann: KdEditAnnotation, filename: string) => {
         openTab(ann.document_id, filename, undefined, ann.version_id ?? null);
         setEditScrollTarget({
             key: `${ann.edit_id}-${Date.now()}`,
@@ -565,7 +565,7 @@ export default function ProjectAssistantChatPage({ params }: Props) {
 
     const handleChatDrop = (e: React.DragEvent) => {
         e.preventDefault();
-        const docId = e.dataTransfer.getData("application/mike-doc");
+        const docId = e.dataTransfer.getData("application/kd-doc");
         if (!docId) return;
         const doc = project?.documents?.find((d) => d.id === docId);
         if (doc) chatInputRef.current?.addDoc(doc);
@@ -843,10 +843,10 @@ export default function ProjectAssistantChatPage({ params }: Props) {
                                 // Only show the upload overlay for external file drags, not internal moves
                                 const isInternal =
                                     Array.from(e.dataTransfer.types).includes(
-                                        "application/mike-doc",
+                                        "application/kd-doc",
                                     ) ||
                                     Array.from(e.dataTransfer.types).includes(
-                                        "application/mike-folder",
+                                        "application/kd-folder",
                                     );
                                 if (!isInternal) setExplorerDragOver(true);
                             }}
@@ -915,10 +915,10 @@ export default function ProjectAssistantChatPage({ params }: Props) {
                                 onDrop={async (e) => {
                                     e.preventDefault();
                                     const docId = e.dataTransfer.getData(
-                                        "application/mike-doc",
+                                        "application/kd-doc",
                                     );
                                     const folderId = e.dataTransfer.getData(
-                                        "application/mike-folder",
+                                        "application/kd-folder",
                                     );
                                     if (docId) {
                                         e.stopPropagation();
@@ -1130,7 +1130,7 @@ export default function ProjectAssistantChatPage({ params }: Props) {
                     onDrop={handleChatDrop}
                 >
                     <div className="h-10 flex items-center gap-2 px-4 border-b border-border shrink-0">
-                        <MikeIcon size={16} />
+                        <KdIcon size={16} />
                         <span className="text-xs text-foreground">
                             Project Assistant
                         </span>

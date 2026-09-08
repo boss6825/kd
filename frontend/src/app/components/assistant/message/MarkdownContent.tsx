@@ -11,7 +11,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { displayCitationQuote, formatCitationPage } from "../../shared/types";
-import type { MikeCitationAnnotation } from "../../shared/types";
+import type { KdCitationAnnotation } from "../../shared/types";
 
 /**
  * Replace [N] or [N, M, ...] inline markers with internal §idx§ tokens
@@ -20,8 +20,8 @@ import type { MikeCitationAnnotation } from "../../shared/types";
  */
 export function preprocessCitations(
     text: string,
-    annotations: MikeCitationAnnotation[],
-    citationsList: MikeCitationAnnotation[],
+    annotations: KdCitationAnnotation[],
+    citationsList: KdCitationAnnotation[],
 ): string {
     return text.replace(/\[(\d+(?:,\s*\d+)*)\]/g, (full, refsStr) => {
         const refs = (refsStr as string)
@@ -44,8 +44,8 @@ function CitationPill({
     onCitationClick,
 }: {
     idx: number;
-    annotation: MikeCitationAnnotation;
-    onCitationClick?: (c: MikeCitationAnnotation) => void;
+    annotation: KdCitationAnnotation;
+    onCitationClick?: (c: KdCitationAnnotation) => void;
 }) {
     return (
         <Tooltip>
@@ -79,8 +79,8 @@ export function MarkdownContent({
     divRef,
 }: {
     text: string;
-    citationsList: MikeCitationAnnotation[];
-    onCitationClick?: (c: MikeCitationAnnotation) => void;
+    citationsList: KdCitationAnnotation[];
+    onCitationClick?: (c: KdCitationAnnotation) => void;
     divRef?: React.RefObject<HTMLDivElement | null>;
 }) {
     return (

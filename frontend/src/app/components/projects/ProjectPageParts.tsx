@@ -14,8 +14,8 @@ import {
 import { HeaderSearchBtn } from "@/app/components/shared/HeaderSearchBtn";
 import { RenameableTitle } from "@/app/components/shared/RenameableTitle";
 import { ThemeToggleButton } from "@/app/components/shared/ThemeToggleButton";
-import type { MikeProject } from "@/app/components/shared/types";
-import type { MikeDocumentVersion } from "@/app/lib/mikeApi";
+import type { KdProject } from "@/app/components/shared/types";
+import type { KdDocumentVersion } from "@/app/lib/kdApi";
 
 export type ProjectTab = "documents" | "assistant" | "reviews";
 
@@ -95,7 +95,7 @@ export function DocVersionHistory({
     docId: string;
     filename: string;
     loading: boolean;
-    versions: MikeDocumentVersion[];
+    versions: KdDocumentVersion[];
     depth?: number;
     onDownloadVersion: (
         docId: string,
@@ -333,7 +333,7 @@ export function ProjectPageHeader({
     onNewChat,
     onNewReview,
 }: {
-    project: MikeProject;
+    project: KdProject;
     tab: ProjectTab;
     search: string;
     creatingChat: boolean;

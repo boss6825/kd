@@ -11,10 +11,10 @@ import {
 import { useChatHistoryContext } from "@/app/contexts/ChatHistoryContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { OwnerOnlyModal } from "@/app/components/shared/OwnerOnlyModal";
-import type { MikeChat } from "@/app/components/shared/types";
+import type { KdChat } from "@/app/components/shared/types";
 
 interface Props {
-    chat: MikeChat;
+    chat: KdChat;
     isActive: boolean;
     onSelect: () => void;
     projectName?: string;

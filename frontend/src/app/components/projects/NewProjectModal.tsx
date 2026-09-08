@@ -6,17 +6,17 @@ import {
     addDocumentToProject,
     createProject,
     uploadProjectDocument,
-} from "@/app/lib/mikeApi";
+} from "@/app/lib/kdApi";
 import { useDirectoryData } from "../shared/useDirectoryData";
 import { FileDirectory } from "../shared/FileDirectory";
 import { EmailPillInput } from "../shared/EmailPillInput";
-import type { MikeProject } from "../shared/types";
+import type { KdProject } from "../shared/types";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface Props {
     open: boolean;
     onClose: () => void;
-    onCreated: (project: MikeProject) => void;
+    onCreated: (project: KdProject) => void;
 }
 
 export function NewProjectModal({ open, onClose, onCreated }: Props) {

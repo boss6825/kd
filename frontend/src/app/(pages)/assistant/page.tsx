@@ -3,13 +3,13 @@
 import { useAssistantChat } from "@/app/hooks/useAssistantChat";
 import { InitialView } from "@/app/components/assistant/InitialView";
 import { ChatView } from "@/app/components/assistant/ChatView";
-import type { MikeMessage } from "@/app/components/shared/types";
+import type { KdMessage } from "@/app/components/shared/types";
 
 export default function AssistantPage() {
     const { messages, isResponseLoading, handleChat, cancel } =
         useAssistantChat();
 
-    async function handleInitialSubmit(message: MikeMessage) {
+    async function handleInitialSubmit(message: KdMessage) {
         await handleChat(message);
     }
 

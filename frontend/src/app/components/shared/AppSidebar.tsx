@@ -21,8 +21,8 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { KDMark } from "@/components/kd-mark";
 import { SidebarChatItem } from "@/app/components/shared/SidebarChatItem";
-import { listProjects } from "@/app/lib/mikeApi";
-import type { MikeProject } from "@/app/components/shared/types";
+import { listProjects } from "@/app/lib/kdApi";
+import type { KdProject } from "@/app/components/shared/types";
 
 const NAV_ITEMS = [
     { href: "/assistant", label: "Assistant", icon: MessageSquare },
@@ -56,7 +56,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
     const [projectNames, setProjectNames] = useState<Record<string, string>>(
         {},
     );
-    const [recentProjects, setRecentProjects] = useState<MikeProject[] | null>(
+    const [recentProjects, setRecentProjects] = useState<KdProject[] | null>(
         null,
     );
 

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import type { MikeEditAnnotation } from "../../shared/types";
+import type { KdEditAnnotation } from "../../shared/types";
 import { applyOptimisticResolution } from "../EditCard";
 import { getStoredToken } from "@/lib/authClient";
 
@@ -27,11 +27,11 @@ export function BulkEditActions({
     onError,
 }: {
     pending: {
-        annotation: MikeEditAnnotation;
+        annotation: KdEditAnnotation;
         filename: string;
     }[];
     filenameByDocId: Map<string, string>;
-    onViewClick?: (ann: MikeEditAnnotation, filename: string) => void;
+    onViewClick?: (ann: KdEditAnnotation, filename: string) => void;
     onResolveStart?: (args: {
         editId: string;
         documentId: string;
@@ -201,13 +201,13 @@ export function EditCardsSection({
     onError,
 }: {
     pending: {
-        annotation: MikeEditAnnotation;
+        annotation: KdEditAnnotation;
         filename: string;
     }[];
     filenameByDocId: Map<string, string>;
     cards: React.ReactNode[];
     resolvedCount: number;
-    onViewClick?: (ann: MikeEditAnnotation, filename: string) => void;
+    onViewClick?: (ann: KdEditAnnotation, filename: string) => void;
     onResolveStart?: (args: {
         editId: string;
         documentId: string;

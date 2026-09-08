@@ -2,7 +2,7 @@
 
 import { type Dispatch, type SetStateAction } from "react";
 import { RowActions } from "@/app/components/shared/RowActions";
-import type { MikeChat } from "@/app/components/shared/types";
+import type { KdChat } from "@/app/components/shared/types";
 import { CHECK_W, formatDate, NAME_COL_W } from "./ProjectPageParts";
 
 export function ProjectAssistantTab({
@@ -23,8 +23,8 @@ export function ProjectAssistantTab({
     setRenamingChatId,
     setRenameChatValue,
 }: {
-    chats: MikeChat[];
-    filteredChats: MikeChat[];
+    chats: KdChat[];
+    filteredChats: KdChat[];
     selectedChatIds: string[];
     allChatsSelected: boolean;
     someChatsSelected: boolean;
@@ -33,7 +33,7 @@ export function ProjectAssistantTab({
     currentUserId?: string | null;
     onCreateChat: () => void;
     onOpenChat: (chatId: string) => void;
-    onDeleteChat: (chat: MikeChat) => Promise<void> | void;
+    onDeleteChat: (chat: KdChat) => Promise<void> | void;
     onOwnerOnlyAction: (action: string) => void;
     submitChatRename: (chatId: string) => Promise<void> | void;
     setSelectedChatIds: Dispatch<SetStateAction<string[]>>;

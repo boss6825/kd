@@ -6,10 +6,10 @@ import { useUserProfile } from "@/contexts/UserProfileContext";
 import { KDMark } from "@/components/kd-mark";
 import { ChatInput, type ChatInputHandle } from "./ChatInput";
 import { SelectAssistantProjectModal } from "./SelectAssistantProjectModal";
-import type { MikeMessage } from "../shared/types";
+import type { KdMessage } from "../shared/types";
 
 interface InitialViewProps {
-    onSubmit: (message: MikeMessage) => void;
+    onSubmit: (message: KdMessage) => void;
 }
 
 /**

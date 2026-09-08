@@ -17,8 +17,8 @@ import {
     listHiddenWorkflows,
     hideWorkflow,
     unhideWorkflow,
-} from "@/app/lib/mikeApi";
-import type { MikeWorkflow } from "../shared/types";
+} from "@/app/lib/kdApi";
+import type { KdWorkflow } from "../shared/types";
 import { BUILT_IN_WORKFLOWS, BUILT_IN_IDS } from "./builtinWorkflows";
 import { DisplayWorkflowModal } from "./DisplayWorkflowModal";
 import { NewWorkflowModal } from "./NewWorkflowModal";
@@ -42,9 +42,9 @@ const TABS: { id: Tab; label: string }[] = [
 export function WorkflowList() {
     const router = useRouter();
     const { user } = useAuth();
-    const [custom, setCustom] = useState<MikeWorkflow[]>([]);
+    const [custom, setCustom] = useState<KdWorkflow[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selected, setSelected] = useState<MikeWorkflow | null>(null);
+    const [selected, setSelected] = useState<KdWorkflow | null>(null);
     const [activeTab, setActiveTab] = useState<Tab>("all");
     const [newModalOpen, setNewModalOpen] = useState(false);
     const [hiddenBuiltinIds, setHiddenBuiltinIds] = useState<string[]>([]);
@@ -52,7 +52,7 @@ export function WorkflowList() {
     const [actionsOpen, setActionsOpen] = useState(false);
     const [practiceFilter, setPracticeFilter] = useState<string | null>(null);
     const [practiceFilterOpen, setPracticeFilterOpen] = useState(false);
-    const [typeFilter, setTypeFilter] = useState<MikeWorkflow["type"] | null>(
+    const [typeFilter, setTypeFilter] = useState<KdWorkflow["type"] | null>(
         null,
     );
     const [typeFilterOpen, setTypeFilterOpen] = useState(false);
@@ -198,7 +198,7 @@ export function WorkflowList() {
         await Promise.all(ids.map((id) => unhideWorkflow(id).catch(() => {})));
     }
 
-    const getTypeMeta = (type: MikeWorkflow["type"]) =>
+    const getTypeMeta = (type: KdWorkflow["type"]) =>
         type === "tabular"
             ? {
                   label: "Tabular",

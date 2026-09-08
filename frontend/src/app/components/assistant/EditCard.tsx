@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { getStoredToken } from "@/lib/authClient";
-import type { MikeEditAnnotation } from "../shared/types";
+import type { KdEditAnnotation } from "../shared/types";
 
 function normalizeText(s: string) {
     return s.replace(/\s+/g, " ").trim();
@@ -50,7 +50,7 @@ function findMatch(
  * so if the backend call later fails we can restore the original look.
  */
 export function applyOptimisticResolution(
-    annotation: MikeEditAnnotation,
+    annotation: KdEditAnnotation,
     verb: "accept" | "reject",
 ): () => void {
     const reverts: (() => void)[] = [];
@@ -130,7 +130,7 @@ export function applyOptimisticResolution(
 }
 
 interface Props {
-    annotation: MikeEditAnnotation;
+    annotation: KdEditAnnotation;
     /**
      * External override for this edit's status. When set, takes
      * precedence over the annotation's DB status and the card's own
@@ -144,7 +144,7 @@ interface Props {
      * Accept/Reject buttons disable so the user can't race resolutions.
      */
     isReloading?: boolean;
-    onViewClick?: (ann: MikeEditAnnotation) => void;
+    onViewClick?: (ann: KdEditAnnotation) => void;
     /**
      * Fires immediately when the user clicks Accept or Reject, before the
      * backend round-trip. Parents use this to show an in-progress spinner

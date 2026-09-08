@@ -3,13 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Upload } from "lucide-react";
-import { listDocumentVersions } from "@/app/lib/mikeApi";
-import type { MikeDocument } from "./types";
+import { listDocumentVersions } from "@/app/lib/kdApi";
+import type { KdDocument } from "./types";
 
 interface Props {
     open: boolean;
     onClose: () => void;
-    doc: MikeDocument | null;
+    doc: KdDocument | null;
     onSubmit: (file: File, displayName: string) => Promise<void>;
 }
 

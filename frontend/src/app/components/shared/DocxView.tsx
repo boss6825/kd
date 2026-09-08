@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { MikeIcon } from "@/components/chat/mike-icon";
+import { KdIcon } from "@/components/chat/kd-icon";
 import { useFetchDocxBytes } from "@/app/hooks/useFetchDocxBytes";
 import { getStoredToken } from "@/lib/authClient";
 import {
@@ -491,7 +491,7 @@ export function DocxView({
             >
                 {loading && !bytes && (
                     <div className="flex h-full items-center justify-center">
-                        <MikeIcon spin mike size={28} />
+                        <KdIcon spin size={28} />
                     </div>
                 )}
                 {error && (

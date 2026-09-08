@@ -1,7 +1,7 @@
 /**
  * KD app mark (design.md §6): brass rounded square (radius 22%), serif
  * "KD" in ink, optical size ~58%. Used in the sidebar, empty states and
- * auth pages. The animated aperture icon (MikeIcon) remains the
+ * auth pages. The animated aperture icon (KdIcon) remains the
  * response-status spinner only.
  */
 export function KDMark({ size = 32 }: { size?: number }) {

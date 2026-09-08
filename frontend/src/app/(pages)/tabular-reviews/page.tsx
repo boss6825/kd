@@ -12,8 +12,8 @@ import {
     createTabularReview,
     listProjects,
     updateTabularReview,
-} from "@/app/lib/mikeApi";
-import type { TabularReview, MikeProject } from "@/app/components/shared/types";
+} from "@/app/lib/kdApi";
+import type { TabularReview, KdProject } from "@/app/components/shared/types";
 import { ToolbarTabs } from "@/app/components/shared/ToolbarTabs";
 import { AddNewTRModal } from "@/app/components/tabular/AddNewTRModal";
 import { OwnerOnlyModal } from "@/app/components/shared/OwnerOnlyModal";
@@ -40,7 +40,7 @@ function formatDate(iso: string) {
 
 export default function TabularReviewsPage() {
     const [reviews, setReviews] = useState<TabularReview[]>([]);
-    const [projects, setProjects] = useState<MikeProject[]>([]);
+    const [projects, setProjects] = useState<KdProject[]>([]);
     const [loading, setLoading] = useState(true);
     const [creating, setCreating] = useState(false);
     const [newTROpen, setNewTROpen] = useState(false);

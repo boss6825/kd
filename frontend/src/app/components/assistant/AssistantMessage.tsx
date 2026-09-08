@@ -4,8 +4,8 @@ import { useRef, useState } from "react";
 import { Copy, Check } from "lucide-react";
 import type {
     AssistantEvent,
-    MikeCitationAnnotation,
-    MikeEditAnnotation,
+    KdCitationAnnotation,
+    KdEditAnnotation,
 } from "../shared/types";
 import { EditCard } from "./EditCard";
 import { PreResponseWrapper } from "../shared/PreResponseWrapper";
@@ -34,13 +34,13 @@ interface Props {
     events?: AssistantEvent[];
     isStreaming?: boolean;
     isError?: boolean;
-    /** Human-readable error text rendered alongside the red Mike icon. */
+    /** Human-readable error text rendered alongside the red KD icon. */
     errorMessage?: string;
-    annotations?: MikeCitationAnnotation[];
-    onCitationClick?: (citation: MikeCitationAnnotation) => void;
+    annotations?: KdCitationAnnotation[];
+    onCitationClick?: (citation: KdCitationAnnotation) => void;
     minHeight?: string;
     onWorkflowClick?: (workflowId: string) => void;
-    onEditViewClick?: (ann: MikeEditAnnotation, filename: string) => void;
+    onEditViewClick?: (ann: KdEditAnnotation, filename: string) => void;
     /**
      * Opens the editor panel for a document without auto-highlighting any
      * specific edit. Used by the download card click — opening a doc to
@@ -144,7 +144,7 @@ export function AssistantMessage({
     // Pre-process citations for all content events. Each [N] marker resolves
     // to exactly one annotation (models are instructed to use shared refs
     // only for cross-page continuations via the [[PAGE_BREAK]] sentinel).
-    const citationsList: MikeCitationAnnotation[] = [];
+    const citationsList: KdCitationAnnotation[] = [];
     const processedTexts: string[] = [];
     if (events) {
         for (const event of events) {
@@ -385,7 +385,7 @@ export function AssistantMessage({
                                     { type: "doc_edited" }
                                 >[];
                                 const pending: {
-                                    annotation: MikeEditAnnotation;
+                                    annotation: KdEditAnnotation;
                                     filename: string;
                                 }[] = [];
                                 const filenameByDocId = new Map<
@@ -393,7 +393,7 @@ export function AssistantMessage({
                                     string
                                 >();
                                 // Effective status = external override if any, else the annotation's DB status.
-                                const statusOf = (ann: MikeEditAnnotation) =>
+                                const statusOf = (ann: KdEditAnnotation) =>
                                     resolvedEditStatuses?.[ann.edit_id] ??
                                     ann.status;
                                 for (const e of editedEvents) {

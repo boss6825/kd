@@ -2,7 +2,7 @@
 
 import { type Dispatch, type SetStateAction } from "react";
 import { RowActions } from "@/app/components/shared/RowActions";
-import type { MikeDocument, TabularReview } from "@/app/components/shared/types";
+import type { KdDocument, TabularReview } from "@/app/components/shared/types";
 import { CHECK_W, formatDate, NAME_COL_W } from "./ProjectPageParts";
 
 export function ProjectReviewsTab({
@@ -25,7 +25,7 @@ export function ProjectReviewsTab({
     setRenamingReviewId,
     setRenameReviewValue,
 }: {
-    docs: MikeDocument[];
+    docs: KdDocument[];
     reviews: TabularReview[];
     filteredReviews: TabularReview[];
     selectedReviewIds: string[];
