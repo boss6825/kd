@@ -2,7 +2,7 @@
 
 KD is a legal document assistant with a Next.js frontend, an Express backend, Supabase Auth/Postgres, and Cloudflare R2-compatible object storage.
 
-Website: [KDoss.com](https://KDoss.com)
+Website: [kd-five-kappa.vercel.app](https://kd-five-kappa.vercel.app)
 
 ## Contents
 

@@ -286,18 +286,14 @@ export default function SignupPage() {
                     <div className="mt-4 text-center text-xs text-muted-foreground">
                         By signing up, you agree to our{" "}
                         <Link
-                            href="https://mikeoss.com/terms"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            href="/terms"
                             className="text-kd-accent hover:text-kd-accent-strong hover:underline"
                         >
                             Terms of Use
                         </Link>{" "}
                         and{" "}
                         <Link
-                            href="https://mikeoss.com/privacy"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            href="/privacy"
                             className="text-kd-accent hover:text-kd-accent-strong hover:underline"
                         >
                             Privacy Policy
@@ -305,7 +301,7 @@ export default function SignupPage() {
                     </div>
                 </div>
                 <p className="text-center text-xs text-muted-foreground leading-relaxed px-2">
-                    KD hosted on MikeOSS.com is currently a demo service.
+                    KD is currently a demo service.
                     Please do not upload, submit, or store sensitive,
                     confidential, privileged, client, or personally identifiable
                     documents.

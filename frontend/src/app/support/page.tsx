@@ -177,7 +177,7 @@ export default function SupportPage() {
                                         onChange={(e) =>
                                             setLink(e.target.value)
                                         }
-                                        placeholder="https://mikeoss.com/..."
+                                        placeholder="https://kd-five-kappa.vercel.app/..."
                                         className="w-full px-4 py-2.5 bg-card border border-border rounded-[10px] text-foreground placeholder:text-kd-text-3 focus:border-kd-accent outline-none transition-all"
                                     />
                                     <p className="text-xs text-muted-foreground mt-1">

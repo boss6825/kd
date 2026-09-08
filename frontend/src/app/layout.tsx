@@ -26,7 +26,7 @@ const splineSansMono = Spline_Sans_Mono({
 });
 
 export const metadata: Metadata = {
-    metadataBase: new URL("https://app.mikeoss.com"),
+    metadataBase: new URL("https://kd-five-kappa.vercel.app"),
     title: "KD — The operating system for Indian law",
     description:
         "Research, drafting, review, and workflows — one counsel-grade AI trusted with the whole matter, not just the brief.",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     },
     openGraph: {
         type: "website",
-        url: "https://app.mikeoss.com",
+        url: "https://kd-five-kappa.vercel.app",
         siteName: "KD",
         title: "KD — The operating system for Indian law",
         description:

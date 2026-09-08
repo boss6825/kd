@@ -188,7 +188,7 @@ export default function LoginPage() {
                     </Button>
                 </div>
                 <p className="text-center text-xs text-muted-foreground leading-relaxed px-2">
-                    KD hosted on MikeOSS.com is currently a demo service.
+                    KD is currently a demo service.
                     Please do not upload, submit, or store sensitive,
                     confidential, privileged, client, or personally
                     identifiable documents.
