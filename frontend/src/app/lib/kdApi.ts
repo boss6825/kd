@@ -4,6 +4,7 @@
  */
 
 import { backendFetch } from "@/lib/authClient";
+import { errorFromApiResponse, errorFromFailedFetch } from "@/app/lib/apiErrors";
 import type {
     AssistantEvent,
     KdChat,
@@ -37,17 +38,17 @@ interface ServerChatDetailOut {
 const API_BASE =
     process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001";
 
-async function errorFromResponse(response: Response): Promise<Error> {
-    const text = await response.text();
+async function authedFetch(path: string, init?: RequestInit): Promise<Response> {
     try {
-        const parsed = JSON.parse(text) as { detail?: unknown };
-        if (typeof parsed.detail === "string" && parsed.detail.trim()) {
-            return new Error(parsed.detail);
-        }
-    } catch {
-        /* body is not JSON */
+        return await backendFetch(`${API_BASE}${path}`, init);
+    } catch (err) {
+        throw errorFromFailedFetch(API_BASE, err);
     }
-    return new Error(text.trim() || `API error: ${response.status}`);
+}
+
+async function throwFromResponse(response: Response): Promise<never> {
+    const detail = await response.text();
+    throw errorFromApiResponse(response.status, detail);
 }
 
 async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
@@ -55,13 +56,13 @@ async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
     const headers = new Headers(initHeaders);
     if (!headers.has("Accept")) headers.set("Accept", "application/json");
 
-    const response = await backendFetch(`${API_BASE}${path}`, {
+    const response = await authedFetch(path, {
         ...restInit,
         headers,
     });
 
     if (!response.ok) {
-        throw await errorFromResponse(response);
+        await throwFromResponse(response);
     }
 
     if (
@@ -317,14 +318,14 @@ export async function uploadDocumentVersion(
     const form = new FormData();
     form.append("file", file);
     if (displayName) form.append("display_name", displayName);
-    const response = await backendFetch(
-        `${API_BASE}/single-documents/${documentId}/versions`,
+    const response = await authedFetch(
+        `/single-documents/${documentId}/versions`,
         {
             method: "POST",
             body: form,
         },
     );
-    if (!response.ok) throw await errorFromResponse(response);
+    if (!response.ok) await throwFromResponse(response);
     return response.json() as Promise<KdDocumentVersion>;
 }
 
@@ -349,14 +350,11 @@ export async function uploadProjectDocument(
 ): Promise<KdDocument> {
     const form = new FormData();
     form.append("file", file);
-    const response = await backendFetch(
-        `${API_BASE}/projects/${projectId}/documents`,
-        {
-            method: "POST",
-            body: form,
-        },
-    );
-    if (!response.ok) throw await errorFromResponse(response);
+    const response = await authedFetch(`/projects/${projectId}/documents`, {
+        method: "POST",
+        body: form,
+    });
+    if (!response.ok) await throwFromResponse(response);
     return response.json() as Promise<KdDocument>;
 }
 
@@ -365,11 +363,11 @@ export async function uploadStandaloneDocument(
 ): Promise<KdDocument> {
     const form = new FormData();
     form.append("file", file);
-    const response = await backendFetch(`${API_BASE}/single-documents`, {
+    const response = await authedFetch("/single-documents", {
         method: "POST",
         body: form,
     });
-    if (!response.ok) throw await errorFromResponse(response);
+    if (!response.ok) await throwFromResponse(response);
     return response.json() as Promise<KdDocument>;
 }
 
@@ -392,14 +390,14 @@ export async function getDocumentUrl(
 export async function downloadDocumentsZip(
     documentIds: string[],
 ): Promise<Blob> {
-    const response = await backendFetch(`${API_BASE}/single-documents/download-zip`, {
+    const response = await authedFetch("/single-documents/download-zip", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({ document_ids: documentIds }),
     });
-    if (!response.ok) throw await errorFromResponse(response);
+    if (!response.ok) await throwFromResponse(response);
     return response.blob();
 }
 
@@ -492,7 +490,7 @@ export async function streamChat(payload: {
     signal?: AbortSignal;
 }): Promise<Response> {
     const { signal, ...body } = payload;
-    return backendFetch(`${API_BASE}/chat`, {
+    return authedFetch("/chat", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -520,7 +518,7 @@ export async function streamProjectChat(payload: {
     signal?: AbortSignal;
 }): Promise<Response> {
     const { projectId, signal, ...body } = payload;
-    return backendFetch(`${API_BASE}/projects/${projectId}/chat`, {
+    return authedFetch(`/projects/${projectId}/chat`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -632,7 +630,7 @@ export async function deleteTabularReview(reviewId: string): Promise<void> {
 export async function streamTabularGeneration(
     reviewId: string,
 ): Promise<Response> {
-    return backendFetch(`${API_BASE}/tabular-review/${reviewId}/generate`, {
+    return authedFetch(`/tabular-review/${reviewId}/generate`, {
         method: "POST",
     });
 }
@@ -644,7 +642,7 @@ export async function streamTabularChat(
     signal?: AbortSignal,
     context?: { reviewTitle?: string | null; projectName?: string | null },
 ): Promise<Response> {
-    return backendFetch(`${API_BASE}/tabular-review/${reviewId}/chat`, {
+    return authedFetch(`/tabular-review/${reviewId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

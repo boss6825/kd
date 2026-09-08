@@ -222,8 +222,8 @@ function ApiKeyField({
     placeholder: string;
     hasSavedKey: boolean;
     isServerConfigured: boolean;
-    onSave: (value: string) => Promise<boolean>;
-    onRemove: () => Promise<boolean>;
+    onSave: (value: string) => Promise<void>;
+    onRemove: () => Promise<void>;
 }) {
     const [value, setValue] = useState("");
     const [reveal, setReveal] = useState(false);
@@ -242,14 +242,10 @@ function ApiKeyField({
         setError(null);
         setIsSaving(true);
         try {
-            const ok = await onSave(value);
-            if (ok) {
-                setValue("");
-                setSaved(true);
-                setTimeout(() => setSaved(false), 2000);
-            } else {
-                setError(`Failed to save ${label}.`);
-            }
+            await onSave(value);
+            setValue("");
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2000);
         } catch (err) {
             setError(
                 err instanceof Error
@@ -265,8 +261,7 @@ function ApiKeyField({
         setError(null);
         setIsSaving(true);
         try {
-            const ok = await onRemove();
-            if (!ok) setError(`Failed to remove ${label}.`);
+            await onRemove();
         } catch (err) {
             setError(
                 err instanceof Error
