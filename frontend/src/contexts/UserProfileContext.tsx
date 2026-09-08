@@ -61,8 +61,11 @@ function emptyApiKeys(): ApiKeyState {
     };
 }
 
-function apiKeyStatusToState(apiKeyStatus: ApiUserProfile["apiKeyStatus"]) {
+function apiKeyStatusToState(
+    apiKeyStatus: ApiUserProfile["apiKeyStatus"] | undefined,
+) {
     const apiKeys = emptyApiKeys();
+    if (!apiKeyStatus) return apiKeys;
     for (const provider of API_KEY_PROVIDERS) {
         apiKeys[provider] = {
             configured: !!apiKeyStatus[provider],
@@ -191,7 +194,7 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
         ): Promise<boolean> => {
             if (!user) {
                 console.error("[updateApiKey] no user");
-                return false;
+                throw new Error("You are not signed in.");
             }
             const normalized = value?.trim() ? value.trim() : null;
             try {
@@ -208,7 +211,9 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
                 return true;
             } catch (err) {
                 console.error(`[updateApiKey] failed for ${provider}:`, err);
-                return false;
+                throw err instanceof Error
+                    ? err
+                    : new Error("Failed to save API key");
             }
         },
         [user],
