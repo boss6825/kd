@@ -387,7 +387,7 @@ export const chatMessages = pgTable(
         content: jsonb("content"),
         files: jsonb("files"),
         // The committed Supabase schema.sql omitted this, but the live DB and
-        // the API (mikeApi ServerMessage, chat routes) both use it.
+        // the API (kdApi ServerMessage, chat routes) both use it.
         workflow: jsonb("workflow"),
         annotations: jsonb("annotations"),
         created_at: ts("created_at").notNull().defaultNow(),
