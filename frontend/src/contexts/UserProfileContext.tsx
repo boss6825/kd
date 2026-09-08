@@ -42,7 +42,7 @@ interface UserProfileContextType {
     updateApiKey: (
         provider: ApiKeyProvider,
         value: string | null,
-    ) => Promise<boolean>;
+    ) => Promise<void>;
     reloadProfile: () => Promise<void>;
     incrementMessageCredits: () => Promise<boolean>;
 }
@@ -188,14 +188,15 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
         async (
             provider: ApiKeyProvider,
             value: string | null,
-        ): Promise<boolean> => {
+        ): Promise<void> => {
             if (!user) {
-                console.error("[updateApiKey] no user");
-                return false;
+                throw new Error(
+                    "You need to be signed in to save an API key.",
+                );
             }
             const normalized = value?.trim() ? value.trim() : null;
+            apiKeyMutationSeq.current += 1;
             try {
-                apiKeyMutationSeq.current += 1;
                 const status = await saveApiKey(provider, normalized);
                 setProfile((prev) =>
                     prev
@@ -205,10 +206,11 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
                           }
                         : null,
                 );
-                return true;
             } catch (err) {
                 console.error(`[updateApiKey] failed for ${provider}:`, err);
-                return false;
+                throw err instanceof Error
+                    ? err
+                    : new Error(`Failed to save the ${provider} API key.`);
             }
         },
         [user],
