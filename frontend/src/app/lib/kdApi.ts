@@ -1,9 +1,9 @@
 /**
  * KD API client — all requests to the Node.js backend.
- * Attaches the Supabase auth token for user authentication.
+ * Attaches the Better Auth session (cookie + optional bearer token).
  */
 
-import { getAuthHeaders } from "@/lib/authClient";
+import { backendFetch } from "@/lib/authClient";
 import type {
     AssistantEvent,
     KdChat,
@@ -37,26 +37,31 @@ interface ServerChatDetailOut {
 const API_BASE =
     process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001";
 
-async function getAuthHeader(): Promise<Record<string, string>> {
-    return getAuthHeaders();
+async function errorFromResponse(response: Response): Promise<Error> {
+    const text = await response.text();
+    try {
+        const parsed = JSON.parse(text) as { detail?: unknown };
+        if (typeof parsed.detail === "string" && parsed.detail.trim()) {
+            return new Error(parsed.detail);
+        }
+    } catch {
+        /* body is not JSON */
+    }
+    return new Error(text.trim() || `API error: ${response.status}`);
 }
 
 async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
-    const authHeaders = await getAuthHeader();
     const { headers: initHeaders, ...restInit } = init ?? {};
-    const response = await fetch(`${API_BASE}${path}`, {
-        cache: "no-store",
+    const headers = new Headers(initHeaders);
+    if (!headers.has("Accept")) headers.set("Accept", "application/json");
+
+    const response = await backendFetch(`${API_BASE}${path}`, {
         ...restInit,
-        headers: {
-            Accept: "application/json",
-            ...authHeaders,
-            ...(initHeaders as Record<string, string> | undefined),
-        },
+        headers,
     });
 
     if (!response.ok) {
-        const detail = await response.text();
-        throw new Error(detail || `API error: ${response.status}`);
+        throw await errorFromResponse(response);
     }
 
     if (
@@ -309,19 +314,17 @@ export async function uploadDocumentVersion(
     file: File,
     displayName?: string,
 ): Promise<KdDocumentVersion> {
-    const authHeaders = await getAuthHeader();
     const form = new FormData();
     form.append("file", file);
     if (displayName) form.append("display_name", displayName);
-    const response = await fetch(
+    const response = await backendFetch(
         `${API_BASE}/single-documents/${documentId}/versions`,
         {
             method: "POST",
-            headers: { ...authHeaders },
             body: form,
         },
     );
-    if (!response.ok) throw new Error(await response.text());
+    if (!response.ok) throw await errorFromResponse(response);
     return response.json() as Promise<KdDocumentVersion>;
 }
 
@@ -344,33 +347,29 @@ export async function uploadProjectDocument(
     projectId: string,
     file: File,
 ): Promise<KdDocument> {
-    const authHeaders = await getAuthHeader();
     const form = new FormData();
     form.append("file", file);
-    const response = await fetch(
+    const response = await backendFetch(
         `${API_BASE}/projects/${projectId}/documents`,
         {
             method: "POST",
-            headers: { ...authHeaders },
             body: form,
         },
     );
-    if (!response.ok) throw new Error(await response.text());
+    if (!response.ok) throw await errorFromResponse(response);
     return response.json() as Promise<KdDocument>;
 }
 
 export async function uploadStandaloneDocument(
     file: File,
 ): Promise<KdDocument> {
-    const authHeaders = await getAuthHeader();
     const form = new FormData();
     form.append("file", file);
-    const response = await fetch(`${API_BASE}/single-documents`, {
+    const response = await backendFetch(`${API_BASE}/single-documents`, {
         method: "POST",
-        headers: { ...authHeaders },
         body: form,
     });
-    if (!response.ok) throw new Error(await response.text());
+    if (!response.ok) throw await errorFromResponse(response);
     return response.json() as Promise<KdDocument>;
 }
 
@@ -393,20 +392,14 @@ export async function getDocumentUrl(
 export async function downloadDocumentsZip(
     documentIds: string[],
 ): Promise<Blob> {
-    const authHeaders = await getAuthHeader();
-    const response = await fetch(`${API_BASE}/single-documents/download-zip`, {
+    const response = await backendFetch(`${API_BASE}/single-documents/download-zip`, {
         method: "POST",
-        cache: "no-store",
         headers: {
             "Content-Type": "application/json",
-            ...authHeaders,
         },
         body: JSON.stringify({ document_ids: documentIds }),
     });
-    if (!response.ok) {
-        const detail = await response.text();
-        throw new Error(detail || `API error: ${response.status}`);
-    }
+    if (!response.ok) throw await errorFromResponse(response);
     return response.blob();
 }
 
@@ -499,13 +492,11 @@ export async function streamChat(payload: {
     signal?: AbortSignal;
 }): Promise<Response> {
     const { signal, ...body } = payload;
-    const authHeaders = await getAuthHeader();
-    return fetch(`${API_BASE}/chat`, {
+    return backendFetch(`${API_BASE}/chat`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             Accept: "text/event-stream",
-            ...authHeaders,
         },
         body: JSON.stringify(body),
         signal,
@@ -529,13 +520,11 @@ export async function streamProjectChat(payload: {
     signal?: AbortSignal;
 }): Promise<Response> {
     const { projectId, signal, ...body } = payload;
-    const authHeaders = await getAuthHeader();
-    return fetch(`${API_BASE}/projects/${projectId}/chat`, {
+    return backendFetch(`${API_BASE}/projects/${projectId}/chat`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             Accept: "text/event-stream",
-            ...authHeaders,
         },
         body: JSON.stringify(body),
         signal,
@@ -643,10 +632,8 @@ export async function deleteTabularReview(reviewId: string): Promise<void> {
 export async function streamTabularGeneration(
     reviewId: string,
 ): Promise<Response> {
-    const authHeaders = await getAuthHeader();
-    return fetch(`${API_BASE}/tabular-review/${reviewId}/generate`, {
+    return backendFetch(`${API_BASE}/tabular-review/${reviewId}/generate`, {
         method: "POST",
-        headers: { ...authHeaders },
     });
 }
 
@@ -657,10 +644,9 @@ export async function streamTabularChat(
     signal?: AbortSignal,
     context?: { reviewTitle?: string | null; projectName?: string | null },
 ): Promise<Response> {
-    const authHeaders = await getAuthHeader();
-    return fetch(`${API_BASE}/tabular-review/${reviewId}/chat`, {
+    return backendFetch(`${API_BASE}/tabular-review/${reviewId}/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             messages,
             chat_id: chat_id ?? undefined,

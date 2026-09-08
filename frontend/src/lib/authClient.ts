@@ -36,13 +36,51 @@ export function getAuthHeaders(): Record<string, string> {
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+/**
+ * Fetch the Express backend with the Better Auth session.
+ *
+ * Google OAuth (and some get-session refreshes) authenticate via the session
+ * cookie but never persist `set-auth-token` in localStorage. API calls that
+ * omit `credentials: "include"` then 401 even though the user is signed in.
+ * Send both the cookie and, when present, the bearer token. If a stale bearer
+ * token is rejected, drop it and retry with the cookie alone.
+ */
+export async function backendFetch(
+    url: string,
+    init: RequestInit = {},
+): Promise<Response> {
+    const send = (includeBearer: boolean) => {
+        const headers = new Headers(init.headers);
+        if (includeBearer) {
+            const token = getStoredToken();
+            if (token) headers.set("Authorization", `Bearer ${token}`);
+        } else {
+            headers.delete("Authorization");
+        }
+        return fetch(url, {
+            ...init,
+            cache: init.cache ?? "no-store",
+            credentials: "include",
+            headers,
+        });
+    };
+
+    const hadToken = !!getStoredToken();
+    let response = await send(true);
+    if (response.status === 401 && hadToken) {
+        clearStoredToken();
+        response = await send(false);
+    }
+    return response;
+}
+
 export const authClient = createAuthClient({
     baseURL: API_BASE, // client appends /api/auth
     fetchOptions: {
         credentials: "include",
         auth: {
             type: "Bearer",
-            token: () => getStoredToken() ?? "",
+            token: () => getStoredToken() || "",
         },
         onSuccess: (ctx) => {
             const token = ctx.response.headers.get("set-auth-token");
