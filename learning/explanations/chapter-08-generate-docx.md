@@ -1,6 +1,6 @@
 # Chapter 8 — Generating Word Documents
 
-When a lawyer asks Mike to "draft an NDA" or "generate a conditions-precedent checklist," the model calls `generate_docx`, and KD turns the model's structured JSON into a real, properly-formatted Microsoft Word file. This chapter explains the `generateDocx` function in `src/lib/chatTools.ts` — especially the legal numbering engine, which is the part that makes the output look like a lawyer wrote it.
+When a lawyer asks KD to "draft an NDA" or "generate a conditions-precedent checklist," the model calls `generate_docx`, and KD turns the model's structured JSON into a real, properly-formatted Microsoft Word file. This chapter explains the `generateDocx` function in `src/lib/chatTools.ts` — especially the legal numbering engine, which is the part that makes the output look like a lawyer wrote it.
 
 ## Why structured input, not raw text
 

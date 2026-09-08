@@ -4,7 +4,7 @@ Lawyers do the same kinds of analysis over and over: summarise a credit agreemen
 
 ## What a workflow is
 
-A workflow is essentially three fields: an `id`, a `title`, and a `prompt_md` — a markdown instruction block that tells Mike exactly what to produce. There are two origins:
+A workflow is essentially three fields: an `id`, a `title`, and a `prompt_md` — a markdown instruction block that tells KD exactly what to produce. There are two origins:
 
 - **Built-in workflows** (`builtinWorkflows.ts`) — shipped with the product, available to everyone.
 - **User workflows** (`workflows` table) — created by users, optionally shared with colleagues by email.
@@ -58,7 +58,7 @@ So a workflow is, mechanically, just a stored prompt that gets loaded on demand 
 
 ## Why this design
 
-- **Separation of the standing prompt from task prompts.** The system prompt defines Mike's universal behaviour; workflows define task-specific behaviour, loaded lazily. This keeps every prompt focused.
+- **Separation of the standing prompt from task prompts.** The system prompt defines KD's universal behaviour; workflows define task-specific behaviour, loaded lazily. This keeps every prompt focused.
 - **Users as prompt authors.** Because workflows are data, a power user (or a firm's knowledge-management team) can encode their house style and checklists without engineering involvement.
 - **Sharing models real teams.** `workflow_shares` and `hidden_workflows` reflect how a firm actually works: one person builds the "our standard NDA review" workflow and shares it; others can use or hide it.
 - **The same machinery serves tabular reviews.** Workflows with `columns_config` drive the tabular feature (Chapter 13), so "a saved analysis template" is one concept across both chat and spreadsheet surfaces.

@@ -1,15 +1,15 @@
 # Chapter 5 — The System Prompt and Prompt Engineering
 
-The system prompt is the constitution of the agent. It defines who Mike is, how it must cite, how it must draft and number legal documents, how it must name documents in prose, and how it must conduct research. KD's prompt is the `SYSTEM_PROMPT` constant in `src/lib/chatTools.ts` — about 70 lines of dense, carefully-worded instruction. This chapter reads it closely, because the prompt is as much a part of the product as the code.
+The system prompt is the constitution of the agent. It defines who KD is, how it must cite, how it must draft and number legal documents, how it must name documents in prose, and how it must conduct research. KD's prompt is the `SYSTEM_PROMPT` constant in `src/lib/chatTools.ts` — about 70 lines of dense, carefully-worded instruction. This chapter reads it closely, because the prompt is as much a part of the product as the code.
 
 ## The identity line
 
 ```
-You are Mike, an AI legal assistant that helps lawyers and legal professionals
+You are KD, an AI legal assistant that helps lawyers and legal professionals
 analyze documents, answer legal questions, and draft legal documents.
 ```
 
-One sentence. It sets the persona (Mike), the audience (lawyers), and the scope (analyse, answer, draft). Everything that follows is rules for doing those three things well.
+One sentence. It sets the persona (KD), the audience (lawyers), and the scope (analyse, answer, draft). Everything that follows is rules for doing those three things well.
 
 ## The citation protocol
 

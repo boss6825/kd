@@ -1,6 +1,6 @@
 # Chapter 6 — Document Ingestion: Upload, Storage, and Conversion
 
-Before Mike can read or cite a document, that document has to be ingested: stored durably, rendered to a viewable PDF, analysed for structure, and marked ready. This chapter follows a file from the upload request into the system. The relevant code is `handleDocumentUpload` in `src/routes/documents.ts`, supported by `src/lib/storage.ts` and `src/lib/convert.ts`.
+Before KD can read or cite a document, that document has to be ingested: stored durably, rendered to a viewable PDF, analysed for structure, and marked ready. This chapter follows a file from the upload request into the system. The relevant code is `handleDocumentUpload` in `src/routes/documents.ts`, supported by `src/lib/storage.ts` and `src/lib/convert.ts`.
 
 ## The upload entry points
 
@@ -95,7 +95,7 @@ documents/<userId>/<docId>/source.docx     ← original bytes
 converted-pdfs/<userId>/<docId>.pdf         ← rendered display PDF
 ```
 
-and Postgres has a `documents` row (`status: ready`) plus a `document_versions` row (V1, `source: upload`). Mike can now be asked to read it.
+and Postgres has a `documents` row (`status: ready`) plus a `document_versions` row (V1, `source: upload`). KD can now be asked to read it.
 
 ---
 

@@ -1,6 +1,6 @@
 # Chapter 10 — Document Versioning and the Accept/Reject Lifecycle
 
-KD treats a document as a *thing that evolves*: it is uploaded, edited by Mike, and then those edits are accepted or rejected by the lawyer, each step producing a new immutable version. This chapter explains the data model that makes that work and the consistency rules that keep it correct. The relevant code spans `src/db/schema.ts`, `src/lib/documentVersions.ts`, `runEditDocument` in `chatTools.ts`, and the accept/reject routes in `routes/documents.ts`.
+KD treats a document as a *thing that evolves*: it is uploaded, edited by KD, and then those edits are accepted or rejected by the lawyer, each step producing a new immutable version. This chapter explains the data model that makes that work and the consistency rules that keep it correct. The relevant code spans `src/db/schema.ts`, `src/lib/documentVersions.ts`, `runEditDocument` in `chatTools.ts`, and the accept/reject routes in `routes/documents.ts`.
 
 ## The three tables
 
@@ -23,8 +23,8 @@ upload | user_upload | assistant_edit | user_accept | user_reject | generated
 Each value records *how* the version came to exist:
 
 - **`upload`** — the original V1 from ingestion (Chapter 6).
-- **`generated`** — a document Mike created via `generate_docx` (Chapter 8).
-- **`assistant_edit`** — a version produced by Mike's `edit_document` (Chapter 9), containing pending tracked changes.
+- **`generated`** — a document KD created via `generate_docx` (Chapter 8).
+- **`assistant_edit`** — a version produced by KD's `edit_document` (Chapter 9), containing pending tracked changes.
 - **`user_accept` / `user_reject`** — a version produced when the user resolves a tracked change.
 - **`user_upload`** — a new version the user uploaded to replace the current one.
 
@@ -75,7 +75,7 @@ So each accept/reject is itself a version — full history is preserved, and you
 
 ## Keeping chat history in sync — `hydrateEditStatuses`
 
-There's a consistency wrinkle. When Mike first proposes edits, the annotations stored on the chat message record each edit's status as `pending` (its value at the time). If the user later accepts an edit, `document_edits.status` changes — but the *stored chat annotation* doesn't. So on chat load, `hydrateEditStatuses` (in `routes/chat.ts`) re-reads the current `document_edits.status` for every edit referenced in the messages and patches the annotations before sending them to the frontend. It does the same for version numbers (old stored events predate the `version_number` column, so it looks them up from `document_versions`).
+There's a consistency wrinkle. When KD first proposes edits, the annotations stored on the chat message record each edit's status as `pending` (its value at the time). If the user later accepts an edit, `document_edits.status` changes — but the *stored chat annotation* doesn't. So on chat load, `hydrateEditStatuses` (in `routes/chat.ts`) re-reads the current `document_edits.status` for every edit referenced in the messages and patches the annotations before sending them to the frontend. It does the same for version numbers (old stored events predate the `version_number` column, so it looks them up from `document_versions`).
 
 This is a common pattern: the message log captures a *point-in-time snapshot*, but some fields are mutable, so on read you reconcile the snapshot against the current source of truth. KD does it lazily at load time rather than trying to update every historical message on every change.
 

@@ -11,7 +11,7 @@
 
 | Capability                                                                                                                           | State                                                              |
 | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
-| Agentic chat ("Mike") over case files, with citations                                                                                | Shipped                                                            |
+| Agentic chat ("KD") over case files, with citations                                                                                | Shipped                                                            |
 | DOCX drafting with automatic legal clause numbering                                                                                  | Shipped                                                            |
 | Tracked-changes editing with per-edit accept/reject                                                                                  | Shipped — genuinely rare, even Harvey-class products struggle here |
 | Tabular review (bulk extraction across documents → Excel)                                                                            | Shipped                                                            |

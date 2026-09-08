@@ -1,6 +1,6 @@
 # Chapter 14 — Legal Research Integrations
 
-Mike doesn't only work with the user's own documents — it can reach out to two external Indian legal systems: **Indian Kanoon** (a database of published judgments and statutes, for precedent research) and **eCourts** (the official live docket system, for the status and history of specific cases). This chapter explains both clients and how the agent uses them. The code is in `src/lib/indianKanoon.ts`, `src/lib/ecourts.ts`, and the corresponding tool branches in `chatTools.ts`.
+KD doesn't only work with the user's own documents — it can reach out to two external Indian legal systems: **Indian Kanoon** (a database of published judgments and statutes, for precedent research) and **eCourts** (the official live docket system, for the status and history of specific cases). This chapter explains both clients and how the agent uses them. The code is in `src/lib/indianKanoon.ts`, `src/lib/ecourts.ts`, and the corresponding tool branches in `chatTools.ts`.
 
 ## Two different research needs
 
@@ -62,10 +62,10 @@ The `ecourts_cache` table caches eCourts responses (`cache_key`, `resource`, `pa
 A realistic research turn might look like:
 
 1. User: "Find precedents on specific performance of a property sale, and check the status of case `DLND02...`."
-2. Mike reads the relevant attached documents to pin down the issue.
+2. KD reads the relevant attached documents to pin down the issue.
 3. For precedent: `search_case_law("specific performance immovable property", doctypes: "supremecourt")` → `read_judgment(tid)` on the best hits → summarises the ratio and applies it.
 4. For the live case: `find_indian_case(cnr: "DLND02...")` → reports parties, status, next hearing, and recent orders, optionally calling `get_indian_case_order_analysis` for a key order.
-5. Mike's answer cites Indian Kanoon judgments by name+URL and reports eCourts facts as "petitioner vs respondent", never fabricating case numbers or outcomes.
+5. KD's answer cites Indian Kanoon judgments by name+URL and reports eCourts facts as "petitioner vs respondent", never fabricating case numbers or outcomes.
 
 ## The reusable lessons
 

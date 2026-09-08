@@ -1,6 +1,6 @@
 # KD Backend — Explained
 
-> A complete, chapter-by-chapter walkthrough of how the KD legal-assistant backend works, and how you would build an agent like KD ("Mike") that helps lawyers read, draft, edit, and research legal documents.
+> A complete, chapter-by-chapter walkthrough of how the KD legal-assistant backend works, and how you would build an agent like KD that helps lawyers read, draft, edit, and research legal documents.
 
 This folder is a guided tour of the **`backend/`** part of the KD project. It is written for someone who wants to *understand the system deeply* and *be able to rebuild it from scratch*. Every chapter ties an idea back to the actual file and function in the codebase, so you can read the prose here and then open the source to see it in practice.
 
@@ -10,7 +10,7 @@ The companion folder, [`../architecture-and-system-design`](../architecture-and-
 
 ## What KD is
 
-KD is a **legal document assistant**. A lawyer signs in, uploads contracts, agreements, judgments, and other legal files, and then talks to an AI assistant named **Mike** about them. Mike can:
+KD is a **legal document assistant**. A lawyer signs in, uploads contracts, agreements, judgments, and other legal files, and then talks to an AI assistant named **KD** about them. KD can:
 
 - **Read** uploaded documents and answer questions about them, with precise inline citations back to the exact page and quote.
 - **Draft** new legal documents (NDAs, contracts, checklists) as downloadable, properly-formatted Word files.
@@ -26,7 +26,7 @@ The whole product is three pieces: a **Next.js frontend**, an **Express backend*
 The backend is a TypeScript Express API. At a high level it has four layers:
 
 1. **HTTP routes** (`src/routes/`) — the entry points the frontend calls. Chats, projects, documents, tabular reviews, workflows, user settings, downloads.
-2. **The agent core** (`src/lib/chatTools.ts`) — the system prompt, the tool catalog, the tool-execution dispatcher, and the streaming orchestration loop. This single file is the brain of Mike.
+2. **The agent core** (`src/lib/chatTools.ts`) — the system prompt, the tool catalog, the tool-execution dispatcher, and the streaming orchestration loop. This single file is the brain of KD.
 3. **The provider-agnostic LLM layer** (`src/lib/llm/`) — a thin adapter that lets the same agent loop run on Claude, Gemini, or GPT without the rest of the code knowing which one is active.
 4. **Supporting services** (`src/lib/`) — document storage (R2), document conversion (LibreOffice), tracked-changes engine, auth, access control, encryption of user API keys, and the legal-research API clients.
 
@@ -41,7 +41,7 @@ The chapters build on each other. If you read them in order you'll go from "what
 1. **[The big picture: request lifecycle and tech stack](chapter-01-big-picture.md)** — Trace one chat message from the browser, through Express, into the model, and back as a stream. Meet every moving part.
 2. **[The provider-agnostic LLM layer](chapter-02-llm-layer.md)** — How KD speaks to Claude, Gemini, and OpenAI through one interface, normalises their tool formats, and streams tokens uniformly.
 3. **[The agent loop and tool calling](chapter-03-agent-loop.md)** — The heart of any agent: the iterate-call-tools-feed-results loop, and exactly how KD implements it.
-4. **[The tool catalog](chapter-04-tool-catalog.md)** — Every tool Mike can call, why each exists, and how tool schemas are designed.
+4. **[The tool catalog](chapter-04-tool-catalog.md)** — Every tool KD can call, why each exists, and how tool schemas are designed.
 5. **[The system prompt and prompt engineering](chapter-05-system-prompt.md)** — A close reading of KD's 70-line system prompt: citations, drafting rules, numbering, naming, and research behaviour.
 6. **[Document ingestion: upload, storage, and conversion](chapter-06-ingestion.md)** — What happens when a file is uploaded: R2 storage, DOCX→PDF rendering, structure trees, page counts, and the `processing → ready` lifecycle.
 7. **[Reading documents and the citation system](chapter-07-reading-and-citations.md)** — How `read_document` and `find_in_document` work, how text is paginated, and how the `<CITATIONS>` protocol turns `[1]` markers into clickable references.

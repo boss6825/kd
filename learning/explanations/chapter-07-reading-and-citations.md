@@ -1,6 +1,6 @@
 # Chapter 7 — Reading Documents and the Citation System
 
-This chapter covers the two halves of how Mike grounds its answers in real document text: how the `read_document` and `find_in_document` tools actually pull and shape text, and how the `<CITATIONS>` protocol turns the model's `[N]` markers into clickable, page-anchored references. The code is in `src/lib/chatTools.ts` (`readDocumentContent`, `findInDocumentContent`, `extractPdfText`, `parseCitations`) plus the citation rules from the system prompt (Chapter 5).
+This chapter covers the two halves of how KD grounds its answers in real document text: how the `read_document` and `find_in_document` tools actually pull and shape text, and how the `<CITATIONS>` protocol turns the model's `[N]` markers into clickable, page-anchored references. The code is in `src/lib/chatTools.ts` (`readDocumentContent`, `findInDocumentContent`, `extractPdfText`, `parseCitations`) plus the citation rules from the system prompt (Chapter 5).
 
 ## Reading a document
 
@@ -60,7 +60,7 @@ A recurring theme: the model does **not** retain document content across turns. 
 
 ## The result
 
-Put together, the reading and citation system gives the lawyer something rare in AI tools: every factual claim Mike makes about a document is backed by a marker that jumps to the exact page and highlights the exact quote, and that quote is guaranteed verbatim because the model was told to only cite text it can see and was given a Ctrl-F tool to confirm it. The protocol is simple, the parsing is deterministic, and the grounding is real.
+Put together, the reading and citation system gives the lawyer something rare in AI tools: every factual claim KD makes about a document is backed by a marker that jumps to the exact page and highlights the exact quote, and that quote is guaranteed verbatim because the model was told to only cite text it can see and was given a Ctrl-F tool to confirm it. The protocol is simple, the parsing is deterministic, and the grounding is real.
 
 ---
 

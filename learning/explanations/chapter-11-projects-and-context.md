@@ -23,7 +23,7 @@ Storing the assistant's content as a JSONB **event array** rather than a plain s
 Before each model call, KD must tell the model which documents are available and how to read them. `buildDocContext(messages, userId, db, chatId)` does this for standalone chats:
 
 1. **Collect document ids from message attachments.** It scans every message's `files` for `document_id`s.
-2. **Sweep prior assistant events.** Crucially, it also queries this chat's prior assistant messages and pulls `document_id`s out of `doc_created` and `doc_edited` events. Why? Because documents Mike *generated* or *edited* aren't attached to a user message as a file — they only exist in the assistant's event history. Without this sweep, the model would lose access to a document it generated last turn and couldn't edit or re-read it. This is what keeps "make section 3 longer" working after a `generate_docx`.
+2. **Sweep prior assistant events.** Crucially, it also queries this chat's prior assistant messages and pulls `document_id`s out of `doc_created` and `doc_edited` events. Why? Because documents KD *generated* or *edited* aren't attached to a user message as a file — they only exist in the assistant's event history. Without this sweep, the model would lose access to a document it generated last turn and couldn't edit or re-read it. This is what keeps "make section 3 longer" working after a `generate_docx`.
 3. **Load the documents.** It loads the collected ids, filtered to `user_id = this user` and `status = "ready"`, attaches their active version paths, and builds the two structures:
    - `docIndex` — label (`doc-0`) → `{document_id, filename, version_id, version_number}`.
    - `docStore` — label → `{storage_path, file_type, filename}`.

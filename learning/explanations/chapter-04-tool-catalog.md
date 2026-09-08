@@ -1,6 +1,6 @@
 # Chapter 4 — The Tool Catalog
 
-Tools are how Mike *does* things rather than just talking about them. A tool is a function the model can call, described to the model by a JSON schema. KD defines its tools as OpenAI-style schemas in `src/lib/chatTools.ts`, grouped into several exported arrays. This chapter is a guided tour of every tool, why it exists, and what makes a good tool definition.
+Tools are how KD *does* things rather than just talking about them. A tool is a function the model can call, described to the model by a JSON schema. KD defines its tools as OpenAI-style schemas in `src/lib/chatTools.ts`, grouped into several exported arrays. This chapter is a guided tour of every tool, why it exists, and what makes a good tool definition.
 
 ## How tools are grouped
 

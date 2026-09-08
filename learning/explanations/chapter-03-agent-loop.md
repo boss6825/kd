@@ -1,6 +1,6 @@
 # Chapter 3 — The Agent Loop and Tool Calling
 
-This is the chapter that explains what makes Mike an *agent* rather than a chatbot. An agent is a model wrapped in a loop that lets it take actions — call tools, observe results, and decide what to do next — until it has finished the task. KD's loop lives in two functions inside `src/lib/chatTools.ts`: `runLLMStream` (the orchestrator) and `runToolCalls` (the executor). This chapter walks through both.
+This is the chapter that explains what makes KD an *agent* rather than a chatbot. An agent is a model wrapped in a loop that lets it take actions — call tools, observe results, and decide what to do next — until it has finished the task. KD's loop lives in two functions inside `src/lib/chatTools.ts`: `runLLMStream` (the orchestrator) and `runToolCalls` (the executor). This chapter walks through both.
 
 ## The mental model
 

@@ -1,6 +1,6 @@
 # Chapter 9 — Editing Documents as Tracked Changes
 
-This is one of KD's most distinctive features. When Mike edits a document, it doesn't silently rewrite it — it produces **Microsoft Word tracked changes** (the red-underline insertions and strike-through deletions lawyers use for redlining), which the user can accept or reject one at a time. This chapter explains the `edit_document` tool, the `runEditDocument` orchestration in `src/lib/chatTools.ts`, and the OOXML engine in `src/lib/docxTrackedChanges.ts`.
+This is one of KD's most distinctive features. When KD edits a document, it doesn't silently rewrite it — it produces **Microsoft Word tracked changes** (the red-underline insertions and strike-through deletions lawyers use for redlining), which the user can accept or reject one at a time. This chapter explains the `edit_document` tool, the `runEditDocument` orchestration in `src/lib/chatTools.ts`, and the OOXML engine in `src/lib/docxTrackedChanges.ts`.
 
 ## What the model produces
 
@@ -33,7 +33,7 @@ So to "edit as a tracked change," KD must surgically rewrite the XML to wrap the
 
 1. **Locates the target text** across runs. Text in Word is fragmented into many `<w:r>` runs (a single sentence can span dozens), so the engine reconstructs the paragraph's plain text, finds the `find` string using the `context_before`/`context_after` anchors, and maps that back to the specific runs and character offsets.
 2. **Computes a minimal diff** with `fast-diff` between the found text and the replacement, so only the truly-changed characters are marked (not the whole matched span).
-3. **Emits tracked-change markup** — wrapping deleted characters in `<w:del>`/`<w:delText>` and inserted characters in `<w:ins>`/`<w:t>`, each with a unique `w:id` and the author ("Mike").
+3. **Emits tracked-change markup** — wrapping deleted characters in `<w:del>`/`<w:delText>` and inserted characters in `<w:ins>`/`<w:t>`, each with a unique `w:id` and the author ("KD").
 4. **Handles pre-existing tracked changes.** This is the subtle part, documented in the file's header comment: when the paragraph already contains tracked changes, they're presented to the matcher in *accepted view* (existing `w:ins` treated as normal text, existing `w:del` invisible). If a new edit lands on text inside a pre-existing `w:ins`, that wrapper is dropped (accepting the prior insertion) before the new change is emitted. This keeps the redline coherent across multiple rounds of editing.
 5. There's also the backslash-path resilience (`getZipEntry`/`setZipEntry`) for archives that store entries with `\` separators, matching the same fix in `convert.ts` (Chapter 6).
 
